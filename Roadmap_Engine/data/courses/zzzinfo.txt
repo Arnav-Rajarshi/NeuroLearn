@@ -1,0 +1,74 @@
+For the SQL practice 
+| Topic            | Questions |
+| ---------------- | --------- |
+| Basic SELECT     | 12        |
+| Filtering        | 12        |
+| Sorting          | 12        |
+| Aggregation      | 12        |
+| Joins            | 24        |
+| Subqueries       | 12        |
+| Window Functions | 12        |
+| Advanced Queries | 24        |
+| Database Design  | 20        |
+| Projects         | 10        |
+
+
+For the DSA practice 
+| Topic               | Questions |
+| ------------------- | --------- |
+| Arrays              | 35        |
+| Two Pointers        | 20        |
+| Binary Search       | 20        |
+| Linked List         | 25        |
+| Stack               | 20        |
+| Queue               | 15        |
+| Trees               | 35        |
+| Graphs              | 30        |
+| Dynamic Programming | 30        |
+| Greedy              | 10        |
+
+
+For English practice 
+| Topic                  | Questions        |
+| ---------------------- | ---------------- |
+| Grammar                | 14               |
+| Tenses                 | 12               |
+| Vocabulary             | 12               |
+| Reading                | 6                |
+| Listening              | 6                |
+| Writing                | 6                |
+| Speaking               | 6                |
+| Advanced Communication | 100+ mixed tasks |
+
+
+
+
+For python practice 
+| Topic                  | Questions |
+| ---------------------- | --------- |
+| Python Basics          | 12        |
+| Lists & Tuples         | 12        |
+| Strings                | 12        |
+| Functions              | 6         |
+| OOP                    | 6         |
+| Algorithms with Python | 40        |
+| File Handling          | 10        |
+| Regex                  | 10        |
+| Error Handling         | 10        |
+| Projects               | 30        |
+
+
+For Frontend PRACTICE 
+| Topic                | Questions |
+| -------------------- | --------- |
+| HTML                 | 16        |
+| CSS                  | 24        |
+| Responsive Design    | 8         |
+| JavaScript Basics    | 16        |
+| Arrays & Objects     | 16        |
+| DOM                  | 8         |
+| API                  | 8         |
+| Capstone Projects    | 8         |
+| Additional UI builds | 66        |
+
+
