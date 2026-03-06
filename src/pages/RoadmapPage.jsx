@@ -43,7 +43,7 @@ function RoadmapPage() {
       
       const courseInfo = getCourseById(courseId)
       if (!courseInfo) {
-        navigate('/courses')
+        navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
@@ -51,7 +51,7 @@ function RoadmapPage() {
       const courseSettings = getCourseSettings(courseId)
       if (!courseSettings) {
         // Redirect to setup if no settings
-        navigate(`/setup/${courseId}`)
+        navigate(`/roadmap-engine/setup/${courseId}`)
         return
       }
       setSettings(courseSettings)
@@ -116,7 +116,7 @@ function RoadmapPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/courses')}
+                onClick={() => navigate('/roadmap-engine/courses')}
                 className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
                 aria-label="Back to courses"
               >
@@ -150,7 +150,7 @@ function RoadmapPage() {
               </div>
               
               <button
-                onClick={() => navigate(`/setup/${courseId}`)}
+                onClick={() => navigate(`/roadmap-engine/setup/${courseId}`)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
                 aria-label="Settings"
               >

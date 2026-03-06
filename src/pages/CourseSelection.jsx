@@ -1,31 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap, Sparkles, Crown, Wand2, Lock } from 'lucide-react'
+import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
 import { 
-  isPremiumUser, 
-  getCourseProgress, 
   getTotalCompletedSubtopics,
-  setPremiumStatus,
   getCourseSettings 
 } from '../utils/progressStore.js'
+import { useAuth } from '../context/AuthContext.jsx'
+import { createRazorpayOrder, verifyPayment, API_BASE_URL } from '../utils/api.js'
 
 function CourseSelection() {
   const navigate = useNavigate()
+  const { user, premium, logout, updatePremiumStatus } = useAuth()
+  
   const [courses, setCourses] = useState([])
   const [courseData, setCourseData] = useState({})
-  const [premium, setPremium] = useState(false)
   const [loading, setLoading] = useState(true)
   const [learningGoal, setLearningGoal] = useState('')
   const [showGoalMessage, setShowGoalMessage] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
 
   useEffect(() => {
     async function loadData() {
       setLoading(true)
       const allCourses = getAllCourses()
       setCourses(allCourses)
-      setPremium(isPremiumUser())
 
       // Load course data for each free course to get total topics
       const dataMap = {}
@@ -50,18 +50,70 @@ function CourseSelection() {
     const settings = getCourseSettings(course.id)
     if (settings?.roadmapType) {
       // Go directly to roadmap if already set up
-      navigate(`/roadmap/${course.id}`)
+      navigate(`/roadmap-engine/roadmap/${course.id}`)
     } else {
       // Go to setup modal
-      navigate(`/setup/${course.id}`)
+      navigate(`/roadmap-engine/setup/${course.id}`)
     }
   }
 
-  const handleUpgrade = () => {
-    // Toggle premium for demo purposes
-    const newPremiumStatus = !premium
-    setPremiumStatus(newPremiumStatus)
-    setPremium(newPremiumStatus)
+  const handleUpgrade = async () => {
+    if (premium) return // Already premium
+    
+    setPaymentLoading(true)
+    
+    try {
+      // Create Razorpay order
+      const orderData = await createRazorpayOrder()
+      
+      // Initialize Razorpay checkout
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'NeuroLearn',
+        description: 'Premium Subscription',
+        order_id: orderData.order_id,
+        handler: async function (response) {
+          try {
+            // Verify payment with backend
+            const verifyResult = await verifyPayment(
+              response.razorpay_order_id,
+              response.razorpay_payment_id,
+              response.razorpay_signature
+            )
+            
+            if (verifyResult.success) {
+              updatePremiumStatus(true)
+              alert('Payment successful! You are now a premium member.')
+            }
+          } catch (error) {
+            console.error('Payment verification failed:', error)
+            alert('Payment verification failed. Please contact support.')
+          }
+        },
+        prefill: {
+          name: user?.username || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#6366f1',
+        },
+      }
+      
+      const razorpay = new window.Razorpay(options)
+      razorpay.open()
+    } catch (error) {
+      console.error('Failed to create order:', error)
+      alert('Failed to initiate payment. Please try again.')
+    } finally {
+      setPaymentLoading(false)
+    }
+  }
+  
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
   }
 
   const getProgressForCourse = (courseId) => {
@@ -100,17 +152,39 @@ function CourseSelection() {
               </div>
             </div>
 
-            <button
-              onClick={handleUpgrade}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                premium
-                  ? 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white'
-                  : 'bg-[var(--color-surface-raised)] text-[var(--color-foreground)] hover:bg-[var(--color-border)]'
-              }`}
-            >
-              <Crown className="w-4 h-4" />
-              {premium ? 'Premium Active' : 'Upgrade to Premium'}
-            </button>
+            <div className="flex items-center gap-3">
+              {/* User Info */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)]">
+                <User className="w-4 h-4 text-[var(--color-muted)]" />
+                <span className="text-sm text-[var(--color-foreground)]">{user?.username}</span>
+              </div>
+              
+              {/* Premium/Upgrade Button */}
+              <button
+                onClick={handleUpgrade}
+                disabled={paymentLoading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                  premium
+                    ? 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white'
+                    : 'bg-[var(--color-surface-raised)] text-[var(--color-foreground)] hover:bg-[var(--color-border)]'
+                }`}
+              >
+                {paymentLoading ? (
+                  <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                ) : (
+                  <Crown className="w-4 h-4" />
+                )}
+                {premium ? 'Premium Active' : 'Upgrade to Premium'}
+              </button>
+              
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface-raised)] transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </header>

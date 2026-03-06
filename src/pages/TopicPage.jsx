@@ -35,7 +35,7 @@ function TopicPage() {
       
       const courseInfo = getCourseById(courseId)
       if (!courseInfo) {
-        navigate('/courses')
+        navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
@@ -87,7 +87,7 @@ function TopicPage() {
   }
 
   const handlePracticeClick = (question, index) => {
-    navigate(`/practice/${courseId}/${encodeURIComponent(question.title || `question-${index}`)}`, {
+    navigate(`/roadmap-engine/practice/${courseId}/${encodeURIComponent(question.title || `question-${index}`)}`, {
       state: { question, topic, subtopic }
     })
   }
@@ -106,7 +106,7 @@ function TopicPage() {
         <div className="text-center">
           <p className="text-[var(--color-muted)] mb-4">Topic not found</p>
           <button
-            onClick={() => navigate(`/roadmap/${courseId}`)}
+            onClick={() => navigate(`/roadmap-engine/roadmap/${courseId}`)}
             className="text-[var(--color-primary)] hover:underline"
           >
             Back to Roadmap
@@ -126,7 +126,7 @@ function TopicPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(`/roadmap/${courseId}`)}
+              onClick={() => navigate(`/roadmap-engine/roadmap/${courseId}`)}
               className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
               aria-label="Back to roadmap"
             >
