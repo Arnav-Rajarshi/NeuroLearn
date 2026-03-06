@@ -98,9 +98,13 @@ export async function loadCourseData(courseId, roadmapType = 'pnl') {
   }
 
   try {
-    // Dynamic import of JSON files from data/courses folder
-    const data = await import(`../../Roadmap_Engine/data/courses/${fileName}`)
-    return data.default || data
+    // Fetch JSON files from public/data/courses folder
+    const response = await fetch(`/data/courses/${fileName}`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data = await response.json()
+    return data
   } catch (error) {
     console.error(`Failed to load course data: ${fileName}`, error)
     throw new Error(`Failed to load course data for ${courseId}`)
