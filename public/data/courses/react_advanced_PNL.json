@@ -1,0 +1,164 @@
+{
+  "courseName": "React Advanced",
+  "totalTopics": 6,
+  "estimatedHours": 150,
+  "topics": [
+    {
+      "name": "Advanced Hooks",
+      "subtopics": [
+        {
+          "name": "Custom Hooks",
+          "learningResources": [
+            {"type": "youtube", "title": "Custom Hooks - Codevolution", "url": "https://www.youtube.com/watch?v=I2Bgi0Qcdvc"},
+            {"type": "youtube", "title": "React Hooks - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=O6P86uwfdR0"}
+          ],
+          "practice": [
+            {"title": "Hook Practice", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "useReducer and useContext",
+          "learningResources": [
+            {"type": "youtube", "title": "useReducer - Codevolution", "url": "https://www.youtube.com/watch?v=cVYp4u1m6iA"}
+          ],
+          "practice": [
+            {"title": "State Management", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "useMemo and useCallback",
+          "learningResources": [
+            {"type": "youtube", "title": "useMemo - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=THL1OPn72vo"}
+          ],
+          "practice": [
+            {"title": "Performance Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "State Management",
+      "subtopics": [
+        {
+          "name": "Zustand",
+          "learningResources": [
+            {"type": "youtube", "title": "Zustand Tutorial - Codevolution", "url": "https://www.youtube.com/watch?v=D2L0-qRCWxU"}
+          ],
+          "practice": [
+            {"title": "Zustand Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "Redux Toolkit",
+          "learningResources": [
+            {"type": "youtube", "title": "Redux Toolkit - freeCodeCamp", "url": "https://www.youtube.com/watch?v=bbkBuqC1rU4"}
+          ],
+          "practice": [
+            {"title": "Redux Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance Optimization",
+      "subtopics": [
+        {
+          "name": "React.memo and Profiling",
+          "learningResources": [
+            {"type": "youtube", "title": "React Performance - Jack Herrington", "url": "https://www.youtube.com/watch?v=uojLJFt9SzY"}
+          ],
+          "practice": [
+            {"title": "Performance Challenge", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "Code Splitting",
+          "learningResources": [
+            {"type": "youtube", "title": "Code Splitting - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=JU6sl_yyZqs"}
+          ],
+          "practice": [
+            {"title": "Lazy Loading", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "Virtual Lists",
+          "learningResources": [
+            {"type": "youtube", "title": "React Window - Jack Herrington", "url": "https://www.youtube.com/watch?v=QhPn6hLGljU"}
+          ],
+          "practice": [
+            {"title": "Virtual List", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "subtopics": [
+        {
+          "name": "React Testing Library",
+          "learningResources": [
+            {"type": "youtube", "title": "React Testing - Codevolution", "url": "https://www.youtube.com/watch?v=T2sv8jXoP4s"}
+          ],
+          "practice": [
+            {"title": "Testing Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "E2E Testing with Playwright",
+          "learningResources": [
+            {"type": "youtube", "title": "Playwright Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=wawbt1cATsk"}
+          ],
+          "practice": [
+            {"title": "E2E Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Design Patterns",
+      "subtopics": [
+        {
+          "name": "Compound Components",
+          "learningResources": [
+            {"type": "youtube", "title": "Compound Components - Jack Herrington", "url": "https://www.youtube.com/watch?v=vPRdY87_SH0"}
+          ],
+          "practice": [
+            {"title": "Pattern Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "Render Props and HOCs",
+          "learningResources": [
+            {"type": "youtube", "title": "React Patterns - Kent C. Dodds", "url": "https://www.youtube.com/watch?v=BcVAq3YFiuc"}
+          ],
+          "practice": [
+            {"title": "HOC Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Server Components",
+      "subtopics": [
+        {
+          "name": "Next.js App Router",
+          "learningResources": [
+            {"type": "youtube", "title": "Next.js 15 - Codevolution", "url": "https://www.youtube.com/watch?v=ipmfUw8I2qc"}
+          ],
+          "practice": [
+            {"title": "Next.js Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        },
+        {
+          "name": "Server Actions",
+          "learningResources": [
+            {"type": "youtube", "title": "Server Actions - Codevolution", "url": "https://www.youtube.com/watch?v=RadgkoJrhu0"}
+          ],
+          "practice": [
+            {"title": "Server Actions Lab", "platform": "Frontend Mentor", "url": "https://www.frontendmentor.io/challenges"}
+          ]
+        }
+      ]
+    }
+  ]
+}

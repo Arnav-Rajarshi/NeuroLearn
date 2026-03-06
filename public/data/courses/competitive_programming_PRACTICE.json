@@ -1,0 +1,81 @@
+{
+  "courseName": "Competitive Programming",
+  "courseId": "competitive_programming",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Advanced Data Structures",
+      "subtopics": [
+        {
+          "name": "Segment Trees",
+          "practice": [
+            {"title": "Range Sum Query", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/range-sum-query-mutable/"},
+            {"title": "Range Min Query", "platform": "Codeforces", "difficulty": "Medium", "url": "https://codeforces.com/problemset/problem/339/D"},
+            {"title": "Lazy Propagation", "platform": "CSES", "difficulty": "Hard", "url": "https://cses.fi/problemset/task/1651"},
+            {"title": "2D Segment Tree", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/869/E"}
+          ]
+        },
+        {
+          "name": "Fenwick Trees",
+          "practice": [
+            {"title": "Point Update Range Query", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/range-sum-query-mutable/"},
+            {"title": "Range Update Point Query", "platform": "CSES", "difficulty": "Medium", "url": "https://cses.fi/problemset/task/1651"},
+            {"title": "2D BIT", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/341/D"},
+            {"title": "Order Statistics", "platform": "CSES", "difficulty": "Hard", "url": "https://cses.fi/problemset/task/1749"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Graph Algorithms",
+      "subtopics": [
+        {
+          "name": "Shortest Paths",
+          "practice": [
+            {"title": "Dijkstra's Algorithm", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/network-delay-time/"},
+            {"title": "Bellman-Ford", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/cheapest-flights-within-k-stops/"},
+            {"title": "Floyd-Warshall", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/"},
+            {"title": "0-1 BFS", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/1063/B"}
+          ]
+        },
+        {
+          "name": "Advanced Graph",
+          "practice": [
+            {"title": "Bridges and Articulation", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/problems/critical-connections-in-a-network/"},
+            {"title": "Strongly Connected", "platform": "CSES", "difficulty": "Hard", "url": "https://cses.fi/problemset/task/1682"},
+            {"title": "Euler Path", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/problems/reconstruct-itinerary/"},
+            {"title": "Centroid Decomposition", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/342/E"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dynamic Programming",
+      "subtopics": [
+        {
+          "name": "Advanced DP",
+          "practice": [
+            {"title": "Bitmask DP", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/problems/travelling-salesman-problem/"},
+            {"title": "DP on Trees", "platform": "CSES", "difficulty": "Hard", "url": "https://cses.fi/problemset/task/1674"},
+            {"title": "Digit DP", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/628/D"},
+            {"title": "SOS DP", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/165/E"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Number Theory",
+      "subtopics": [
+        {
+          "name": "Modular Arithmetic",
+          "practice": [
+            {"title": "Modular Exponentiation", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/super-pow/"},
+            {"title": "Modular Inverse", "platform": "CSES", "difficulty": "Medium", "url": "https://cses.fi/problemset/task/1712"},
+            {"title": "Chinese Remainder", "platform": "Codeforces", "difficulty": "Hard", "url": "https://codeforces.com/problemset/problem/687/B"},
+            {"title": "Lucas Theorem", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/lucas-theorem/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

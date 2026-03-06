@@ -1,0 +1,155 @@
+{
+  "courseName": "Data Engineering",
+  "totalTopics": 6,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "Data Engineering Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Data Engineering",
+          "learningResources": [
+            {"type": "youtube", "title": "Data Engineering - freeCodeCamp", "url": "https://www.youtube.com/watch?v=vJA1tTv3Crc"},
+            {"type": "youtube", "title": "What is Data Engineering", "url": "https://www.youtube.com/watch?v=qWru-b6m030"}
+          ],
+          "practice": [
+            {"title": "DE Fundamentals", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-sql"}
+          ]
+        },
+        {
+          "name": "Data Pipelines",
+          "learningResources": [
+            {"type": "youtube", "title": "Data Pipeline Overview - ByteByteGo", "url": "https://www.youtube.com/watch?v=Yj9qOWnipTQ"}
+          ],
+          "practice": [
+            {"title": "Pipeline Basics", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-sql"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SQL and Databases",
+      "subtopics": [
+        {
+          "name": "Advanced SQL",
+          "learningResources": [
+            {"type": "youtube", "title": "Advanced SQL - freeCodeCamp", "url": "https://www.youtube.com/watch?v=HXV3zeQKqGY"}
+          ],
+          "practice": [
+            {"title": "Advanced SQL", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/advanced-sql"}
+          ]
+        },
+        {
+          "name": "Database Design",
+          "learningResources": [
+            {"type": "youtube", "title": "Database Design - freeCodeCamp", "url": "https://www.youtube.com/watch?v=ztHopE5Wnpc"}
+          ],
+          "practice": [
+            {"title": "DB Design", "platform": "LeetCode", "url": "https://leetcode.com/problemset/database/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Big Data Tools",
+      "subtopics": [
+        {
+          "name": "Apache Spark",
+          "learningResources": [
+            {"type": "youtube", "title": "Apache Spark - freeCodeCamp", "url": "https://www.youtube.com/watch?v=_C8kWso4ne4"}
+          ],
+          "practice": [
+            {"title": "Spark Tutorial", "platform": "Databricks", "url": "https://www.databricks.com/learn/training"}
+          ]
+        },
+        {
+          "name": "Apache Kafka",
+          "learningResources": [
+            {"type": "youtube", "title": "Kafka - ByteByteGo", "url": "https://www.youtube.com/watch?v=uvb00oaa3k8"}
+          ],
+          "practice": [
+            {"title": "Kafka Lab", "platform": "Confluent", "url": "https://developer.confluent.io/learn-kafka/"}
+          ]
+        },
+        {
+          "name": "Apache Airflow",
+          "learningResources": [
+            {"type": "youtube", "title": "Airflow Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=K9AnJ9_ZAXE"}
+          ],
+          "practice": [
+            {"title": "Airflow Lab", "platform": "Astronomer", "url": "https://www.astronomer.io/docs/learn/get-started-with-airflow"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Warehousing",
+      "subtopics": [
+        {
+          "name": "Data Warehouse Concepts",
+          "learningResources": [
+            {"type": "youtube", "title": "Data Warehouse - IBM", "url": "https://www.youtube.com/watch?v=J326LIUrZM8"}
+          ],
+          "practice": [
+            {"title": "DW Concepts", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/advanced-sql"}
+          ]
+        },
+        {
+          "name": "ETL Processes",
+          "learningResources": [
+            {"type": "youtube", "title": "ETL vs ELT - ByteByteGo", "url": "https://www.youtube.com/watch?v=cZTj3T0ldDI"}
+          ],
+          "practice": [
+            {"title": "ETL Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/advanced-sql"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cloud Data Platforms",
+      "subtopics": [
+        {
+          "name": "Snowflake",
+          "learningResources": [
+            {"type": "youtube", "title": "Snowflake Tutorial", "url": "https://www.youtube.com/watch?v=QFAP-Wm1uMM"}
+          ],
+          "practice": [
+            {"title": "Snowflake Lab", "platform": "Snowflake", "url": "https://www.snowflake.com/en/why-snowflake/learn/"}
+          ]
+        },
+        {
+          "name": "BigQuery",
+          "learningResources": [
+            {"type": "youtube", "title": "BigQuery - Google", "url": "https://www.youtube.com/watch?v=d3MDxC_iuaw"}
+          ],
+          "practice": [
+            {"title": "BigQuery Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-sql"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Quality",
+      "subtopics": [
+        {
+          "name": "Data Validation",
+          "learningResources": [
+            {"type": "youtube", "title": "Data Quality - IBM", "url": "https://www.youtube.com/watch?v=eM7-r0DYVZA"}
+          ],
+          "practice": [
+            {"title": "Data Quality Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/data-cleaning"}
+          ]
+        },
+        {
+          "name": "Data Testing",
+          "learningResources": [
+            {"type": "youtube", "title": "dbt Tutorial", "url": "https://www.youtube.com/watch?v=5rNquRnNb4E"}
+          ],
+          "practice": [
+            {"title": "Testing Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/data-cleaning"}
+          ]
+        }
+      ]
+    }
+  ]
+}

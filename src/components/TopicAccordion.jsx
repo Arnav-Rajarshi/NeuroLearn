@@ -1,22 +1,35 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Code } from 'lucide-react'
+import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Code, Award } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProgressBar from './ProgressBar.jsx'
+import { markTopicCompleted, isTopicCompleted, getTotalXP, XP_VALUES } from '../utils/progressStore.js'
 
 function TopicAccordion({ 
   topic, 
   courseId, 
   completedSubtopics = [], 
-  isKnownTopic = false,
-  roadmapType = 'pnl'
+  roadmapType = 'pnl',
+  onTopicComplete
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(() => isTopicCompleted(courseId, topic.name))
   const navigate = useNavigate()
   
   const subtopics = topic.subtopics || []
   const completedCount = completedSubtopics.length
   const totalCount = subtopics.length
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+
+  const handleMarkComplete = (e) => {
+    e.stopPropagation()
+    if (!isCompleted) {
+      markTopicCompleted(courseId, topic.name)
+      setIsCompleted(true)
+      if (onTopicComplete) {
+        onTopicComplete(topic.name, XP_VALUES.TOPIC_COMPLETION)
+      }
+    }
+  }
 
   const handleSubtopicClick = (subtopic) => {
     // Navigate to the topic detail page with the subtopic
@@ -48,9 +61,9 @@ function TopicAccordion({
               <h3 className="font-heading font-semibold text-[var(--color-foreground)] truncate">
                 {topic.name}
               </h3>
-              {isKnownTopic && (
-                <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-[var(--color-accent)]/20 text-[var(--color-accent)] rounded-full">
-                  Known
+              {isCompleted && (
+                <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-[var(--color-success)]/20 text-[var(--color-success)] rounded-full">
+                  Completed
                 </span>
               )}
             </div>
@@ -65,14 +78,21 @@ function TopicAccordion({
           </div>
         </div>
 
-        <div className="flex-shrink-0 ml-4">
-          {progressPercent === 100 ? (
-            <CheckCircle2 className="w-5 h-5 text-[var(--color-success)]" />
+        <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+          {!isCompleted ? (
+            <button
+              onClick={handleMarkComplete}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/20 transition-colors"
+            >
+              <Award className="w-3.5 h-3.5" />
+              Mark Complete (+{XP_VALUES.TOPIC_COMPLETION} XP)
+            </button>
           ) : (
-            <span className="text-sm font-medium text-[var(--color-primary)]">
-              {Math.round(progressPercent)}%
-            </span>
+            <CheckCircle2 className="w-5 h-5 text-[var(--color-success)]" />
           )}
+          <span className="text-sm font-medium text-[var(--color-primary)]">
+            {Math.round(progressPercent)}%
+          </span>
         </div>
       </button>
 

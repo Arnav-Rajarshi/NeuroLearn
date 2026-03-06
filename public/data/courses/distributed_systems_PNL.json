@@ -1,0 +1,146 @@
+{
+  "courseName": "Distributed Systems",
+  "totalTopics": 6,
+  "estimatedHours": 200,
+  "topics": [
+    {
+      "name": "Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Distributed Systems",
+          "learningResources": [
+            {"type": "youtube", "title": "Distributed Systems - MIT OpenCourseWare", "url": "https://www.youtube.com/watch?v=cQP8WApzIQQ"},
+            {"type": "youtube", "title": "What is a Distributed System - ByteByteGo", "url": "https://www.youtube.com/watch?v=Tln_LbJDSCc"}
+          ],
+          "practice": [
+            {"title": "DS Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/distributed-systems-mcqs/"}
+          ]
+        },
+        {
+          "name": "CAP Theorem",
+          "learningResources": [
+            {"type": "youtube", "title": "CAP Theorem - ByteByteGo", "url": "https://www.youtube.com/watch?v=BHqjEjzAicg"}
+          ],
+          "practice": [
+            {"title": "CAP Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/distributed-systems-mcqs/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Consensus Algorithms",
+      "subtopics": [
+        {
+          "name": "Paxos",
+          "learningResources": [
+            {"type": "youtube", "title": "Paxos Explained - Computerphile", "url": "https://www.youtube.com/watch?v=d7nAGI_NZPk"}
+          ],
+          "practice": [
+            {"title": "Consensus Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/distributed-systems-mcqs/"}
+          ]
+        },
+        {
+          "name": "Raft",
+          "learningResources": [
+            {"type": "youtube", "title": "Raft Consensus - MIT", "url": "https://www.youtube.com/watch?v=vYp4LYbnnW8"}
+          ],
+          "practice": [
+            {"title": "Raft Simulation", "platform": "Raft", "url": "https://raft.github.io/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Replication",
+      "subtopics": [
+        {
+          "name": "Leader-Follower Replication",
+          "learningResources": [
+            {"type": "youtube", "title": "Database Replication - ByteByteGo", "url": "https://www.youtube.com/watch?v=bI8Ry6GhMSE"}
+          ],
+          "practice": [
+            {"title": "Replication Quiz", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-twitter/"}
+          ]
+        },
+        {
+          "name": "Conflict Resolution",
+          "learningResources": [
+            {"type": "youtube", "title": "CRDT Explained", "url": "https://www.youtube.com/watch?v=OOlnp2bZVRs"}
+          ],
+          "practice": [
+            {"title": "Conflict Resolution", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-tic-tac-toe/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Partitioning",
+      "subtopics": [
+        {
+          "name": "Consistent Hashing",
+          "learningResources": [
+            {"type": "youtube", "title": "Consistent Hashing - ByteByteGo", "url": "https://www.youtube.com/watch?v=UF9Iqmg94tk"}
+          ],
+          "practice": [
+            {"title": "Hash Ring", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hashmap/"}
+          ]
+        },
+        {
+          "name": "Sharding Strategies",
+          "learningResources": [
+            {"type": "youtube", "title": "Database Sharding - ByteByteGo", "url": "https://www.youtube.com/watch?v=5faMjKuB9bc"}
+          ],
+          "practice": [
+            {"title": "Sharding Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hashset/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Distributed Storage",
+      "subtopics": [
+        {
+          "name": "Distributed File Systems",
+          "learningResources": [
+            {"type": "youtube", "title": "GFS - MIT", "url": "https://www.youtube.com/watch?v=EpIgvowZr00"}
+          ],
+          "practice": [
+            {"title": "DFS Quiz", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-file-system/"}
+          ]
+        },
+        {
+          "name": "Object Storage",
+          "learningResources": [
+            {"type": "youtube", "title": "Object Storage - ByteByteGo", "url": "https://www.youtube.com/watch?v=NxjLFZZWNBs"}
+          ],
+          "practice": [
+            {"title": "Storage Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-underground-system/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fault Tolerance",
+      "subtopics": [
+        {
+          "name": "Failure Detection",
+          "learningResources": [
+            {"type": "youtube", "title": "Failure Detection - MIT", "url": "https://www.youtube.com/watch?v=rN6ma561tak"}
+          ],
+          "practice": [
+            {"title": "Heartbeat System", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hit-counter/"}
+          ]
+        },
+        {
+          "name": "Recovery Techniques",
+          "learningResources": [
+            {"type": "youtube", "title": "Recovery - MIT", "url": "https://www.youtube.com/watch?v=B5NULPSiOGw"}
+          ],
+          "practice": [
+            {"title": "Recovery Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/logger-rate-limiter/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

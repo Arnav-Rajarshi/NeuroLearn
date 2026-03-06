@@ -1,0 +1,164 @@
+{
+  "courseName": "Software Architecture",
+  "totalTopics": 6,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "Architecture Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Software Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Software Architecture - ByteByteGo", "url": "https://www.youtube.com/watch?v=cz-RtuV-Hf4"},
+            {"type": "youtube", "title": "Architecture Patterns", "url": "https://www.youtube.com/watch?v=FLtqAi7WNBY"}
+          ],
+          "practice": [
+            {"title": "Architecture Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        },
+        {
+          "name": "Quality Attributes",
+          "learningResources": [
+            {"type": "youtube", "title": "Quality Attributes - SEI", "url": "https://www.youtube.com/watch?v=3FLFLrdkUDo"}
+          ],
+          "practice": [
+            {"title": "Quality Attributes Lab", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Design Patterns",
+      "subtopics": [
+        {
+          "name": "Creational Patterns",
+          "learningResources": [
+            {"type": "youtube", "title": "Design Patterns - Derek Banas", "url": "https://www.youtube.com/watch?v=v9ejT8FO-7I"}
+          ],
+          "practice": [
+            {"title": "Singleton Pattern", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-browser-history/"}
+          ]
+        },
+        {
+          "name": "Structural Patterns",
+          "learningResources": [
+            {"type": "youtube", "title": "Structural Patterns - Derek Banas", "url": "https://www.youtube.com/watch?v=v9ejT8FO-7I"}
+          ],
+          "practice": [
+            {"title": "Adapter Pattern", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-twitter/"}
+          ]
+        },
+        {
+          "name": "Behavioral Patterns",
+          "learningResources": [
+            {"type": "youtube", "title": "Behavioral Patterns - Derek Banas", "url": "https://www.youtube.com/watch?v=v9ejT8FO-7I"}
+          ],
+          "practice": [
+            {"title": "Observer Pattern", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-underground-system/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Architectural Patterns",
+      "subtopics": [
+        {
+          "name": "Layered Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Layered Architecture - ByteByteGo", "url": "https://www.youtube.com/watch?v=5OjqD-ow8GE"}
+          ],
+          "practice": [
+            {"title": "Layer Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-file-system/"}
+          ]
+        },
+        {
+          "name": "Microservices Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Microservices - ByteByteGo", "url": "https://www.youtube.com/watch?v=lTAcCNbJ7KE"}
+          ],
+          "practice": [
+            {"title": "Service Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-authentication-manager/"}
+          ]
+        },
+        {
+          "name": "Event-Driven Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Event-Driven - ByteByteGo", "url": "https://www.youtube.com/watch?v=h5DQV4KqLgo"}
+          ],
+          "practice": [
+            {"title": "Event System", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hit-counter/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clean Architecture",
+      "subtopics": [
+        {
+          "name": "SOLID Principles",
+          "learningResources": [
+            {"type": "youtube", "title": "SOLID Principles - freeCodeCamp", "url": "https://www.youtube.com/watch?v=_jDNAf3CzeY"}
+          ],
+          "practice": [
+            {"title": "SOLID Lab", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        },
+        {
+          "name": "Dependency Injection",
+          "learningResources": [
+            {"type": "youtube", "title": "Dependency Injection - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=J1f5b4vcxCQ"}
+          ],
+          "practice": [
+            {"title": "DI Lab", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Domain-Driven Design",
+      "subtopics": [
+        {
+          "name": "DDD Fundamentals",
+          "learningResources": [
+            {"type": "youtube", "title": "DDD Explained - IBM", "url": "https://www.youtube.com/watch?v=pMuiVlnGqjk"}
+          ],
+          "practice": [
+            {"title": "DDD Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        },
+        {
+          "name": "Bounded Contexts",
+          "learningResources": [
+            {"type": "youtube", "title": "Bounded Context - Martin Fowler", "url": "https://www.youtube.com/watch?v=am-HXycfalo"}
+          ],
+          "practice": [
+            {"title": "Context Mapping", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Architecture Decision Making",
+      "subtopics": [
+        {
+          "name": "Trade-off Analysis",
+          "learningResources": [
+            {"type": "youtube", "title": "Architecture Trade-offs - ByteByteGo", "url": "https://www.youtube.com/watch?v=cz-RtuV-Hf4"}
+          ],
+          "practice": [
+            {"title": "Trade-off Lab", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        },
+        {
+          "name": "Architecture Documentation",
+          "learningResources": [
+            {"type": "youtube", "title": "C4 Model - Simon Brown", "url": "https://www.youtube.com/watch?v=x2-rSnhpw0g"}
+          ],
+          "practice": [
+            {"title": "Documentation Lab", "platform": "Self Study", "url": "https://www.sanfoundry.com/software-architecture-mcqs/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

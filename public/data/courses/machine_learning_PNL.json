@@ -1,0 +1,178 @@
+{
+  "courseName": "Machine Learning",
+  "totalTopics": 7,
+  "estimatedHours": 200,
+  "topics": [
+    {
+      "name": "ML Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Machine Learning",
+          "learningResources": [
+            {"type": "youtube", "title": "Machine Learning Course - freeCodeCamp", "url": "https://www.youtube.com/watch?v=bmmQA8A-yUA"},
+            {"type": "youtube", "title": "ML Fundamentals - StatQuest", "url": "https://www.youtube.com/watch?v=Gv9_4yMHFhI"}
+          ],
+          "practice": [
+            {"title": "Intro to ML", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"}
+          ]
+        },
+        {
+          "name": "Data Preprocessing",
+          "learningResources": [
+            {"type": "youtube", "title": "Data Preprocessing - Krish Naik", "url": "https://www.youtube.com/watch?v=fHVPnHHlFdo"}
+          ],
+          "practice": [
+            {"title": "Titanic Dataset", "platform": "Kaggle", "url": "https://www.kaggle.com/c/titanic"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Linear Models",
+      "subtopics": [
+        {
+          "name": "Linear Regression",
+          "learningResources": [
+            {"type": "youtube", "title": "Linear Regression - StatQuest", "url": "https://www.youtube.com/watch?v=nk2CQITm_eo"}
+          ],
+          "practice": [
+            {"title": "House Prices Prediction", "platform": "Kaggle", "url": "https://www.kaggle.com/c/house-prices-advanced-regression-techniques"}
+          ]
+        },
+        {
+          "name": "Logistic Regression",
+          "learningResources": [
+            {"type": "youtube", "title": "Logistic Regression - StatQuest", "url": "https://www.youtube.com/watch?v=yIYKR4sgzI8"}
+          ],
+          "practice": [
+            {"title": "Binary Classification", "platform": "Kaggle", "url": "https://www.kaggle.com/c/titanic"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tree-Based Models",
+      "subtopics": [
+        {
+          "name": "Decision Trees",
+          "learningResources": [
+            {"type": "youtube", "title": "Decision Trees - StatQuest", "url": "https://www.youtube.com/watch?v=7VeUPuFGJHk"}
+          ],
+          "practice": [
+            {"title": "Classification Task", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intermediate-machine-learning"}
+          ]
+        },
+        {
+          "name": "Random Forests",
+          "learningResources": [
+            {"type": "youtube", "title": "Random Forests - StatQuest", "url": "https://www.youtube.com/watch?v=J4Wdy0Wc_xQ"}
+          ],
+          "practice": [
+            {"title": "Ensemble Methods", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intermediate-machine-learning"}
+          ]
+        },
+        {
+          "name": "XGBoost and Gradient Boosting",
+          "learningResources": [
+            {"type": "youtube", "title": "XGBoost - StatQuest", "url": "https://www.youtube.com/watch?v=OtD8wVaFm6E"}
+          ],
+          "practice": [
+            {"title": "XGBoost Tutorial", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intermediate-machine-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clustering",
+      "subtopics": [
+        {
+          "name": "K-Means Clustering",
+          "learningResources": [
+            {"type": "youtube", "title": "K-Means - StatQuest", "url": "https://www.youtube.com/watch?v=4b5d3muPQmA"}
+          ],
+          "practice": [
+            {"title": "Customer Segmentation", "platform": "Kaggle", "url": "https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python"}
+          ]
+        },
+        {
+          "name": "Hierarchical Clustering",
+          "learningResources": [
+            {"type": "youtube", "title": "Hierarchical Clustering - StatQuest", "url": "https://www.youtube.com/watch?v=7xHsRkOdVwo"}
+          ],
+          "practice": [
+            {"title": "Hierarchical Clustering Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/feature-engineering"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dimensionality Reduction",
+      "subtopics": [
+        {
+          "name": "PCA",
+          "learningResources": [
+            {"type": "youtube", "title": "PCA - StatQuest", "url": "https://www.youtube.com/watch?v=FgakZw6K1QQ"}
+          ],
+          "practice": [
+            {"title": "PCA on MNIST", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/feature-engineering"}
+          ]
+        },
+        {
+          "name": "t-SNE",
+          "learningResources": [
+            {"type": "youtube", "title": "t-SNE - StatQuest", "url": "https://www.youtube.com/watch?v=NEaUSP4YerM"}
+          ],
+          "practice": [
+            {"title": "t-SNE Visualization", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/feature-engineering"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Model Evaluation",
+      "subtopics": [
+        {
+          "name": "Cross-Validation",
+          "learningResources": [
+            {"type": "youtube", "title": "Cross-Validation - StatQuest", "url": "https://www.youtube.com/watch?v=fSytzGwwBVw"}
+          ],
+          "practice": [
+            {"title": "Model Validation", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"}
+          ]
+        },
+        {
+          "name": "Metrics and Confusion Matrix",
+          "learningResources": [
+            {"type": "youtube", "title": "Confusion Matrix - StatQuest", "url": "https://www.youtube.com/watch?v=Kdsp6soqA7o"}
+          ],
+          "practice": [
+            {"title": "Classification Metrics", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feature Engineering",
+      "subtopics": [
+        {
+          "name": "Feature Selection",
+          "learningResources": [
+            {"type": "youtube", "title": "Feature Selection - Krish Naik", "url": "https://www.youtube.com/watch?v=kA4mD3y4aqA"}
+          ],
+          "practice": [
+            {"title": "Feature Engineering", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/feature-engineering"}
+          ]
+        },
+        {
+          "name": "Feature Scaling",
+          "learningResources": [
+            {"type": "youtube", "title": "Feature Scaling - Krish Naik", "url": "https://www.youtube.com/watch?v=mnKm3YP56PY"}
+          ],
+          "practice": [
+            {"title": "Scaling Techniques", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/feature-engineering"}
+          ]
+        }
+      ]
+    }
+  ]
+}

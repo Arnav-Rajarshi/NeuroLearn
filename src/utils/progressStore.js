@@ -1,8 +1,16 @@
 const STORAGE_KEY = 'neurolearn_progress'
 
+// XP values
+export const XP_VALUES = {
+  TOPIC_COMPLETION: 20,
+  PRACTICE_QUESTION: 10,
+  SUBTOPIC: 5,
+}
+
 // Default progress structure
 const defaultProgress = {
   courses: [],
+  totalXP: 0,
   totalQuestionsAttempted: 0,
   totalCorrectAnswers: 0,
   roadmapProgress: 0,
@@ -12,6 +20,7 @@ const defaultProgress = {
   },
   courseSettings: {}, // Store roadmap type, known topics, etc.
   completedSubtopics: {}, // Track completed subtopics per course
+  completedTopics: {}, // Track completed topics per course
   attemptedQuestions: {}, // Track attempted questions
 }
 
@@ -182,6 +191,96 @@ export function setGoalDeadline(deadline) {
 export function getGoalDeadline() {
   const progress = getProgress()
   return progress.goalDeadline
+}
+
+// Add XP to total
+export function addXP(amount) {
+  const progress = getProgress()
+  progress.totalXP = (progress.totalXP || 0) + amount
+  saveProgress(progress)
+  return progress.totalXP
+}
+
+// Get total XP
+export function getTotalXP() {
+  const progress = getProgress()
+  return progress.totalXP || 0
+}
+
+// Mark a topic as completed and add XP
+export function markTopicCompleted(courseId, topicName) {
+  const progress = getProgress()
+  
+  if (!progress.completedTopics[courseId]) {
+    progress.completedTopics[courseId] = []
+  }
+  
+  if (!progress.completedTopics[courseId].includes(topicName)) {
+    progress.completedTopics[courseId].push(topicName)
+    progress.totalXP = (progress.totalXP || 0) + XP_VALUES.TOPIC_COMPLETION
+  }
+  
+  saveProgress(progress)
+  return progress
+}
+
+// Check if a topic is completed
+export function isTopicCompleted(courseId, topicName) {
+  const progress = getProgress()
+  return progress.completedTopics[courseId]?.includes(topicName) || false
+}
+
+// Get completed topics for a course
+export function getCompletedTopics(courseId) {
+  const progress = getProgress()
+  return progress.completedTopics[courseId] || []
+}
+
+// Mark subtopic completed with XP
+export function markSubtopicCompletedWithXP(courseId, topicName, subtopicName) {
+  const progress = getProgress()
+  
+  if (!progress.completedSubtopics[courseId]) {
+    progress.completedSubtopics[courseId] = {}
+  }
+  if (!progress.completedSubtopics[courseId][topicName]) {
+    progress.completedSubtopics[courseId][topicName] = []
+  }
+  
+  if (!progress.completedSubtopics[courseId][topicName].includes(subtopicName)) {
+    progress.completedSubtopics[courseId][topicName].push(subtopicName)
+    progress.totalXP = (progress.totalXP || 0) + XP_VALUES.SUBTOPIC
+  }
+  
+  saveProgress(progress)
+  return progress
+}
+
+// Record question attempt with XP
+export function recordQuestionAttemptWithXP(courseId, questionId, isCorrect) {
+  const progress = getProgress()
+  
+  if (!progress.attemptedQuestions[courseId]) {
+    progress.attemptedQuestions[courseId] = {}
+  }
+  
+  // Only count first attempt
+  if (!progress.attemptedQuestions[courseId][questionId]) {
+    progress.attemptedQuestions[courseId][questionId] = {
+      attempted: true,
+      correct: isCorrect,
+      attemptedAt: new Date().toISOString(),
+    }
+    progress.totalQuestionsAttempted++
+    if (isCorrect) {
+      progress.totalCorrectAnswers++
+    }
+    // Add XP for completing a practice question
+    progress.totalXP = (progress.totalXP || 0) + XP_VALUES.PRACTICE_QUESTION
+  }
+  
+  saveProgress(progress)
+  return progress
 }
 
 // Reset all progress (for testing)
