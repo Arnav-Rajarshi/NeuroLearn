@@ -1,0 +1,173 @@
+{
+  "courseName": "Cybersecurity Basics",
+  "totalTopics": 6,
+  "estimatedHours": 160,
+  "topics": [
+    {
+      "name": "Security Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Cybersecurity",
+          "learningResources": [
+            {"type": "youtube", "title": "Cybersecurity Full Course - freeCodeCamp", "url": "https://www.youtube.com/watch?v=U_P23SqJaDc"},
+            {"type": "youtube", "title": "Cybersecurity for Beginners - NetworkChuck", "url": "https://www.youtube.com/watch?v=inWWhr5tnEA"}
+          ],
+          "practice": [
+            {"title": "Security Quiz", "platform": "Self Study", "url": "https://www.cybrary.it/"}
+          ]
+        },
+        {
+          "name": "CIA Triad",
+          "learningResources": [
+            {"type": "youtube", "title": "CIA Triad Explained", "url": "https://www.youtube.com/watch?v=6vMx15T1bhw"}
+          ],
+          "practice": [
+            {"title": "CIA Triad Quiz", "platform": "Self Study", "url": "https://www.cybrary.it/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Network Security",
+      "subtopics": [
+        {
+          "name": "Networking Basics for Security",
+          "learningResources": [
+            {"type": "youtube", "title": "Networking Basics - NetworkChuck", "url": "https://www.youtube.com/watch?v=4_trsTdU2V0"}
+          ],
+          "practice": [
+            {"title": "Networking Quiz", "platform": "TryHackMe", "url": "https://tryhackme.com/room/introtoresearch"}
+          ]
+        },
+        {
+          "name": "Firewalls",
+          "learningResources": [
+            {"type": "youtube", "title": "Firewalls - NetworkChuck", "url": "https://www.youtube.com/watch?v=gHyR1ITFDuY"}
+          ],
+          "practice": [
+            {"title": "Firewall Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/networkservices"}
+          ]
+        },
+        {
+          "name": "VPNs",
+          "learningResources": [
+            {"type": "youtube", "title": "VPN Explained - NetworkChuck", "url": "https://www.youtube.com/watch?v=WVDQEoe6ZWY"}
+          ],
+          "practice": [
+            {"title": "VPN Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/networkservices2"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ethical Hacking",
+      "subtopics": [
+        {
+          "name": "Introduction to Ethical Hacking",
+          "learningResources": [
+            {"type": "youtube", "title": "Ethical Hacking - freeCodeCamp", "url": "https://www.youtube.com/watch?v=3Kq1MIfTWCE"}
+          ],
+          "practice": [
+            {"title": "Hacking Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/ohsint"}
+          ]
+        },
+        {
+          "name": "Nmap Scanning",
+          "learningResources": [
+            {"type": "youtube", "title": "Nmap Tutorial - NetworkChuck", "url": "https://www.youtube.com/watch?v=4t4kBkMsDbQ"}
+          ],
+          "practice": [
+            {"title": "Nmap Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/furthernmap"}
+          ]
+        },
+        {
+          "name": "Penetration Testing Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Penetration Testing - freeCodeCamp", "url": "https://www.youtube.com/watch?v=3Kq1MIfTWCE"}
+          ],
+          "practice": [
+            {"title": "Pentest Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/basicpentestingjt"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Web Security",
+      "subtopics": [
+        {
+          "name": "OWASP Top 10",
+          "learningResources": [
+            {"type": "youtube", "title": "OWASP Top 10 - freeCodeCamp", "url": "https://www.youtube.com/watch?v=F5KJVuii0Yw"}
+          ],
+          "practice": [
+            {"title": "OWASP Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/owasptop10"}
+          ]
+        },
+        {
+          "name": "SQL Injection",
+          "learningResources": [
+            {"type": "youtube", "title": "SQL Injection - Computerphile", "url": "https://www.youtube.com/watch?v=_jKylhJtPmI"}
+          ],
+          "practice": [
+            {"title": "SQLi Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/dvwa"}
+          ]
+        },
+        {
+          "name": "XSS",
+          "learningResources": [
+            {"type": "youtube", "title": "XSS Explained - Computerphile", "url": "https://www.youtube.com/watch?v=L5l9lSnNMxg"}
+          ],
+          "practice": [
+            {"title": "XSS Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/dvwa"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cryptography",
+      "subtopics": [
+        {
+          "name": "Encryption Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Encryption - Computerphile", "url": "https://www.youtube.com/watch?v=GSIDS_lvRv4"}
+          ],
+          "practice": [
+            {"title": "Crypto Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/encryptioncrypto101"}
+          ]
+        },
+        {
+          "name": "Hashing",
+          "learningResources": [
+            {"type": "youtube", "title": "Hashing - Computerphile", "url": "https://www.youtube.com/watch?v=b4b8ktEV4Bg"}
+          ],
+          "practice": [
+            {"title": "Hash Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/hashingcrypto101"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security Tools",
+      "subtopics": [
+        {
+          "name": "Kali Linux",
+          "learningResources": [
+            {"type": "youtube", "title": "Kali Linux - NetworkChuck", "url": "https://www.youtube.com/watch?v=vxTW22y8zV8"}
+          ],
+          "practice": [
+            {"title": "Kali Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/dvwa"}
+          ]
+        },
+        {
+          "name": "Wireshark",
+          "learningResources": [
+            {"type": "youtube", "title": "Wireshark Tutorial - NetworkChuck", "url": "https://www.youtube.com/watch?v=lb1Dw0elw0Q"}
+          ],
+          "practice": [
+            {"title": "Wireshark Lab", "platform": "TryHackMe", "url": "https://tryhackme.com/room/wireshark"}
+          ]
+        }
+      ]
+    }
+  ]
+}

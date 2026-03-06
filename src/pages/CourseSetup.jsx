@@ -75,8 +75,10 @@ function CourseSetup() {
       setGoalDeadline(goalDeadline)
     }
 
-    // Navigate to roadmap
-    navigate(`/roadmap/${courseId}`)
+    // Navigate to roadmap with known topics in state
+    navigate(`/roadmap/${courseId}`, {
+      state: { knownTopics }
+    })
   }
 
   if (loading) {

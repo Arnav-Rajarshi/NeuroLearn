@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { 
   ArrowLeft, 
   Settings, 
@@ -8,7 +8,8 @@ import {
   TrendingUp,
   BookOpen,
   Code,
-  Calendar
+  Calendar,
+  Award
 } from 'lucide-react'
 import TopicAccordion from '../components/TopicAccordion.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
@@ -17,18 +18,24 @@ import {
   getCourseSettings, 
   getProgress,
   getTotalCompletedSubtopics,
-  getGoalDeadline
+  getGoalDeadline,
+  getTotalXP
 } from '../utils/progressStore.js'
 
 function RoadmapPage() {
   const { course: courseId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Get known topics from navigation state
+  const knownTopics = location.state?.knownTopics || []
   
   const [course, setCourse] = useState(null)
   const [courseData, setCourseData] = useState(null)
   const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState(null)
+  const [totalXP, setTotalXP] = useState(0)
 
   useEffect(() => {
     async function loadData() {
@@ -53,6 +60,7 @@ function RoadmapPage() {
         const data = await loadCourseData(courseId, courseSettings.roadmapType)
         setCourseData(data)
         setProgress(getProgress())
+        setTotalXP(getTotalXP())
       } catch (error) {
         console.error('Failed to load course data', error)
       }
@@ -66,7 +74,20 @@ function RoadmapPage() {
     return progress.completedSubtopics[courseId][topicName]
   }
 
-  const totalSubtopics = courseData ? getTotalSubtopics(courseData) : 0
+  const handleTopicComplete = (topicName, xpEarned) => {
+    setTotalXP(getTotalXP())
+    setProgress(getProgress())
+  }
+
+  // Filter out known topics from the roadmap
+  const filteredTopics = courseData?.topics?.filter(
+    topic => !knownTopics.includes(topic.name)
+  ) || []
+
+  // Calculate total subtopics from filtered topics only
+  const totalSubtopics = filteredTopics.reduce((total, topic) => {
+    return total + (topic.subtopics ? topic.subtopics.length : 0)
+  }, 0)
   const completedSubtopics = getTotalCompletedSubtopics(courseId)
   const overallProgress = totalSubtopics > 0 ? (completedSubtopics / totalSubtopics) * 100 : 0
 
@@ -121,14 +142,22 @@ function RoadmapPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => navigate(`/setup/${courseId}`)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
-              aria-label="Settings"
-            >
-              <Settings className="w-4 h-4 text-[var(--color-muted)]" />
-              <span className="text-sm text-[var(--color-muted)] hidden sm:inline">Settings</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {/* XP Display */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-warning)]/10">
+                <Award className="w-4 h-4 text-[var(--color-warning)]" />
+                <span className="text-sm font-semibold text-[var(--color-warning)]">{totalXP} XP</span>
+              </div>
+              
+              <button
+                onClick={() => navigate(`/setup/${courseId}`)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
+                aria-label="Settings"
+              >
+                <Settings className="w-4 h-4 text-[var(--color-muted)]" />
+                <span className="text-sm text-[var(--color-muted)] hidden sm:inline">Settings</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -161,7 +190,7 @@ function RoadmapPage() {
                 <span className="text-sm text-[var(--color-muted)]">Topics</span>
               </div>
               <p className="text-2xl font-bold text-[var(--color-foreground)]">
-                {courseData.topics?.length || 0}
+                {filteredTopics.length}
               </p>
             </div>
 
@@ -198,8 +227,7 @@ function RoadmapPage() {
 
         {/* Topics List */}
         <div className="space-y-4">
-          {courseData.topics?.map((topic, index) => {
-            const isKnown = settings?.knownTopics?.includes(topic.name)
+          {filteredTopics.map((topic, index) => {
             const completedInTopic = getCompletedSubtopicsForTopic(topic.name)
 
             return (
@@ -212,8 +240,8 @@ function RoadmapPage() {
                   topic={topic}
                   courseId={courseId}
                   completedSubtopics={completedInTopic}
-                  isKnownTopic={isKnown}
                   roadmapType={settings?.roadmapType}
+                  onTopicComplete={handleTopicComplete}
                 />
               </div>
             )
@@ -221,7 +249,7 @@ function RoadmapPage() {
         </div>
 
         {/* Empty State */}
-        {(!courseData.topics || courseData.topics.length === 0) && (
+        {filteredTopics.length === 0 && (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full bg-[var(--color-surface-raised)] flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-8 h-8 text-[var(--color-muted)]" />
