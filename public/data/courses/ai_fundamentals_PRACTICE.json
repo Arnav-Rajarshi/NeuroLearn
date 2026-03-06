@@ -1,0 +1,62 @@
+{
+  "courseName": "AI Fundamentals",
+  "courseId": "ai_fundamentals",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Introduction to AI",
+      "subtopics": [
+        {
+          "name": "AI History and Evolution",
+          "practice": [
+            {"title": "AI Timeline Quiz", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/artificial-intelligence-tutorial/"},
+            {"title": "Turing Test Concepts", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.javatpoint.com/turing-test-in-ai"},
+            {"title": "AI Milestones", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.ibm.com/think/topics/artificial-intelligence"}
+          ]
+        },
+        {
+          "name": "Types of AI Systems",
+          "practice": [
+            {"title": "Classify AI Types", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/types-of-artificial-intelligence/"},
+            {"title": "Narrow vs General AI", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.ibm.com/think/topics/artificial-general-intelligence"},
+            {"title": "AI Classification Quiz", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.javatpoint.com/types-of-artificial-intelligence"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search Algorithms",
+      "subtopics": [
+        {
+          "name": "Uninformed Search",
+          "practice": [
+            {"title": "BFS Implementation", "platform": "LeetCode", "difficulty": "Easy", "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/"},
+            {"title": "DFS Implementation", "platform": "LeetCode", "difficulty": "Easy", "url": "https://leetcode.com/problems/binary-tree-inorder-traversal/"},
+            {"title": "Graph Traversal", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/challenges/bfsshortreach/problem"}
+          ]
+        },
+        {
+          "name": "Informed Search",
+          "practice": [
+            {"title": "A* Search Path", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/shortest-path-in-binary-matrix/"},
+            {"title": "Heuristic Functions", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/a-search-algorithm/"},
+            {"title": "Best First Search", "platform": "HackerRank", "difficulty": "Hard", "url": "https://www.hackerrank.com/challenges/pacman-astar/problem"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Knowledge Representation",
+      "subtopics": [
+        {
+          "name": "Logic and Reasoning",
+          "practice": [
+            {"title": "Propositional Logic", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/propositional-logic/"},
+            {"title": "First Order Logic", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.javatpoint.com/first-order-logic-in-artificial-intelligence"},
+            {"title": "Inference Rules", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/inference-in-first-order-logic/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

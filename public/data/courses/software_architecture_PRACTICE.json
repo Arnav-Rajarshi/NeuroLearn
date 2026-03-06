@@ -1,0 +1,62 @@
+{
+  "courseName": "Software Architecture",
+  "courseId": "software_architecture",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Design Patterns",
+      "subtopics": [
+        {
+          "name": "Creational Patterns",
+          "practice": [
+            {"title": "Singleton Pattern", "platform": "LeetCode", "difficulty": "Easy", "url": "https://leetcode.com/problems/design-singleton/"},
+            {"title": "Factory Pattern", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/factory-method-design-pattern-in-java/"},
+            {"title": "Builder Pattern", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/builder-design-pattern/"}
+          ]
+        },
+        {
+          "name": "Behavioral Patterns",
+          "practice": [
+            {"title": "Observer Pattern", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/observer-pattern-set-1-introduction/"},
+            {"title": "Strategy Pattern", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/strategy-pattern-set-1/"},
+            {"title": "Command Pattern", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/command-pattern/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Architectural Patterns",
+      "subtopics": [
+        {
+          "name": "Layered Architecture",
+          "practice": [
+            {"title": "MVC Pattern", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/mvc-design-pattern/"},
+            {"title": "Clean Architecture", "platform": "Self Study", "difficulty": "Hard", "url": "https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html"},
+            {"title": "Hexagonal Architecture", "platform": "Self Study", "difficulty": "Hard", "url": "https://alistair.cockburn.us/hexagonal-architecture/"}
+          ]
+        },
+        {
+          "name": "Event-Driven Architecture",
+          "practice": [
+            {"title": "Event Sourcing", "platform": "Self Study", "difficulty": "Hard", "url": "https://martinfowler.com/eaaDev/EventSourcing.html"},
+            {"title": "CQRS Pattern", "platform": "Self Study", "difficulty": "Hard", "url": "https://martinfowler.com/bliki/CQRS.html"},
+            {"title": "Saga Pattern", "platform": "Self Study", "difficulty": "Hard", "url": "https://microservices.io/patterns/data/saga.html"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SOLID Principles",
+      "subtopics": [
+        {
+          "name": "Applying SOLID",
+          "practice": [
+            {"title": "Single Responsibility", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/single-responsibility-principle-in-java-with-examples/"},
+            {"title": "Open/Closed Principle", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/open-closed-principle-in-java-with-examples/"},
+            {"title": "Dependency Inversion", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/dependecy-inversion-principle-solid/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap, Sparkles, Crown } from 'lucide-react'
+import { GraduationCap, Sparkles, Crown, Wand2, Lock } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
 import { 
@@ -17,6 +17,8 @@ function CourseSelection() {
   const [courseData, setCourseData] = useState({})
   const [premium, setPremium] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [learningGoal, setLearningGoal] = useState('')
+  const [showGoalMessage, setShowGoalMessage] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -70,6 +72,11 @@ function CourseSelection() {
     const completedTopics = getTotalCompletedSubtopics(courseId)
     
     return { completedTopics, totalTopics }
+  }
+
+  const handleGenerateRoadmap = () => {
+    setShowGoalMessage(true)
+    setTimeout(() => setShowGoalMessage(false), 3000)
   }
 
   const freeCourses = courses.filter(c => c.free)
@@ -162,7 +169,7 @@ function CourseSelection() {
             </section>
 
             {/* Premium Courses */}
-            <section>
+            <section className="mb-10">
               <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
                 <Crown className="w-4 h-4 text-[var(--color-warning)]" />
                 Premium Courses
@@ -183,6 +190,74 @@ function CourseSelection() {
                     />
                   </div>
                 ))}
+              </div>
+            </section>
+
+            {/* AI Goal Input Textplate */}
+            <section className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <div className={`dashboard-card relative overflow-hidden ${!premium ? 'opacity-80' : ''}`}>
+                {/* Premium Lock Overlay */}
+                {!premium && (
+                  <div className="absolute inset-0 bg-[var(--color-background)]/60 backdrop-blur-sm z-10 flex items-center justify-center">
+                    <div className="text-center">
+                      <Lock className="w-8 h-8 text-[var(--color-warning)] mx-auto mb-2" />
+                      <p className="text-sm font-medium text-[var(--color-foreground)]">Premium Feature</p>
+                      <button
+                        onClick={handleUpgrade}
+                        className="mt-2 px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        Upgrade to Unlock
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-primary)] flex items-center justify-center">
+                    <Wand2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)]">
+                      Describe Your Learning Goal
+                    </h3>
+                    <p className="text-xs text-[var(--color-muted)]">AI-powered personalized roadmap generation</p>
+                  </div>
+                </div>
+
+                <textarea
+                  value={learningGoal}
+                  onChange={(e) => setLearningGoal(e.target.value)}
+                  placeholder="Type your learning goal here... (e.g., 'I want to become a backend developer in 6 months')"
+                  className="w-full h-32 px-4 py-3 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
+                  disabled={!premium}
+                />
+
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-xs text-[var(--color-muted)]">
+                    Our AI will create a personalized roadmap based on your goals
+                  </p>
+                  <button
+                    onClick={handleGenerateRoadmap}
+                    disabled={!premium || !learningGoal.trim()}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                      premium && learningGoal.trim()
+                        ? 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white hover:opacity-90'
+                        : 'bg-[var(--color-surface-raised)] text-[var(--color-muted)] cursor-not-allowed'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Generate Roadmap
+                  </button>
+                </div>
+
+                {/* Coming Soon Message */}
+                {showGoalMessage && (
+                  <div className="mt-4 p-3 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 animate-fade-in-up">
+                    <p className="text-sm text-[var(--color-primary)] text-center font-medium">
+                      AI roadmap generation coming soon.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
           </>
