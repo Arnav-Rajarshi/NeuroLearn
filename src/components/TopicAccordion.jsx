@@ -34,7 +34,7 @@ function TopicAccordion({
   const handleSubtopicClick = (subtopic) => {
     // Navigate to the topic detail page with the subtopic
     const topicSlug = encodeURIComponent(topic.name)
-    navigate(`/topic/${courseId}/${topicSlug}`, {
+    navigate(`/roadmap-engine/topic/${courseId}/${topicSlug}`, {
       state: { subtopic, topic, roadmapType }
     })
   }

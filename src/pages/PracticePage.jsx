@@ -31,7 +31,7 @@ function PracticePage() {
       setAttempted(isQuestionAttempted(courseId, location.state.question.title))
     } else {
       // If no state, redirect back to roadmap
-      navigate(`/roadmap/${courseId}`)
+      navigate(`/roadmap-engine/roadmap/${courseId}`)
     }
   }, [location.state, courseId, navigate])
 

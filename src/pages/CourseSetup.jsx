@@ -35,7 +35,7 @@ function CourseSetup() {
       setLoading(true)
       const courseInfo = getCourseById(courseId)
       if (!courseInfo) {
-        navigate('/courses')
+        navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
@@ -76,7 +76,7 @@ function CourseSetup() {
     }
 
     // Navigate to roadmap with known topics in state
-    navigate(`/roadmap/${courseId}`, {
+    navigate(`/roadmap-engine/roadmap/${courseId}`, {
       state: { knownTopics }
     })
   }
@@ -99,7 +99,7 @@ function CourseSetup() {
       <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
           <button
-            onClick={() => navigate('/courses')}
+            onClick={() => navigate('/roadmap-engine/courses')}
             className="flex items-center gap-2 text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

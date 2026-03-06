@@ -287,3 +287,53 @@ export function recordQuestionAttemptWithXP(courseId, questionId, isCorrect) {
 export function resetProgress() {
   localStorage.removeItem(STORAGE_KEY)
 }
+
+// Sync course progress with backend
+export async function syncProgressToBackend(courseId) {
+  const { updateProgress, getToken } = await import('./api.js')
+  
+  // Only sync if user is logged in
+  if (!getToken()) return null
+  
+  const progress = getProgress()
+  const courseSubtopics = progress.completedSubtopics[courseId] || {}
+  const completedTopicsList = progress.completedTopics[courseId] || []
+  
+  // Calculate totals
+  const completedSubtopicsCount = Object.values(courseSubtopics).reduce(
+    (total, subtopics) => total + subtopics.length, 0
+  )
+  
+  try {
+    const result = await updateProgress({
+      course_name: courseId,
+      completed_topics: completedTopicsList,
+      total_topics: Object.keys(courseSubtopics).length,
+      questions_attempted: progress.totalQuestionsAttempted,
+      correct_answers: progress.totalCorrectAnswers,
+      roadmap_progress: progress.roadmapProgress,
+      goal_deadline: progress.goalDeadline || null,
+      total_xp: progress.totalXP || 0,
+    })
+    return result
+  } catch (error) {
+    console.error('Failed to sync progress to backend:', error)
+    return null
+  }
+}
+
+// Load progress from backend
+export async function loadProgressFromBackend(userId) {
+  const { getUserProgress, getToken } = await import('./api.js')
+  
+  // Only load if user is logged in
+  if (!getToken()) return null
+  
+  try {
+    const result = await getUserProgress(userId)
+    return result
+  } catch (error) {
+    console.error('Failed to load progress from backend:', error)
+    return null
+  }
+}
