@@ -77,6 +77,13 @@ def get_dashboard(
         User.last_login >= last_month,
         User.is_admin == False
     ).count()
+
+    print(total_users,
+        premium_users,
+        total_payments,
+        total_revenue,
+        daily_active_users,
+        monthly_active_users)
     
     return DashboardStats(
         total_users=total_users,
