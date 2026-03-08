@@ -21,5 +21,8 @@ def get_db():
 
 def init_db():
     """Initialize database tables"""
-    from models import User, Progress, Payment
+    from models import (
+        User, Payment, Course, CourseEnrolled, 
+        Roadmap, TopicsToBeShown, ProgressLevel, CoursePreference
+    )
     Base.metadata.create_all(bind=engine)

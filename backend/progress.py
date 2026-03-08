@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-import json
 
 from database import get_db
-from models import User, Progress
+from models import User, ProgressLevel, Course, CourseEnrolled
 from auth import get_current_user
 
 router = APIRouter(prefix="/progress", tags=["Progress"])
@@ -15,27 +14,16 @@ router = APIRouter(prefix="/progress", tags=["Progress"])
 # Pydantic schemas
 class ProgressUpdate(BaseModel):
     course_name: str
-    completed_topics: Optional[List[str]] = []
-    total_topics: Optional[int] = 0
-    questions_attempted: Optional[int] = 0
-    correct_answers: Optional[int] = 0
-    roadmap_progress: Optional[float] = 0.0
-    goal_deadline: Optional[str] = None
-    total_xp: Optional[int] = 0
-
+    progress_json: Optional[Dict[str, Any]] = {}
+    
 
 class ProgressResponse(BaseModel):
-    id: int
-    user_id: int
+    progress_id: int
+    uid: int
+    cid: int
     course_name: str
-    completed_topics: List[str]
-    total_topics: int
-    questions_attempted: int
-    correct_answers: int
-    roadmap_progress: float
-    goal_deadline: Optional[str]
-    total_xp: int
-    updated_at: datetime
+    progress_json: Dict[str, Any]
+    last_updated: datetime
 
     class Config:
         from_attributes = True
@@ -43,17 +31,7 @@ class ProgressResponse(BaseModel):
 
 class AllProgressResponse(BaseModel):
     progress: List[ProgressResponse]
-    total_xp: int
     total_courses: int
-    total_completed_topics: int
-
-
-# Helper function to parse completed_topics JSON
-def parse_completed_topics(progress: Progress) -> List[str]:
-    try:
-        return json.loads(progress.completed_topics) if progress.completed_topics else []
-    except:
-        return []
 
 
 # Endpoints
@@ -63,36 +41,48 @@ def update_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Find existing progress for this course
-    progress = db.query(Progress).filter(
-        Progress.user_id == current_user.id,
-        Progress.course_name == progress_data.course_name
+    # Find the course by name
+    course = db.query(Course).filter(
+        Course.course_name == progress_data.course_name
     ).first()
     
-    completed_topics_json = json.dumps(progress_data.completed_topics)
+    if not course:
+        # Create course if it doesn't exist
+        course = Course(course_name=progress_data.course_name)
+        db.add(course)
+        db.commit()
+        db.refresh(course)
+    
+    # Ensure user is enrolled
+    enrollment = db.query(CourseEnrolled).filter(
+        CourseEnrolled.uid == current_user.uid,
+        CourseEnrolled.cid == course.cid
+    ).first()
+    
+    if not enrollment:
+        enrollment = CourseEnrolled(
+            uid=current_user.uid,
+            cid=course.cid
+        )
+        db.add(enrollment)
+        db.commit()
+    
+    # Find existing progress for this course
+    progress = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == current_user.uid,
+        ProgressLevel.cid == course.cid
+    ).first()
     
     if progress:
         # Update existing progress
-        progress.completed_topics = completed_topics_json
-        progress.total_topics = progress_data.total_topics
-        progress.questions_attempted = progress_data.questions_attempted
-        progress.correct_answers = progress_data.correct_answers
-        progress.roadmap_progress = progress_data.roadmap_progress
-        progress.goal_deadline = progress_data.goal_deadline
-        progress.total_xp = progress_data.total_xp
-        progress.updated_at = datetime.utcnow()
+        progress.progress_json = progress_data.progress_json
+        progress.last_updated = datetime.utcnow()
     else:
         # Create new progress entry
-        progress = Progress(
-            user_id=current_user.id,
-            course_name=progress_data.course_name,
-            completed_topics=completed_topics_json,
-            total_topics=progress_data.total_topics,
-            questions_attempted=progress_data.questions_attempted,
-            correct_answers=progress_data.correct_answers,
-            roadmap_progress=progress_data.roadmap_progress,
-            goal_deadline=progress_data.goal_deadline,
-            total_xp=progress_data.total_xp
+        progress = ProgressLevel(
+            uid=current_user.uid,
+            cid=course.cid,
+            progress_json=progress_data.progress_json
         )
         db.add(progress)
     
@@ -100,64 +90,93 @@ def update_progress(
     db.refresh(progress)
     
     return ProgressResponse(
-        id=progress.id,
-        user_id=progress.user_id,
-        course_name=progress.course_name,
-        completed_topics=parse_completed_topics(progress),
-        total_topics=progress.total_topics,
-        questions_attempted=progress.questions_attempted,
-        correct_answers=progress.correct_answers,
-        roadmap_progress=progress.roadmap_progress,
-        goal_deadline=progress.goal_deadline,
-        total_xp=progress.total_xp,
-        updated_at=progress.updated_at
+        progress_id=progress.progress_id,
+        uid=progress.uid,
+        cid=progress.cid,
+        course_name=course.course_name,
+        progress_json=progress.progress_json or {},
+        last_updated=progress.last_updated
     )
 
 
-@router.get("/{user_id}", response_model=AllProgressResponse)
+@router.get("/user/{user_id}", response_model=AllProgressResponse)
 def get_user_progress(
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Get all progress entries for a specific user"""
     # Users can only access their own progress (or admins can access any)
-    if current_user.id != user_id and not current_user.is_admin:
+    if current_user.uid != user_id and current_user.is_admin != "true":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to access this user's progress"
         )
     
-    # Get all progress entries for user
-    progress_entries = db.query(Progress).filter(Progress.user_id == user_id).all()
+    # Get all progress entries for user with course info
+    progress_entries = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == user_id
+    ).all()
     
-    # Calculate totals
-    total_xp = sum(p.total_xp for p in progress_entries)
-    total_completed_topics = sum(
-        len(parse_completed_topics(p)) for p in progress_entries
-    )
-    
-    progress_list = [
-        ProgressResponse(
-            id=p.id,
-            user_id=p.user_id,
-            course_name=p.course_name,
-            completed_topics=parse_completed_topics(p),
-            total_topics=p.total_topics,
-            questions_attempted=p.questions_attempted,
-            correct_answers=p.correct_answers,
-            roadmap_progress=p.roadmap_progress,
-            goal_deadline=p.goal_deadline,
-            total_xp=p.total_xp,
-            updated_at=p.updated_at
+    progress_list = []
+    for p in progress_entries:
+        course = db.query(Course).filter(Course.cid == p.cid).first()
+        progress_list.append(
+            ProgressResponse(
+                progress_id=p.progress_id,
+                uid=p.uid,
+                cid=p.cid,
+                course_name=course.course_name if course else "Unknown",
+                progress_json=p.progress_json or {},
+                last_updated=p.last_updated
+            )
         )
-        for p in progress_entries
-    ]
     
     return AllProgressResponse(
         progress=progress_list,
-        total_xp=total_xp,
-        total_courses=len(progress_entries),
-        total_completed_topics=total_completed_topics
+        total_courses=len(progress_entries)
+    )
+
+
+@router.get("/{cid}", response_model=ProgressResponse)
+def get_progress_by_course_id(
+    cid: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get progress for current user in a specific course by course ID"""
+    # Find the course
+    course = db.query(Course).filter(Course.cid == cid).first()
+    
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    
+    progress = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == current_user.uid,
+        ProgressLevel.cid == cid
+    ).first()
+    
+    if not progress:
+        # Return empty progress if not found
+        return ProgressResponse(
+            progress_id=0,
+            uid=current_user.uid,
+            cid=cid,
+            course_name=course.course_name,
+            progress_json={},
+            last_updated=datetime.utcnow()
+        )
+    
+    return ProgressResponse(
+        progress_id=progress.progress_id,
+        uid=progress.uid,
+        cid=progress.cid,
+        course_name=course.course_name,
+        progress_json=progress.progress_json or {},
+        last_updated=progress.last_updated
     )
 
 
@@ -167,9 +186,20 @@ def get_course_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    progress = db.query(Progress).filter(
-        Progress.user_id == current_user.id,
-        Progress.course_name == course_name
+    # Find the course
+    course = db.query(Course).filter(
+        Course.course_name == course_name
+    ).first()
+    
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    
+    progress = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == current_user.uid,
+        ProgressLevel.cid == course.cid
     ).first()
     
     if not progress:
@@ -179,15 +209,10 @@ def get_course_progress(
         )
     
     return ProgressResponse(
-        id=progress.id,
-        user_id=progress.user_id,
-        course_name=progress.course_name,
-        completed_topics=parse_completed_topics(progress),
-        total_topics=progress.total_topics,
-        questions_attempted=progress.questions_attempted,
-        correct_answers=progress.correct_answers,
-        roadmap_progress=progress.roadmap_progress,
-        goal_deadline=progress.goal_deadline,
-        total_xp=progress.total_xp,
-        updated_at=progress.updated_at
+        progress_id=progress.progress_id,
+        uid=progress.uid,
+        cid=progress.cid,
+        course_name=course.course_name,
+        progress_json=progress.progress_json or {},
+        last_updated=progress.last_updated
     )
