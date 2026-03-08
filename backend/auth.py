@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -22,16 +22,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # Pydantic schemas
 class UserCreate(BaseModel):
-    username: str
+    name: str
     email: EmailStr
     password: str
 
+
 class UserResponse(BaseModel):
-    id: int
-    username: str
+    uid: int
+    name: str
     email: str
-    premium: bool
-    is_admin: bool
+    acc_status: str
+    is_admin: str
     created_at: datetime
 
     class Config:
@@ -45,8 +46,13 @@ class Token(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: str
+    email: str
     password: str
+
+
+class PremiumStatusResponse(BaseModel):
+    premium: bool
+    acc_status: str
 
 
 # Helper functions
@@ -83,14 +89,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         raise credentials_exception
     
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.uid == user_id).first()
     if user is None:
         raise credentials_exception
     return user
 
 
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_admin:
+    if current_user.is_admin != "true":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
@@ -101,13 +107,6 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
 # Endpoints
 @router.post("/signup", response_model=Token)
 def signup(user_data: UserCreate, db: Session = Depends(get_db)):
-    # Check if username exists
-    if db.query(User).filter(User.username == user_data.username).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already registered"
-        )
-    
     # Check if email exists
     if db.query(User).filter(User.email == user_data.email).first():
         raise HTTPException(
@@ -118,11 +117,11 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     new_user = User(
-        username=user_data.username,
+        name=user_data.name,
         email=user_data.email,
         password_hash=hashed_password,
-        premium=False,
-        is_admin=False
+        acc_status="free",
+        is_admin="false"
     )
     
     db.add(new_user)
@@ -130,7 +129,7 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     
     # Generate token
-    access_token = create_access_token(data={"sub": str(new_user.id)})
+    access_token = create_access_token(data={"sub": new_user.uid})
     
     return {
         "access_token": access_token,
@@ -142,45 +141,37 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     # Check for admin login
-    if login_data.username == ADMIN_USERNAME and login_data.password == ADMIN_PASSWORD:
+    if login_data.email == ADMIN_USERNAME and login_data.password == ADMIN_PASSWORD:
         # Find or create admin user
-        admin_user = db.query(User).filter(User.username == ADMIN_USERNAME).first()
+        admin_user = db.query(User).filter(User.email == ADMIN_USERNAME).first()
         if not admin_user:
             admin_user = User(
-                username=ADMIN_USERNAME,
-                email="admin@neurolearn.com",
+                name="Admin",
+                email=ADMIN_USERNAME,
                 password_hash=get_password_hash(ADMIN_PASSWORD),
-                premium=True,
-                is_admin=True
+                acc_status="premium",
+                is_admin="true"
             )
             db.add(admin_user)
             db.commit()
             db.refresh(admin_user)
         
-        # Update last login
-        admin_user.last_login = datetime.utcnow()
-        db.commit()
-        
-        access_token = create_access_token(data={"sub": admin_user.id})
+        access_token = create_access_token(data={"sub": admin_user.uid})
         return {
             "access_token": access_token,
             "token_type": "bearer",
             "user": admin_user
         }
     
-    # Regular user login
-    user = db.query(User).filter(User.username == login_data.username).first()
+    # Regular user login by email
+    user = db.query(User).filter(User.email == login_data.email).first()
     if not user or not verify_password(login_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password"
+            detail="Incorrect email or password"
         )
     
-    # Update last login
-    user.last_login = datetime.utcnow()
-    db.commit()
-    
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": user.uid})
     
     return {
         "access_token": access_token,
@@ -192,3 +183,12 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.get("/premium-status", response_model=PremiumStatusResponse)
+def get_premium_status(current_user: User = Depends(get_current_user)):
+    """Get current user's premium status"""
+    return PremiumStatusResponse(
+        premium=current_user.acc_status == "premium",
+        acc_status=current_user.acc_status
+    )

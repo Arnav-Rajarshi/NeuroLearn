@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel
-from datetime import datetime, timedelta
-from typing import List
+from datetime import datetime
+from typing import List, Optional
+from decimal import Decimal
 
 from database import get_db
-from models import User, Progress, Payment
+from models import User, Payment, Course, CourseEnrolled, ProgressLevel
 from auth import get_current_admin
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -18,26 +19,38 @@ class DashboardStats(BaseModel):
     premium_users: int
     total_payments: int
     total_revenue: float
-    daily_active_users: int
-    monthly_active_users: int
 
 
 class UserSummary(BaseModel):
-    id: int
-    username: str
+    uid: int
+    name: str
     email: str
-    premium: bool
-    last_login: datetime
+    acc_status: str
     created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class PaymentSummary(BaseModel):
-    id: int
-    user_id: int
-    username: str
+    payment_id: int
+    uid: int
+    user_name: str
+    user_email: str
     amount: float
-    status: str
+    razor_id: Optional[str]
+    order_id: Optional[str]
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CourseStats(BaseModel):
+    cid: int
+    course_name: str
+    enrolled_users: int
+    users_with_progress: int
 
 
 # Endpoints
@@ -46,52 +59,28 @@ def get_dashboard(
     current_admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
+    """Get dashboard statistics"""
     # Total users (excluding admin)
-    total_users = db.query(User).filter(User.is_admin == False).count()
+    total_users = db.query(User).filter(User.is_admin != "true").count()
     
     # Premium users
     premium_users = db.query(User).filter(
-        User.premium == True,
-        User.is_admin == False
+        User.acc_status == "premium",
+        User.is_admin != "true"
     ).count()
     
-    # Total successful payments
-    total_payments = db.query(Payment).filter(Payment.status == "paid").count()
+    # Total payments
+    total_payments = db.query(Payment).count()
     
-    # Total revenue (in rupees)
-    total_revenue_paise = db.query(func.sum(Payment.amount)).filter(
-        Payment.status == "paid"
-    ).scalar() or 0
-    total_revenue = total_revenue_paise / 100
-    
-    # Daily active users (logged in within last 24 hours)
-    yesterday = datetime.utcnow() - timedelta(days=1)
-    daily_active_users = db.query(User).filter(
-        User.last_login >= yesterday,
-        User.is_admin == False
-    ).count()
-    
-    # Monthly active users (logged in within last 30 days)
-    last_month = datetime.utcnow() - timedelta(days=30)
-    monthly_active_users = db.query(User).filter(
-        User.last_login >= last_month,
-        User.is_admin == False
-    ).count()
-
-    print(total_users,
-        premium_users,
-        total_payments,
-        total_revenue,
-        daily_active_users,
-        monthly_active_users)
+    # Total revenue (amount is already in rupees, no division needed)
+    total_revenue_result = db.query(func.sum(Payment.amount)).scalar()
+    total_revenue = float(total_revenue_result) if total_revenue_result else 0.0
     
     return DashboardStats(
         total_users=total_users,
         premium_users=premium_users,
         total_payments=total_payments,
-        total_revenue=total_revenue,
-        daily_active_users=daily_active_users,
-        monthly_active_users=monthly_active_users
+        total_revenue=total_revenue
     )
 
 
@@ -102,17 +91,17 @@ def get_all_users(
     skip: int = 0,
     limit: int = 50
 ):
+    """Get paginated list of users"""
     users = db.query(User).filter(
-        User.is_admin == False
-    ).offset(skip).limit(limit).all()
+        User.is_admin != "true"
+    ).order_by(User.created_at.desc()).offset(skip).limit(limit).all()
     
     return [
         UserSummary(
-            id=u.id,
-            username=u.username,
+            uid=u.uid,
+            name=u.name,
             email=u.email,
-            premium=u.premium,
-            last_login=u.last_login,
+            acc_status=u.acc_status,
             created_at=u.created_at
         )
         for u in users
@@ -126,65 +115,82 @@ def get_all_payments(
     skip: int = 0,
     limit: int = 50
 ):
-    payments = db.query(Payment).join(User).order_by(
+    """Get list of payments joined with users"""
+    payments = db.query(Payment).join(
+        User, Payment.uid == User.uid
+    ).order_by(
         Payment.created_at.desc()
     ).offset(skip).limit(limit).all()
     
     return [
         PaymentSummary(
-            id=p.id,
-            user_id=p.user_id,
-            username=p.user.username,
-            amount=p.amount / 100,
-            status=p.status,
+            payment_id=p.payment_id,
+            uid=p.uid,
+            user_name=p.user.name,
+            user_email=p.user.email,
+            amount=float(p.amount),  # Already in rupees
+            razor_id=p.razor_id,
+            order_id=p.order_id,
             created_at=p.created_at
         )
         for p in payments
     ]
 
 
-@router.post("/users/{user_id}/toggle-premium")
+@router.post("/users/{uid}/toggle-premium")
 def toggle_user_premium(
-    user_id: int,
+    uid: int,
     current_admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.id == user_id).first()
+    """Toggle user acc_status between 'free' and 'premium'"""
+    user = db.query(User).filter(User.uid == uid).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
     
-    user.premium = not user.premium
+    # Toggle between 'free' and 'premium'
+    new_status = "premium" if user.acc_status == "free" else "free"
+    user.acc_status = new_status
     db.commit()
+    db.refresh(user)
     
     return {
         "success": True,
-        "message": f"User {user.username} premium status set to {user.premium}",
-        "premium": user.premium
+        "message": f"User {user.name} status changed to {new_status}",
+        "uid": user.uid,
+        "acc_status": user.acc_status
     }
 
 
-@router.get("/stats/courses")
+@router.get("/stats/courses", response_model=List[CourseStats])
 def get_course_stats(
     current_admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
-    # Get course enrollment stats
-    course_stats = db.query(
-        Progress.course_name,
-        func.count(Progress.id).label("enrolled_users"),
-        func.avg(Progress.roadmap_progress).label("avg_progress"),
-        func.sum(Progress.total_xp).label("total_xp_earned")
-    ).group_by(Progress.course_name).all()
+    """Get course statistics using enrollments and progress"""
+    # Get all courses with enrollment counts
+    courses = db.query(Course).all()
     
-    return [
-        {
-            "course_name": stat.course_name,
-            "enrolled_users": stat.enrolled_users,
-            "avg_progress": round(stat.avg_progress or 0, 2),
-            "total_xp_earned": stat.total_xp_earned or 0
-        }
-        for stat in course_stats
-    ]
+    result = []
+    for course in courses:
+        # Count enrollments from courses_enrolled
+        enrolled_users = db.query(CourseEnrolled).filter(
+            CourseEnrolled.cid == course.cid
+        ).count()
+        
+        # Count users with progress from progress_level
+        users_with_progress = db.query(ProgressLevel).filter(
+            ProgressLevel.cid == course.cid
+        ).distinct(ProgressLevel.uid).count()
+        
+        result.append(CourseStats(
+            cid=course.cid,
+            course_name=course.course_name,
+            enrolled_users=enrolled_users,
+            users_with_progress=users_with_progress
+        ))
+    
+    return result
