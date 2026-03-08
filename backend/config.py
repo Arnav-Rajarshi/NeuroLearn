@@ -19,6 +19,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 ADMIN_USERNAME = "resurgence"
 ADMIN_PASSWORD = "1234567890"
 
-# Payment amount in paise (₹49 = 4900 paise)
-PREMIUM_AMOUNT = 4900
+# Payment amount in rupees (stored as rupees, converted to paise for Razorpay API)
+PREMIUM_AMOUNT = 49  # ₹49 in rupees
 PREMIUM_CURRENCY = "INR"

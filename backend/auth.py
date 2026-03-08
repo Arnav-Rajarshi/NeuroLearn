@@ -105,6 +105,7 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
 
 
 # Endpoints
+@router.post("/register", response_model=Token)
 @router.post("/signup", response_model=Token)
 def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     # Check if email exists

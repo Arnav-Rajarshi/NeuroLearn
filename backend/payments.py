@@ -62,11 +62,14 @@ def create_order(
     try:
         client = get_razorpay_client()
         
-        # Create Razorpay order (amount in paise for Razorpay API)
+        # PREMIUM_AMOUNT is in rupees, Razorpay API needs paise (rupees * 100)
+        amount_in_paise = PREMIUM_AMOUNT * 100
+        
+        # Create Razorpay order
         order_data = {
-            "amount": PREMIUM_AMOUNT * 100,  # Convert rupees to paise for Razorpay
+            "amount": amount_in_paise,
             "currency": PREMIUM_CURRENCY,
-            "receipt": f"receipt_{current_user.uid}_{datetime.utcnow().timestamp()}",
+            "receipt": f"receipt_{current_user.uid}_{int(datetime.utcnow().timestamp())}",
             "notes": {
                 "user_id": str(current_user.uid),
                 "user_name": current_user.name
@@ -75,18 +78,18 @@ def create_order(
         
         order = client.order.create(data=order_data)
         
-        # Store order in database (amount in rupees)
+        # Store order in database (amount stored in rupees)
         payment = Payment(
             uid=current_user.uid,
             order_id=order["id"],
-            amount=Decimal(str(PREMIUM_AMOUNT))  # Store in rupees
+            amount=Decimal(str(PREMIUM_AMOUNT))
         )
         db.add(payment)
         db.commit()
         
         return OrderResponse(
             order_id=order["id"],
-            amount=PREMIUM_AMOUNT * 100,  # Return paise for Razorpay frontend
+            amount=amount_in_paise,  # Razorpay frontend expects paise
             currency=PREMIUM_CURRENCY,
             key=RAZORPAY_KEY
         )

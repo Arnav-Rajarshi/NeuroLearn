@@ -99,12 +99,13 @@ def update_progress(
     )
 
 
-@router.get("/{user_id}", response_model=AllProgressResponse)
+@router.get("/user/{user_id}", response_model=AllProgressResponse)
 def get_user_progress(
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Get all progress entries for a specific user"""
     # Users can only access their own progress (or admins can access any)
     if current_user.uid != user_id and current_user.is_admin != "true":
         raise HTTPException(
@@ -134,6 +135,48 @@ def get_user_progress(
     return AllProgressResponse(
         progress=progress_list,
         total_courses=len(progress_entries)
+    )
+
+
+@router.get("/{cid}", response_model=ProgressResponse)
+def get_progress_by_course_id(
+    cid: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get progress for current user in a specific course by course ID"""
+    # Find the course
+    course = db.query(Course).filter(Course.cid == cid).first()
+    
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    
+    progress = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == current_user.uid,
+        ProgressLevel.cid == cid
+    ).first()
+    
+    if not progress:
+        # Return empty progress if not found
+        return ProgressResponse(
+            progress_id=0,
+            uid=current_user.uid,
+            cid=cid,
+            course_name=course.course_name,
+            progress_json={},
+            last_updated=datetime.utcnow()
+        )
+    
+    return ProgressResponse(
+        progress_id=progress.progress_id,
+        uid=progress.uid,
+        cid=progress.cid,
+        course_name=course.course_name,
+        progress_json=progress.progress_json or {},
+        last_updated=progress.last_updated
     )
 
 
