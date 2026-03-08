@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./neurolearn.db")
+DATABASE_URL = os.getenv("DATABASE_URL","")
 
 # Razorpay
 RAZORPAY_KEY = os.getenv("RAZORPAY_KEY", "")
