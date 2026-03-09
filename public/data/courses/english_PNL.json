@@ -1,0 +1,210 @@
+{
+"courseName":"English Proficiency",
+"estimatedHours":160,
+"totalTopics":10,
+
+"topics":[
+
+{
+"name":"Grammar Foundations",
+"subtopics":[
+{
+"name":"Parts of Speech",
+"learningResources":[
+{"type":"youtube","title":"Parts of Speech Explained","url":"https://www.youtube.com/watch?v=AJUdqXvC1_k"},
+{"type":"website","title":"British Council Grammar Reference","url":"https://learnenglish.britishcouncil.org/grammar"}
+],
+"practice":[
+{"title":"Identify Parts of Speech Exercise 1","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Parts of Speech Quiz","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Adjective vs Adverb Exercise","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Nouns and Pronouns Practice","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Verb Identification Exercise","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Grammar Drill — Parts of Speech","platform":"KhanAcademy","url":"https://www.khanacademy.org/humanities/grammar"}
+]
+},
+
+{
+"name":"Articles and Determiners",
+"learningResources":[
+{"type":"youtube","title":"A / An / The Explained","url":"https://www.youtube.com/watch?v=V1pM2F9yq0o"},
+{"type":"website","title":"Articles Grammar Guide","url":"https://learnenglish.britishcouncil.org"}
+],
+"practice":[
+{"title":"Articles Quiz 1","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Articles Quiz 2","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Fill in Articles Exercise","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Determiners Practice","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Article Usage Drill","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Article Sentence Correction","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"}
+]
+}
+]
+},
+
+{
+"name":"Tenses Mastery",
+"subtopics":[
+
+{
+"name":"Present Tenses",
+"learningResources":[
+{"type":"youtube","title":"Present Tenses Explained","url":"https://www.youtube.com/watch?v=J7N0mD2y8zA"},
+{"type":"website","title":"British Council Verb Tense Guide","url":"https://learnenglish.britishcouncil.org"}
+],
+"practice":[
+{"title":"Present Simple Exercise","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Present Continuous Exercise","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Present Perfect Quiz","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Sentence Correction — Present Tense","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Verb Form Drill","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Mixed Present Tense Practice","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"}
+]
+},
+
+{
+"name":"Past Tenses",
+"learningResources":[
+{"type":"youtube","title":"Past Tense Full Lesson","url":"https://www.youtube.com/watch?v=QkBvPqkT6xI"},
+{"type":"website","title":"Past Tense Exercises","url":"https://www.perfect-english-grammar.com"}
+],
+"practice":[
+{"title":"Past Simple Exercise","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Past Continuous Quiz","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Past Perfect Exercise","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Mixed Past Tense Quiz","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Verb Transformation Drill","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Past Tense Error Correction","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"}
+]
+}
+]
+},
+
+{
+"name":"Vocabulary Building",
+"subtopics":[
+{
+"name":"Common Vocabulary",
+"learningResources":[
+{"type":"youtube","title":"1000 Most Common English Words","url":"https://www.youtube.com/watch?v=Gh8Gx9GfZbA"},
+{"type":"website","title":"Vocabulary Lists","url":"https://www.vocabulary.com"}
+],
+"practice":[
+{"title":"Vocabulary Quiz 1","platform":"Vocabulary.com","url":"https://www.vocabulary.com"},
+{"title":"Vocabulary Quiz 2","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Synonyms Exercise","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Antonyms Exercise","platform":"Vocabulary.com","url":"https://www.vocabulary.com"},
+{"title":"Context Vocabulary Quiz","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Word Usage Drill","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"}
+]
+}
+]
+},
+
+{
+"name":"Reading Comprehension",
+"subtopics":[
+{
+"name":"Short Passages",
+"learningResources":[
+{"type":"website","title":"Reading Practice","url":"https://learnenglish.britishcouncil.org/skills/reading"},
+{"type":"youtube","title":"Reading Strategies","url":"https://www.youtube.com/watch?v=Z7dLU6fk9QY"}
+],
+"practice":[
+{"title":"Reading Passage Quiz 1","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Reading Passage Quiz 2","platform":"ReadTheory","url":"https://www.readtheory.org"},
+{"title":"Reading Passage Quiz 3","platform":"ReadTheory","url":"https://www.readtheory.org"},
+{"title":"Reading Passage Quiz 4","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Reading Passage Quiz 5","platform":"BreakingNewsEnglish","url":"https://breakingnewsenglish.com"},
+{"title":"Reading Passage Quiz 6","platform":"BreakingNewsEnglish","url":"https://breakingnewsenglish.com"}
+]
+}
+]
+},
+
+{
+"name":"Listening Skills",
+"subtopics":[
+{
+"name":"Listening Comprehension",
+"learningResources":[
+{"type":"youtube","title":"BBC Listening Lessons","url":"https://www.youtube.com/user/bbclearningenglish"},
+{"type":"website","title":"Listening Practice","url":"https://learnenglish.britishcouncil.org/skills/listening"}
+],
+"practice":[
+{"title":"Listening Quiz 1","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Listening Quiz 2","platform":"ELLLO","url":"https://elllo.org"},
+{"title":"Listening Quiz 3","platform":"ELLLO","url":"https://elllo.org"},
+{"title":"Listening Quiz 4","platform":"ELLLO","url":"https://elllo.org"},
+{"title":"Listening Quiz 5","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Listening Quiz 6","platform":"BBC","url":"https://www.bbc.co.uk/learningenglish"}
+]
+}
+]
+},
+
+{
+"name":"Writing Skills",
+"subtopics":[
+{
+"name":"Sentence and Paragraph Writing",
+"learningResources":[
+{"type":"website","title":"Purdue OWL Writing Guide","url":"https://owl.purdue.edu"},
+{"type":"youtube","title":"Essay Writing Tutorial","url":"https://www.youtube.com/watch?v=QJ7X5c3Y0iQ"}
+],
+"practice":[
+{"title":"Sentence Correction 1","platform":"PurdueOWL","url":"https://owl.purdue.edu"},
+{"title":"Sentence Correction 2","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Paragraph Writing Task 1","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Paragraph Writing Task 2","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Essay Planning Exercise","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Essay Writing Task","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+]
+},
+
+{
+"name":"Speaking Skills",
+"subtopics":[
+{
+"name":"Pronunciation and Fluency",
+"learningResources":[
+{"type":"youtube","title":"Pronunciation Guide","url":"https://www.youtube.com/watch?v=Ewq6D0W1o0U"},
+{"type":"youtube","title":"Fluency Training","url":"https://www.youtube.com/user/rachelsenglish"}
+],
+"practice":[
+{"title":"Pronunciation Practice Task 1","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Pronunciation Practice Task 2","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Shadowing Exercise","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Speech Recording Exercise","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Conversation Practice","platform":"Tandem","url":"https://www.tandem.net"},
+{"title":"Fluency Drill","platform":"SelfPractice","url":"https://youglish.com"}
+]
+}
+]
+},
+
+{
+"name":"Academic English",
+"subtopics":[
+{
+"name":"Formal Writing",
+"learningResources":[
+{"type":"website","title":"Academic Writing Guide","url":"https://owl.purdue.edu"},
+{"type":"youtube","title":"Formal Writing Explained","url":"https://www.youtube.com/watch?v=6bHc6R0s4cQ"}
+],
+"practice":[
+{"title":"Formal Email Writing","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Report Writing","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Essay Outline Task","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Argument Essay Task","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Research Summary Task","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Academic Editing Task","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+]
+}
+
+]
+}

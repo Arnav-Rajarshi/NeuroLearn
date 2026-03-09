@@ -1,0 +1,62 @@
+{
+  "courseName": "Node.js Advanced",
+  "courseId": "nodejs_advanced",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Advanced Async Patterns",
+      "subtopics": [
+        {
+          "name": "Event Loop Deep Dive",
+          "practice": [
+            {"title": "Event Loop Quiz", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/node-js-event-loop/"},
+            {"title": "Microtasks vs Macrotasks", "platform": "Self Study", "difficulty": "Medium", "url": "https://javascript.info/event-loop"},
+            {"title": "setImmediate vs nextTick", "platform": "Self Study", "difficulty": "Hard", "url": "https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/"}
+          ]
+        },
+        {
+          "name": "Streams",
+          "practice": [
+            {"title": "Readable Streams", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/node-js-stream-readable-read-method/"},
+            {"title": "Transform Streams", "platform": "Self Study", "difficulty": "Hard", "url": "https://nodejs.org/api/stream.html#stream_implementing_a_transform_stream"},
+            {"title": "Pipeline API", "platform": "Self Study", "difficulty": "Hard", "url": "https://nodejs.org/api/stream.html#streampipelinesource-transforms-destination-callback"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security Best Practices",
+      "subtopics": [
+        {
+          "name": "Authentication",
+          "practice": [
+            {"title": "Passport.js", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.passportjs.org/docs/"},
+            {"title": "JWT Implementation", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/jwt-authentication-with-node-js/"},
+            {"title": "Rate Limiting", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.npmjs.com/package/express-rate-limit"}
+          ]
+        },
+        {
+          "name": "Input Validation",
+          "practice": [
+            {"title": "Joi Validation", "platform": "Self Study", "difficulty": "Easy", "url": "https://joi.dev/api/"},
+            {"title": "SQL Injection Prevention", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/how-to-prevent-sql-injection-in-node-js/"},
+            {"title": "XSS Prevention", "platform": "Self Study", "difficulty": "Medium", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "subtopics": [
+        {
+          "name": "Unit and Integration Testing",
+          "practice": [
+            {"title": "Jest Basics", "platform": "Self Study", "difficulty": "Easy", "url": "https://jestjs.io/docs/getting-started"},
+            {"title": "Supertest API Testing", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.npmjs.com/package/supertest"},
+            {"title": "Mocking Dependencies", "platform": "Self Study", "difficulty": "Hard", "url": "https://jestjs.io/docs/mock-functions"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "courseName": "System Design",
+  "totalTopics": 7,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "System Design Fundamentals",
+      "subtopics": [
+        {
+          "name": "Scalability Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Scalability - ByteByteGo", "url": "https://www.youtube.com/watch?v=y42ToxOxLQI"},
+            {"type": "youtube", "title": "System Design Primer", "url": "https://www.youtube.com/watch?v=q2MWdzhMq6A"}
+          ],
+          "practice": [
+            {"title": "Design LRU Cache", "platform": "LeetCode", "url": "https://leetcode.com/problems/lru-cache/"}
+          ]
+        },
+        {
+          "name": "Load Balancing",
+          "learningResources": [
+            {"type": "youtube", "title": "Load Balancers Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=sCR3SAVdyCc"}
+          ],
+          "practice": [
+            {"title": "Design Load Balancer", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-parking-system/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Databases",
+      "subtopics": [
+        {
+          "name": "SQL vs NoSQL",
+          "learningResources": [
+            {"type": "youtube", "title": "SQL vs NoSQL - ByteByteGo", "url": "https://www.youtube.com/watch?v=t0GlGbtMTio"}
+          ],
+          "practice": [
+            {"title": "Database Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-twitter/"}
+          ]
+        },
+        {
+          "name": "Database Sharding",
+          "learningResources": [
+            {"type": "youtube", "title": "Database Sharding - ByteByteGo", "url": "https://www.youtube.com/watch?v=5faMjKuB9bc"}
+          ],
+          "practice": [
+            {"title": "Distributed DB", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hashmap/"}
+          ]
+        },
+        {
+          "name": "Database Indexing",
+          "learningResources": [
+            {"type": "youtube", "title": "Indexing Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=-qNSXK7F3F0"}
+          ],
+          "practice": [
+            {"title": "Index Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hashset/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Caching",
+      "subtopics": [
+        {
+          "name": "Caching Strategies",
+          "learningResources": [
+            {"type": "youtube", "title": "Caching - ByteByteGo", "url": "https://www.youtube.com/watch?v=6FyXURRVmR0"}
+          ],
+          "practice": [
+            {"title": "LRU Cache", "platform": "LeetCode", "url": "https://leetcode.com/problems/lru-cache/"}
+          ]
+        },
+        {
+          "name": "Redis and Memcached",
+          "learningResources": [
+            {"type": "youtube", "title": "Redis Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=sVCZo5B8ghE"}
+          ],
+          "practice": [
+            {"title": "LFU Cache", "platform": "LeetCode", "url": "https://leetcode.com/problems/lfu-cache/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Message Queues",
+      "subtopics": [
+        {
+          "name": "Message Queue Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Message Queues - ByteByteGo", "url": "https://www.youtube.com/watch?v=xErwDaOc-Gs"}
+          ],
+          "practice": [
+            {"title": "Hit Counter", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-hit-counter/"}
+          ]
+        },
+        {
+          "name": "Kafka and RabbitMQ",
+          "learningResources": [
+            {"type": "youtube", "title": "Kafka Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=uvb00oaa3k8"}
+          ],
+          "practice": [
+            {"title": "Logger System", "platform": "LeetCode", "url": "https://leetcode.com/problems/logger-rate-limiter/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "API Design",
+      "subtopics": [
+        {
+          "name": "REST API Design",
+          "learningResources": [
+            {"type": "youtube", "title": "REST API Best Practices - ByteByteGo", "url": "https://www.youtube.com/watch?v=-mN3VyJuCjM"}
+          ],
+          "practice": [
+            {"title": "Design Twitter API", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-twitter/"}
+          ]
+        },
+        {
+          "name": "GraphQL",
+          "learningResources": [
+            {"type": "youtube", "title": "GraphQL Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=yWzKJPw_VzM"}
+          ],
+          "practice": [
+            {"title": "API Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-file-system/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Real World Systems",
+      "subtopics": [
+        {
+          "name": "Design URL Shortener",
+          "learningResources": [
+            {"type": "youtube", "title": "URL Shortener Design - ByteByteGo", "url": "https://www.youtube.com/watch?v=JQDHz72OA3c"}
+          ],
+          "practice": [
+            {"title": "Encode and Decode TinyURL", "platform": "LeetCode", "url": "https://leetcode.com/problems/encode-and-decode-tinyurl/"}
+          ]
+        },
+        {
+          "name": "Design Rate Limiter",
+          "learningResources": [
+            {"type": "youtube", "title": "Rate Limiter Design - ByteByteGo", "url": "https://www.youtube.com/watch?v=FU4WlwfS3G0"}
+          ],
+          "practice": [
+            {"title": "Rate Limiter", "platform": "LeetCode", "url": "https://leetcode.com/problems/logger-rate-limiter/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Microservices",
+      "subtopics": [
+        {
+          "name": "Microservices Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Microservices - ByteByteGo", "url": "https://www.youtube.com/watch?v=lTAcCNbJ7KE"}
+          ],
+          "practice": [
+            {"title": "Service Design", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-authentication-manager/"}
+          ]
+        },
+        {
+          "name": "Service Discovery",
+          "learningResources": [
+            {"type": "youtube", "title": "Service Discovery - ByteByteGo", "url": "https://www.youtube.com/watch?v=E5qEhD-R1W4"}
+          ],
+          "practice": [
+            {"title": "Discovery Pattern", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-search-autocomplete-system/"}
+          ]
+        }
+      ]
+    }
+  ]
+}
