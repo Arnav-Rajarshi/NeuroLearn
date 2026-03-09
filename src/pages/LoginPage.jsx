@@ -16,11 +16,17 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log("Lalalalalalaal100000000")
     setLoading(true)
+    console.log("alalalalalal1")
     setError("")
+    console.log("alalalalalal2")
 
     try {
       const data = await loginUser(username, password)
+      console.log(data)
+      console.log(data.user)
+      console.log(data.access_token)
 
       // store auth
       login(data.user, data.access_token)
