@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+<<<<<<< HEAD
 from typing import List, Optional, Dict, Any
+=======
+from typing import List, Dict ,Any ,Optional 
+>>>>>>> Module-RoadmapEngine
 from datetime import datetime
 
 from database import get_db
@@ -13,15 +17,26 @@ router = APIRouter(prefix="/progress", tags=["Progress"])
 
 # Pydantic schemas
 class ProgressUpdate(BaseModel):
+<<<<<<< HEAD
     course_name: str
     progress_json: Optional[Dict[str, Any]] = {}
     
+=======
+    cid: int
+    top_id: Optional[int] = None
+    progress_json: Optional[Dict[str, Any]] = {}
+
+>>>>>>> Module-RoadmapEngine
 
 class ProgressResponse(BaseModel):
     progress_id: int
     uid: int
     cid: int
+<<<<<<< HEAD
     course_name: str
+=======
+    top_id: Optional[int]
+>>>>>>> Module-RoadmapEngine
     progress_json: Dict[str, Any]
     last_updated: datetime
 

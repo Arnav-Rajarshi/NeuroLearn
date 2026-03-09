@@ -21,8 +21,15 @@ def get_db():
 
 def init_db():
     """Initialize database tables"""
+<<<<<<< HEAD
     from models import (
         User, Payment, Course, CourseEnrolled, 
         Roadmap, TopicsToBeShown, ProgressLevel, CoursePreference
     )
     Base.metadata.create_all(bind=engine)
+=======
+    """from models import User, Progress, Payment
+    Base.metadata.create_all(bind=engine)"""
+    pass
+    
+>>>>>>> Module-RoadmapEngine

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Numeric, Enum
 from sqlalchemy.dialects.postgresql import JSONB
+=======
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Text, JSON
+>>>>>>> Module-RoadmapEngine
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -20,19 +24,43 @@ class User(Base):
     __tablename__ = "users"
 
     uid = Column(Integer, primary_key=True, index=True)
+<<<<<<< HEAD
     name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     acc_status = Column(String(20), default="free")  # 'free' or 'premium'
     is_admin = Column(String(10), default="false")  # Keep for admin check
+=======
+    name = Column(String, nullable=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    acc_status = Column(String, default="free")
+>>>>>>> Module-RoadmapEngine
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
     payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
+<<<<<<< HEAD
     courses_enrolled = relationship("CourseEnrolled", back_populates="user", cascade="all, delete-orphan")
     topics_to_be_shown = relationship("TopicsToBeShown", back_populates="user", cascade="all, delete-orphan")
     progress_levels = relationship("ProgressLevel", back_populates="user", cascade="all, delete-orphan")
     course_preferences = relationship("CoursePreference", back_populates="user", cascade="all, delete-orphan")
+=======
+
+
+class Progress(Base):
+    __tablename__ = "progress_level"
+
+    progress_id = Column(Integer, primary_key=True, index=True)
+    uid = Column(Integer, ForeignKey("users.uid"), nullable=False)
+    cid = Column(Integer, nullable=False)
+    top_id = Column(Integer, nullable=True)
+    progress_json = Column(JSON, nullable=False)
+    last_updated = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="progress")
+>>>>>>> Module-RoadmapEngine
 
 
 class Payment(Base):
@@ -40,9 +68,15 @@ class Payment(Base):
 
     payment_id = Column(Integer, primary_key=True, index=True)
     uid = Column(Integer, ForeignKey("users.uid"), nullable=False)
+<<<<<<< HEAD
     amount = Column(Numeric(10, 2), nullable=False)  # Amount in rupees
     razor_id = Column(String(100), nullable=True)
     order_id = Column(String(100), nullable=True)
+=======
+    amount = Column(Integer, nullable=False)
+    razor_id = Column(Integer, nullable=True)
+    order_id = Column(String, nullable=True)
+>>>>>>> Module-RoadmapEngine
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
