@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime
+from decimal import Decimal
 import razorpay
 import hmac
 import hashlib
@@ -31,7 +32,7 @@ class PaymentVerification(BaseModel):
 class PaymentResponse(BaseModel):
     success: bool
     message: str
-    premium: bool
+    acc_status: str
 
 
 # Initialize Razorpay client
@@ -50,8 +51,9 @@ def create_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Create a Razorpay order for premium subscription"""
     # Check if user is already premium
-    if current_user.premium:
+    if current_user.acc_status == "premium":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User is already a premium member"
@@ -60,33 +62,34 @@ def create_order(
     try:
         client = get_razorpay_client()
         
+        # PREMIUM_AMOUNT is in rupees, Razorpay API needs paise
+        amount_in_paise = PREMIUM_AMOUNT * 100
+        
         # Create Razorpay order
         order_data = {
-            "amount": PREMIUM_AMOUNT,  # Amount in paise
+            "amount": amount_in_paise,
             "currency": PREMIUM_CURRENCY,
-            "receipt": f"receipt_{current_user.id}_{datetime.utcnow().timestamp()}",
+            "receipt": f"receipt_{current_user.uid}_{int(datetime.utcnow().timestamp())}",
             "notes": {
-                "user_id": str(current_user.id),
-                "username": current_user.username
+                "user_id": str(current_user.uid),
+                "user_name": current_user.name or ""
             }
         }
         
         order = client.order.create(data=order_data)
         
-        # Store order in database
+        # Store order in database (amount stored in rupees)
         payment = Payment(
-            user_id=current_user.id,
-            razorpay_order_id=order["id"],
-            amount=PREMIUM_AMOUNT,
-            currency=PREMIUM_CURRENCY,
-            status="created"
+            uid=current_user.uid,
+            order_id=order["id"],
+            amount=Decimal(str(PREMIUM_AMOUNT))
         )
         db.add(payment)
         db.commit()
         
         return OrderResponse(
             order_id=order["id"],
-            amount=PREMIUM_AMOUNT,
+            amount=amount_in_paise,
             currency=PREMIUM_CURRENCY,
             key=RAZORPAY_KEY
         )
@@ -104,10 +107,11 @@ def verify_payment(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Verify Razorpay payment and upgrade user to premium"""
     # Find the payment record
     payment = db.query(Payment).filter(
-        Payment.razorpay_order_id == verification.razorpay_order_id,
-        Payment.user_id == current_user.id
+        Payment.order_id == verification.razorpay_order_id,
+        Payment.uid == current_user.uid
     ).first()
     
     if not payment:
@@ -116,11 +120,12 @@ def verify_payment(
             detail="Order not found"
         )
     
-    if payment.status == "paid":
+    # Check if already verified
+    if payment.razor_id:
         return PaymentResponse(
             success=True,
             message="Payment already verified",
-            premium=True
+            acc_status="premium"
         )
     
     try:
@@ -133,34 +138,26 @@ def verify_payment(
         ).hexdigest()
         
         if generated_signature != verification.razorpay_signature:
-            payment.status = "failed"
-            db.commit()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid payment signature"
             )
         
-        # Payment verified successfully
-        payment.razorpay_payment_id = verification.razorpay_payment_id
-        payment.razorpay_signature = verification.razorpay_signature
-        payment.status = "paid"
-        
-        # Upgrade user to premium
-        current_user.premium = True
+        # Payment verified - update records
+        payment.razor_id = verification.razorpay_payment_id
+        current_user.acc_status = "premium"
         
         db.commit()
         
         return PaymentResponse(
             success=True,
             message="Payment verified successfully. You are now a premium member!",
-            premium=True
+            acc_status="premium"
         )
         
     except HTTPException:
         raise
     except Exception as e:
-        payment.status = "failed"
-        db.commit()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Payment verification failed: {str(e)}"
@@ -172,19 +169,19 @@ def get_payment_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Get payment history for current user"""
     payments = db.query(Payment).filter(
-        Payment.user_id == current_user.id
+        Payment.uid == current_user.uid
     ).order_by(Payment.created_at.desc()).all()
     
     return [
         {
-            "id": p.id,
-            "order_id": p.razorpay_order_id,
-            "payment_id": p.razorpay_payment_id,
-            "amount": p.amount / 100,  # Convert paise to rupees
-            "currency": p.currency,
-            "status": p.status,
-            "created_at": p.created_at
+            "payment_id": p.payment_id,
+            "order_id": p.order_id,
+            "razor_id": p.razor_id,
+            "amount": float(p.amount),
+            "created_at": p.created_at,
+            "verified": p.razor_id is not None
         }
         for p in payments
     ]

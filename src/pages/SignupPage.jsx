@@ -9,7 +9,7 @@ function SignupPage() {
   const { login } = useAuth()
   
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -48,7 +48,7 @@ function SignupPage() {
     setError('')
 
     try {
-      const data = await signupUser(formData.username, formData.email, formData.password)
+      const data = await signupUser(formData.name, formData.email, formData.password)
       login(data.user, data.access_token)
       navigate('/roadmap-engine/courses')
     } catch (err) {
@@ -77,21 +77,21 @@ function SignupPage() {
         {/* Signup Form */}
         <div className="dashboard-card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username Input */}
+            {/* Name Input */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                Username
+              <label htmlFor="name" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
+                Name
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 pl-11 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
-                  placeholder="Choose a username"
+                  placeholder="Enter your name"
                 />
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-muted)]" />
               </div>
