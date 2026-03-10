@@ -25,6 +25,7 @@ class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
+    
 
 
 class UserResponse(BaseModel):
