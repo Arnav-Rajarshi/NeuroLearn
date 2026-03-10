@@ -45,7 +45,7 @@ class Token(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email : EmailStr
     password: str
 
 
@@ -131,25 +131,30 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-def login(login_data: LoginRequest, db: Session = Depends(get_db)):
-    """Login user and return JWT token"""
-    user = db.query(User).filter(User.email == login_data.email).first()
-    
-    if not user or not verify_password(login_data.password, user.password_hash):
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=400,
             detail="Incorrect email or password"
         )
-    
+
+    # FIX HERE
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect email or password"
+        )
+
     access_token = create_access_token(data={"sub": str(user.uid)})
-    
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "user": user
     }
-
-
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     """Get current user profile"""

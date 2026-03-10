@@ -209,8 +209,28 @@ export async function loadCourseData(courseId, roadmapType = 'pnl') {
     // Fetch JSON files from public/data/courses folder
     const response = await fetch(`/data/courses/${fileName}`)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+
+  const errorData = await response.json()
+
+  console.error("Backend error payload:", errorData)
+
+  let message = "API request failed"
+
+  if (typeof errorData?.detail === "string") {
+    message = errorData.detail
+  } 
+  else if (typeof errorData?.detail === "object") {
+    message = JSON.stringify(errorData.detail)
+  } 
+  else if (errorData?.message) {
+    message = errorData.message
+  } 
+  else {
+    message = JSON.stringify(errorData)
+  }
+
+  throw new Error(message)
+}
     const data = await response.json()
     return data
   } catch (error) {

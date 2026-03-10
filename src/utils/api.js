@@ -24,9 +24,28 @@ async function fetchApi(endpoint, options = {}) {
     const response = await fetch(url, config)
     
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.detail || JSON.stringify(errorData))
-    }
+
+  const errorData = await response.json()
+
+  console.error("Backend error payload:", errorData)
+
+  let message = "API request failed"
+
+  if (typeof errorData?.detail === "string") {
+    message = errorData.detail
+  } 
+  else if (typeof errorData?.detail === "object") {
+    message = JSON.stringify(errorData.detail)
+  } 
+  else if (errorData?.message) {
+    message = errorData.message
+  } 
+  else {
+    message = JSON.stringify(errorData)
+  }
+
+  throw new Error(message)
+}
     
     return await response.json()
   } catch (error) {
@@ -37,10 +56,14 @@ async function fetchApi(endpoint, options = {}) {
 
 // ============ AUTH API ============
 
-export async function loginUser(email, password) {
+export async function loginUser(name, password) {
   const data = await fetchApi('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({
+      name,
+      email: name,   // backend requires email but you're using username
+      password
+    }),
   })
   
   // Store token and user data
