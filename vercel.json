@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd Performance_Dashboard && npm install && npm run build",
+  "outputDirectory": "Performance_Dashboard/dist",
+  "installCommand": "cd Performance_Dashboard && npm install",
+  "framework": "vite"
+}
