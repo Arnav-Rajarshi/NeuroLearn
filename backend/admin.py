@@ -8,9 +8,21 @@ from decimal import Decimal
 
 from database import get_db
 from models import User, Payment, Course, CourseEnrolled, ProgressLevel
-from auth import get_current_admin
+from auth import get_current_user, verify_password
+from config import ADMIN_USERNAME, ADMIN_PASSWORD
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+# Admin authentication dependency
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Verify user has admin privileges (premium status acts as admin for now)"""
+    if current_user.acc_status != "premium" and current_user.email != f"{ADMIN_USERNAME}@admin.com":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
 
 
 # Pydantic schemas
@@ -23,7 +35,7 @@ class DashboardStats(BaseModel):
 
 class UserSummary(BaseModel):
     uid: int
-    name: str
+    name: Optional[str]
     email: str
     acc_status: str
     created_at: datetime
@@ -35,7 +47,7 @@ class UserSummary(BaseModel):
 class PaymentSummary(BaseModel):
     payment_id: int
     uid: int
-    user_name: str
+    user_name: Optional[str]
     user_email: str
     amount: float
     razor_id: Optional[str]
@@ -60,20 +72,23 @@ def get_dashboard(
     db: Session = Depends(get_db)
 ):
     """Get dashboard statistics"""
-    # Total users (excluding admin)
-    total_users = db.query(User).filter(User.is_admin != "true").count()
+    # Total users
+    total_users = db.query(User).count()
     
     # Premium users
     premium_users = db.query(User).filter(
-        User.acc_status == "premium",
-        User.is_admin != "true"
+        User.acc_status == "premium"
     ).count()
     
     # Total payments
-    total_payments = db.query(Payment).count()
+    total_payments = db.query(Payment).filter(
+        Payment.razor_id.isnot(None)  # Only count verified payments
+    ).count()
     
-    # Total revenue (amount is already in rupees, no division needed)
-    total_revenue_result = db.query(func.sum(Payment.amount)).scalar()
+    # Total revenue (amount is in rupees)
+    total_revenue_result = db.query(func.sum(Payment.amount)).filter(
+        Payment.razor_id.isnot(None)
+    ).scalar()
     total_revenue = float(total_revenue_result) if total_revenue_result else 0.0
     
     return DashboardStats(
@@ -92,9 +107,9 @@ def get_all_users(
     limit: int = 50
 ):
     """Get paginated list of users"""
-    users = db.query(User).filter(
-        User.is_admin != "true"
-    ).order_by(User.created_at.desc()).offset(skip).limit(limit).all()
+    users = db.query(User).order_by(
+        User.created_at.desc()
+    ).offset(skip).limit(limit).all()
     
     return [
         UserSummary(
@@ -128,7 +143,7 @@ def get_all_payments(
             uid=p.uid,
             user_name=p.user.name,
             user_email=p.user.email,
-            amount=float(p.amount),  # Already in rupees
+            amount=float(p.amount),
             razor_id=p.razor_id,
             order_id=p.order_id,
             created_at=p.created_at
@@ -171,17 +186,16 @@ def get_course_stats(
     db: Session = Depends(get_db)
 ):
     """Get course statistics using enrollments and progress"""
-    # Get all courses with enrollment counts
     courses = db.query(Course).all()
     
     result = []
     for course in courses:
-        # Count enrollments from courses_enrolled
+        # Count enrollments
         enrolled_users = db.query(CourseEnrolled).filter(
             CourseEnrolled.cid == course.cid
         ).count()
         
-        # Count users with progress from progress_level
+        # Count users with progress
         users_with_progress = db.query(ProgressLevel).filter(
             ProgressLevel.cid == course.cid
         ).distinct(ProgressLevel.uid).count()

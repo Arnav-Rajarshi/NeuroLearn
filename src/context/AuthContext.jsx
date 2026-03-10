@@ -26,7 +26,8 @@ export function AuthProvider({ children }) {
           // Verify token is still valid by fetching current user
           const currentUser = await getCurrentUser()
           setUser(currentUser)
-          setPremium(currentUser.premium)
+          // Check premium status based on acc_status
+          setPremium(currentUser.acc_status === 'premium')
           setIsAuthenticated(true)
         } catch (error) {
           // Token is invalid, clear storage
@@ -45,7 +46,8 @@ export function AuthProvider({ children }) {
 
   const login = (userData, token) => {
     setUser(userData)
-    setPremium(userData.premium)
+    // Check premium based on acc_status field
+    setPremium(userData.acc_status === 'premium')
     setIsAuthenticated(true)
   }
 
@@ -59,9 +61,10 @@ export function AuthProvider({ children }) {
   const updatePremiumStatus = (status) => {
     setPremium(status)
     if (user) {
-      setUser({ ...user, premium: status })
+      const updatedUser = { ...user, acc_status: status ? 'premium' : 'free' }
+      setUser(updatedUser)
       // Update stored user
-      localStorage.setItem('neurolearn_user', JSON.stringify({ ...user, premium: status }))
+      localStorage.setItem('neurolearn_user', JSON.stringify(updatedUser))
     }
   }
 
@@ -69,7 +72,7 @@ export function AuthProvider({ children }) {
     try {
       const currentUser = await getCurrentUser()
       setUser(currentUser)
-      setPremium(currentUser.premium)
+      setPremium(currentUser.acc_status === 'premium')
       return currentUser
     } catch (error) {
       console.error('Failed to refresh user:', error)
@@ -82,7 +85,6 @@ export function AuthProvider({ children }) {
     premium,
     loading,
     isAuthenticated,
-    isAdmin: user?.is_admin || false,
     login,
     logout,
     updatePremiumStatus,

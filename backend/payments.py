@@ -32,7 +32,6 @@ class PaymentVerification(BaseModel):
 class PaymentResponse(BaseModel):
     success: bool
     message: str
-    premium: bool
     acc_status: str
 
 
@@ -52,6 +51,7 @@ def create_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Create a Razorpay order for premium subscription"""
     # Check if user is already premium
     if current_user.acc_status == "premium":
         raise HTTPException(
@@ -62,7 +62,7 @@ def create_order(
     try:
         client = get_razorpay_client()
         
-        # PREMIUM_AMOUNT is in rupees, Razorpay API needs paise (rupees * 100)
+        # PREMIUM_AMOUNT is in rupees, Razorpay API needs paise
         amount_in_paise = PREMIUM_AMOUNT * 100
         
         # Create Razorpay order
@@ -72,7 +72,7 @@ def create_order(
             "receipt": f"receipt_{current_user.uid}_{int(datetime.utcnow().timestamp())}",
             "notes": {
                 "user_id": str(current_user.uid),
-                "user_name": current_user.name
+                "user_name": current_user.name or ""
             }
         }
         
@@ -89,7 +89,7 @@ def create_order(
         
         return OrderResponse(
             order_id=order["id"],
-            amount=amount_in_paise,  # Razorpay frontend expects paise
+            amount=amount_in_paise,
             currency=PREMIUM_CURRENCY,
             key=RAZORPAY_KEY
         )
@@ -107,6 +107,7 @@ def verify_payment(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Verify Razorpay payment and upgrade user to premium"""
     # Find the payment record
     payment = db.query(Payment).filter(
         Payment.order_id == verification.razorpay_order_id,
@@ -124,7 +125,6 @@ def verify_payment(
         return PaymentResponse(
             success=True,
             message="Payment already verified",
-            premium=True,
             acc_status="premium"
         )
     
@@ -143,10 +143,8 @@ def verify_payment(
                 detail="Invalid payment signature"
             )
         
-        # Payment verified successfully - update payment record
+        # Payment verified - update records
         payment.razor_id = verification.razorpay_payment_id
-        
-        # Upgrade user to premium
         current_user.acc_status = "premium"
         
         db.commit()
@@ -154,7 +152,6 @@ def verify_payment(
         return PaymentResponse(
             success=True,
             message="Payment verified successfully. You are now a premium member!",
-            premium=True,
             acc_status="premium"
         )
         
@@ -172,6 +169,7 @@ def get_payment_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Get payment history for current user"""
     payments = db.query(Payment).filter(
         Payment.uid == current_user.uid
     ).order_by(Payment.created_at.desc()).all()
@@ -181,8 +179,9 @@ def get_payment_history(
             "payment_id": p.payment_id,
             "order_id": p.order_id,
             "razor_id": p.razor_id,
-            "amount": float(p.amount),  # Already in rupees
-            "created_at": p.created_at
+            "amount": float(p.amount),
+            "created_at": p.created_at,
+            "verified": p.razor_id is not None
         }
         for p in payments
     ]

@@ -24,9 +24,9 @@ async function fetchApi(endpoint, options = {}) {
     const response = await fetch(url, config)
     
     if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(errorData.detail || JSON.stringify(errorData))
-}
+      const errorData = await response.json()
+      throw new Error(errorData.detail || JSON.stringify(errorData))
+    }
     
     return await response.json()
   } catch (error) {
@@ -37,10 +37,10 @@ async function fetchApi(endpoint, options = {}) {
 
 // ============ AUTH API ============
 
-export async function loginUser(email , password) {
+export async function loginUser(email, password) {
   const data = await fetchApi('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email , password }),
+    body: JSON.stringify({ email, password }),
   })
   
   // Store token and user data
@@ -50,10 +50,10 @@ export async function loginUser(email , password) {
   return data
 }
 
-export async function signupUser(username, email, password) {
+export async function signupUser(name, email, password) {
   const data = await fetchApi('/auth/signup', {
     method: 'POST',
-    body: JSON.stringify({ username, email, password }),
+    body: JSON.stringify({ name, email, password }),
   })
   
   // Store token and user data
@@ -65,6 +65,15 @@ export async function signupUser(username, email, password) {
 
 export async function getCurrentUser() {
   return await fetchApi('/auth/me')
+}
+
+export async function getPremiumStatus() {
+  try {
+    const data = await fetchApi('/auth/premium-status')
+    return data.is_premium
+  } catch (error) {
+    return false
+  }
 }
 
 export function logout() {
@@ -86,15 +95,6 @@ export function isAuthenticated() {
 }
 
 // ============ PREMIUM/PAYMENTS API ============
-
-export async function getPremiumStatus() {
-  try {
-    const user = await getCurrentUser()
-    return user.premium
-  } catch (error) {
-    return false
-  }
-}
 
 export async function createRazorpayOrder() {
   return await fetchApi('/payments/create-order')
@@ -128,11 +128,10 @@ export async function getUserProgress(userId) {
   return await fetchApi(`/progress/${userId}`)
 }
 
-export async function getCourseProgress(courseName) {
+export async function getCourseProgress(cid) {
   try {
-    return await fetchApi(`/progress/course/${courseName}`)
+    return await fetchApi(`/progress/course/${cid}`)
   } catch (error) {
-    // Return null if no progress found
     return null
   }
 }
@@ -151,8 +150,8 @@ export async function getAllPayments(skip = 0, limit = 50) {
   return await fetchApi(`/admin/payments?skip=${skip}&limit=${limit}`)
 }
 
-export async function toggleUserPremium(userId) {
-  return await fetchApi(`/admin/users/${userId}/toggle-premium`, {
+export async function toggleUserPremium(uid) {
+  return await fetchApi(`/admin/users/${uid}/toggle-premium`, {
     method: 'POST',
   })
 }

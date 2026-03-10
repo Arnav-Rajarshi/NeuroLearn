@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { GraduationCap, LogIn, Eye, EyeOff, Shield } from "lucide-react"
+import { GraduationCap, LogIn, Eye, EyeOff, Shield, Mail } from "lucide-react"
 import { loginUser } from "../utils/api.js"
 import { useAuth } from "../context/AuthContext.jsx"
 
@@ -8,7 +8,7 @@ function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -16,24 +16,18 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log("Lalalalalalaal100000000")
     setLoading(true)
-    console.log("alalalalalal1")
     setError("")
-    console.log("alalalalalal2")
 
     try {
-      const data = await loginUser(username, password)
-      console.log(data)
-      console.log(data.user)
-      console.log(data.access_token)
-
-      // store auth
+      const data = await loginUser(email, password)
+      
+      // Store auth
       login(data.user, data.access_token)
 
-      // admin vs user redirect
-      if (data.user && data.user.is_admin === true) {
-        navigate("/admin-dashboard")
+      // Redirect based on premium status (premium users can access admin)
+      if (data.user && data.user.acc_status === "premium") {
+        navigate("/roadmap-engine/courses")
       } else {
         navigate("/roadmap-engine/courses")
       }
@@ -69,20 +63,23 @@ function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Username */}
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                Username
+                Email
               </label>
 
-              <input
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)]"
-                placeholder="Enter username"
-              />
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 pl-11 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
+                  placeholder="Enter your email"
+                />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-muted)]" />
+              </div>
             </div>
 
             {/* Password */}
@@ -97,14 +94,14 @@ function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)]"
+                  className="w-full px-4 py-3 pr-12 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
                   placeholder="Enter password"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -117,7 +114,7 @@ function LoginPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 text-red-400 text-sm">
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -126,7 +123,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -143,7 +140,7 @@ function LoginPage() {
           {/* Signup */}
           <div className="text-center mt-6 text-sm text-[var(--color-muted)]">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-[var(--color-primary)]">
+            <Link to="/signup" className="text-[var(--color-primary)] hover:text-[var(--color-accent)] font-medium transition-colors">
               Create one
             </Link>
           </div>
@@ -153,7 +150,7 @@ function LoginPage() {
         <div className="mt-6 text-center">
           <Link
             to="/admin-login"
-            className="inline-flex items-center gap-2 text-sm text-[var(--color-muted)]"
+            className="inline-flex items-center gap-2 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
           >
             <Shield className="w-4 h-4" />
             Admin Login
