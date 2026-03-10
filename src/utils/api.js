@@ -24,9 +24,9 @@ async function fetchApi(endpoint, options = {}) {
     const response = await fetch(url, config)
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
-    }
+    const errorData = await response.json()
+    throw new Error(errorData.detail || JSON.stringify(errorData))
+}
     
     return await response.json()
   } catch (error) {
@@ -37,10 +37,10 @@ async function fetchApi(endpoint, options = {}) {
 
 // ============ AUTH API ============
 
-export async function loginUser(username, password) {
+export async function loginUser(email , password) {
   const data = await fetchApi('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email , password }),
   })
   
   // Store token and user data
