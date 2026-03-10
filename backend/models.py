@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric, Date
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric, Date, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -14,6 +14,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     acc_status = Column(String, default="free")  # 'free' or 'premium'
+    is_admin = Column(Boolean, default=False)  # Admin privilege flag
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

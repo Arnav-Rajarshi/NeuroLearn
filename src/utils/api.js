@@ -59,7 +59,10 @@ async function fetchApi(endpoint, options = {}) {
 export async function loginUser(email, password) {
   const data = await fetchApi('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({
+      email,
+      password
+    }),
   })
   
   // Store token and user data

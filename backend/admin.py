@@ -8,20 +8,9 @@ from decimal import Decimal
 
 from database import get_db
 from models import User, Payment, Course, CourseEnrolled, ProgressLevel
-from auth import get_current_user, verify_password
-from config import ADMIN_USERNAME, ADMIN_PASSWORD
+from auth import get_current_admin
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
-
-
-# Admin authentication dependency
-def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.acc_status == "premium":
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required"
-        )
-    return current_user
 
 
 # Pydantic schemas
@@ -37,6 +26,7 @@ class UserSummary(BaseModel):
     name: Optional[str]
     email: str
     acc_status: str
+    is_admin: bool
     created_at: datetime
 
     class Config:
@@ -116,6 +106,7 @@ def get_all_users(
             name=u.name,
             email=u.email,
             acc_status=u.acc_status,
+            is_admin=u.is_admin,
             created_at=u.created_at
         )
         for u in users
