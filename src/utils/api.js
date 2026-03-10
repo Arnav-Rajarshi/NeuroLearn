@@ -1,4 +1,6 @@
 // API utility for communicating with FastAPI backend
+import { getCid } from '../constants/courseMap.js'
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 // Helper function to get auth headers
@@ -150,8 +152,9 @@ export async function getUserProgress(userId) {
   return await fetchApi(`/progress/${userId}`)
 }
 
-export async function getCourseProgress(cid) {
+export async function getCourseProgress(courseIdOrSlug) {
   try {
+    const cid = getCid(courseIdOrSlug)
     const data = await fetchApi(`/progress/course/${cid}`)
     // Calculate completed count from progress_json
     const progressJson = data.progress_json || {}
@@ -170,7 +173,8 @@ export async function getCourseProgress(cid) {
   }
 }
 
-export async function updateCourseProgress(cid, topic, subtopic) {
+export async function updateCourseProgress(courseIdOrSlug, topic, subtopic) {
+  const cid = getCid(courseIdOrSlug)
   // First get current progress
   const current = await getCourseProgress(cid)
   const progressJson = current.progress_json || {}
@@ -194,8 +198,9 @@ export async function updateCourseProgress(cid, topic, subtopic) {
 
 // ============ COURSE PREFERENCES API ============
 
-export async function getCoursePreferences(cid) {
+export async function getCoursePreferences(courseIdOrSlug) {
   try {
+    const cid = getCid(courseIdOrSlug)
     return await fetchApi(`/courses/preferences/${cid}`)
   } catch (error) {
     return null
@@ -203,9 +208,14 @@ export async function getCoursePreferences(cid) {
 }
 
 export async function saveCoursePreferences(data) {
+  // Convert slug to cid if needed
+  const payload = {
+    ...data,
+    cid: getCid(data.cid),
+  }
   return await fetchApi('/courses/preferences', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   })
 }
 
@@ -213,7 +223,8 @@ export async function getEnrolledCourses() {
   return await fetchApi('/courses/enrolled')
 }
 
-export async function enrollInCourse(cid) {
+export async function enrollInCourse(courseIdOrSlug) {
+  const cid = getCid(courseIdOrSlug)
   return await fetchApi(`/courses/enroll/${cid}`, {
     method: 'POST',
   })

@@ -13,14 +13,8 @@ import {
 } from 'lucide-react'
 import TopicAccordion from '../components/TopicAccordion.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
-import { getCourseById, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
-import { 
-  getCourseSettings, 
-  getProgress,
-  getTotalCompletedSubtopics,
-  getGoalDeadline,
-  getTotalXP
-} from '../utils/progressStore.js'
+import { getCourseById, loadCourseData } from '../utils/loadCourseData.js'
+import { getCourseProgress, getCoursePreferences } from '../utils/api.js'
 
 function RoadmapPage() {
   const { course: courseId } = useParams()
@@ -34,7 +28,7 @@ function RoadmapPage() {
   const [courseData, setCourseData] = useState(null)
   const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [progress, setProgress] = useState(null)
+  const [progress, setProgress] = useState({ completed: 0, progress_json: {} })
   const [totalXP, setTotalXP] = useState(0)
 
   useEffect(() => {
@@ -48,19 +42,31 @@ function RoadmapPage() {
       }
       setCourse(courseInfo)
 
-      const courseSettings = getCourseSettings(courseId)
-      if (!courseSettings) {
+      // Load preferences from backend API
+      const prefs = await getCoursePreferences(courseId)
+      if (!prefs || !prefs.lm) {
         // Redirect to setup if no settings
         navigate(`/roadmap-engine/setup/${courseId}`)
         return
       }
-      setSettings(courseSettings)
+      setSettings({
+        roadmapType: prefs.lm,
+        goalDeadline: prefs.goal_date,
+        weeklyHours: prefs.hrs_per_week
+      })
 
       try {
-        const data = await loadCourseData(courseId, courseSettings.roadmapType)
+        // Load course data based on roadmap type
+        const roadmapType = prefs.lm === 'PRACTICE' ? 'practice' : 'pnl'
+        const data = await loadCourseData(courseId, roadmapType)
         setCourseData(data)
-        setProgress(getProgress())
-        setTotalXP(getTotalXP())
+        
+        // Load progress from backend API
+        const progressData = await getCourseProgress(courseId)
+        setProgress(progressData)
+        
+        // Calculate XP from completed subtopics (10 XP per subtopic)
+        setTotalXP(progressData.completed * 10)
       } catch (error) {
         console.error('Failed to load course data', error)
       }
@@ -70,13 +76,15 @@ function RoadmapPage() {
   }, [courseId, navigate])
 
   const getCompletedSubtopicsForTopic = (topicName) => {
-    if (!progress?.completedSubtopics?.[courseId]?.[topicName]) return []
-    return progress.completedSubtopics[courseId][topicName]
+    if (!progress?.progress_json?.[topicName]) return []
+    return progress.progress_json[topicName]
   }
 
-  const handleTopicComplete = (topicName, xpEarned) => {
-    setTotalXP(getTotalXP())
-    setProgress(getProgress())
+  const handleTopicComplete = async () => {
+    // Refresh progress from backend
+    const progressData = await getCourseProgress(courseId)
+    setProgress(progressData)
+    setTotalXP(progressData.completed * 10)
   }
 
   // Filter out known topics from the roadmap
@@ -88,10 +96,10 @@ function RoadmapPage() {
   const totalSubtopics = filteredTopics.reduce((total, topic) => {
     return total + (topic.subtopics ? topic.subtopics.length : 0)
   }, 0)
-  const completedSubtopics = getTotalCompletedSubtopics(courseId)
+  const completedSubtopics = progress.completed || 0
   const overallProgress = totalSubtopics > 0 ? (completedSubtopics / totalSubtopics) * 100 : 0
 
-  const goalDeadline = getGoalDeadline()
+  const goalDeadline = settings?.goalDeadline
   const daysRemaining = goalDeadline 
     ? Math.max(0, Math.ceil((new Date(goalDeadline) - new Date()) / (1000 * 60 * 60 * 24)))
     : null
@@ -127,7 +135,7 @@ function RoadmapPage() {
                   {courseData.courseName || course.name}
                 </h1>
                 <div className="flex items-center gap-2 mt-0.5">
-                  {settings?.roadmapType === 'practice' ? (
+                  {settings?.roadmapType === 'PRACTICE' ? (
                     <span className="flex items-center gap-1 text-xs text-[var(--color-accent)]">
                       <Code className="w-3 h-3" />
                       Practice Only
