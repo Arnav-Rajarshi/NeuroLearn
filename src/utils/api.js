@@ -152,10 +152,71 @@ export async function getUserProgress(userId) {
 
 export async function getCourseProgress(cid) {
   try {
-    return await fetchApi(`/progress/course/${cid}`)
+    const data = await fetchApi(`/progress/course/${cid}`)
+    // Calculate completed count from progress_json
+    const progressJson = data.progress_json || {}
+    let completed = 0
+    for (const topic in progressJson) {
+      if (Array.isArray(progressJson[topic])) {
+        completed += progressJson[topic].length
+      }
+    }
+    return {
+      ...data,
+      completed
+    }
+  } catch (error) {
+    return { completed: 0, progress_json: {} }
+  }
+}
+
+export async function updateCourseProgress(cid, topic, subtopic) {
+  // First get current progress
+  const current = await getCourseProgress(cid)
+  const progressJson = current.progress_json || {}
+  
+  // Add subtopic to topic array if not already present
+  if (!progressJson[topic]) {
+    progressJson[topic] = []
+  }
+  if (!progressJson[topic].includes(subtopic)) {
+    progressJson[topic].push(subtopic)
+  }
+  
+  return await fetchApi('/progress/update', {
+    method: 'POST',
+    body: JSON.stringify({
+      cid,
+      progress_json: progressJson
+    }),
+  })
+}
+
+// ============ COURSE PREFERENCES API ============
+
+export async function getCoursePreferences(cid) {
+  try {
+    return await fetchApi(`/courses/preferences/${cid}`)
   } catch (error) {
     return null
   }
+}
+
+export async function saveCoursePreferences(data) {
+  return await fetchApi('/courses/preferences', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getEnrolledCourses() {
+  return await fetchApi('/courses/enrolled')
+}
+
+export async function enrollInCourse(cid) {
+  return await fetchApi(`/courses/enroll/${cid}`, {
+    method: 'POST',
+  })
 }
 
 // ============ ADMIN API ============
