@@ -12,7 +12,21 @@ import {
 import { TrendingUp } from "lucide-react"
 
 import { generateProgressTrendData } from "../utils/metrics"
-import { progressHistory } from "../data/mockData"
+
+// Default progress history for fallback
+const DEFAULT_PROGRESS_HISTORY = [
+  { week: "Week 1", completed: 1 },
+  { week: "Week 2", completed: 3 },
+  { week: "Week 3", completed: 2 },
+  { week: "Week 4", completed: 4 },
+  { week: "Week 5", completed: 6 },
+  { week: "Week 6", completed: 8 },
+  { week: "Week 7", completed: 7 },
+  { week: "Week 8", completed: 10 },
+  { week: "Week 9", completed: 11 },
+  { week: "Week 10", completed: 8 },
+  { week: "Week 11", completed: 12 },
+]
 
 const PRIMARY = "#7B6BDE"
 const ACCENT = "#3DC98A"
@@ -54,9 +68,13 @@ function CustomTooltip({ active, payload, label }) {
 
 
 
-function ProgressTrendGraph({ courses }) {
-
-  const data = generateProgressTrendData(courses, progressHistory)
+function ProgressTrendGraph({ courses, progressHistory }) {
+  // Use provided progressHistory or fallback to default
+  const history = progressHistory && progressHistory.length > 0 
+    ? progressHistory 
+    : DEFAULT_PROGRESS_HISTORY
+    
+  const data = generateProgressTrendData(courses, history)
 
   return (
 
