@@ -12,6 +12,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [premium, setPremium] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
@@ -28,12 +29,15 @@ export function AuthProvider({ children }) {
           setUser(currentUser)
           // Check premium status based on acc_status
           setPremium(currentUser.acc_status === 'premium')
+          // Check admin status
+          setIsAdmin(currentUser.is_admin === true)
           setIsAuthenticated(true)
         } catch (error) {
           // Token is invalid, clear storage
           apiLogout()
           setUser(null)
           setPremium(false)
+          setIsAdmin(false)
           setIsAuthenticated(false)
         }
       }
@@ -48,6 +52,8 @@ export function AuthProvider({ children }) {
     setUser(userData)
     // Check premium based on acc_status field
     setPremium(userData.acc_status === 'premium')
+    // Check admin based on is_admin field
+    setIsAdmin(userData.is_admin === true)
     setIsAuthenticated(true)
   }
 
@@ -55,6 +61,7 @@ export function AuthProvider({ children }) {
     apiLogout()
     setUser(null)
     setPremium(false)
+    setIsAdmin(false)
     setIsAuthenticated(false)
   }
 
@@ -73,6 +80,7 @@ export function AuthProvider({ children }) {
       const currentUser = await getCurrentUser()
       setUser(currentUser)
       setPremium(currentUser.acc_status === 'premium')
+      setIsAdmin(currentUser.is_admin === true)
       return currentUser
     } catch (error) {
       console.error('Failed to refresh user:', error)
@@ -83,6 +91,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     premium,
+    isAdmin,
     loading,
     isAuthenticated,
     login,

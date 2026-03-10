@@ -56,12 +56,11 @@ async function fetchApi(endpoint, options = {}) {
 
 // ============ AUTH API ============
 
-export async function loginUser(name, password) {
+export async function loginUser(email, password) {
   const data = await fetchApi('/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      name,
-      email: name,   // backend requires email but you're using username
+      email,
       password
     }),
   })
