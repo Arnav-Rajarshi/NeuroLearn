@@ -13,8 +13,8 @@ import {
 } from 'lucide-react'
 import TopicAccordion from '../components/TopicAccordion.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
-import { getCourseById, loadCourseData } from '../utils/loadCourseData.js'
-import { getCourseProgress, getCoursePreferences } from '../utils/api.js'
+import { getCourseById } from '../utils/loadCourseData.js'
+import { getRoadmap, getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
 
 function RoadmapPage() {
   const { course: courseId } = useParams()
@@ -25,10 +25,11 @@ function RoadmapPage() {
   const knownTopics = location.state?.knownTopics || []
   
   const [course, setCourse] = useState(null)
-  const [courseData, setCourseData] = useState(null)
+  const [roadmapData, setRoadmapData] = useState(null)
   const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [progress, setProgress] = useState({ completed: 0, progress_json: {} })
+  const [progress, setProgress] = useState({})
+  const [topicsToBeShown, setTopicsToBeShown] = useState([])
   const [totalXP, setTotalXP] = useState(0)
 
   useEffect(() => {
@@ -49,46 +50,85 @@ function RoadmapPage() {
         navigate(`/roadmap-engine/setup/${courseId}`)
         return
       }
+      
+      const roadmapType = prefs.lm
       setSettings({
-        roadmapType: prefs.lm,
+        roadmapType,
         goalDeadline: prefs.goal_date,
         weeklyHours: prefs.hrs_per_week
       })
 
       try {
-        // Load course data based on roadmap type
-        const roadmapType = prefs.lm === 'PRACTICE' ? 'practice' : 'pnl'
-        const data = await loadCourseData(courseId, roadmapType)
-        setCourseData(data)
+        // Load full roadmap with progress from backend
+        // This uses the new roadmap pipeline: JSON is source of truth
+        const roadmap = await getRoadmap(courseId, roadmapType)
         
-        // Load progress from backend API
-        const progressData = await getCourseProgress(courseId)
-        setProgress(progressData)
+        setRoadmapData({
+          courseName: roadmap.course_name,
+          estimatedHours: roadmap.estimated_hours,
+          topics: roadmap.topics,
+          totalTopics: roadmap.total_topics,
+          completedTopics: roadmap.completed_topics,
+          completionPercentage: roadmap.completion_percentage
+        })
+        
+        setProgress(roadmap.progress || {})
+        setTopicsToBeShown(roadmap.topics_to_be_shown || [])
         
         // Calculate XP from completed subtopics (10 XP per subtopic)
-        setTotalXP(progressData.completed * 10)
+        setTotalXP(roadmap.completed_topics * 10)
       } catch (error) {
-        console.error('Failed to load course data', error)
+        console.error('Failed to load roadmap data', error)
       }
       setLoading(false)
     }
     loadData()
   }, [courseId, navigate])
 
+  // Check if a subtopic is completed using the topic_key format
+  const isSubtopicCompleted = (topicName, subtopicName) => {
+    const key = `${topicName}::${subtopicName}`
+    return progress[key] === true
+  }
+
   const getCompletedSubtopicsForTopic = (topicName) => {
-    if (!progress?.progress_json?.[topicName]) return []
-    return progress.progress_json[topicName]
+    // Return array of subtopic names that are completed for this topic
+    const completed = []
+    for (const [key, value] of Object.entries(progress)) {
+      if (value === true && key.startsWith(`${topicName}::`)) {
+        // Extract subtopic name from key
+        const subtopicName = key.split('::')[1]
+        if (subtopicName) {
+          completed.push(subtopicName)
+        }
+      }
+    }
+    return completed
   }
 
   const handleTopicComplete = async () => {
-    // Refresh progress from backend
-    const progressData = await getCourseProgress(courseId)
-    setProgress(progressData)
-    setTotalXP(progressData.completed * 10)
+    // Refresh progress from backend using the new roadmap pipeline
+    try {
+      const roadmapType = settings?.roadmapType || 'PNL'
+      const updatedProgress = await getRoadmapProgress(courseId, roadmapType)
+      
+      setProgress(updatedProgress.progress || {})
+      setTopicsToBeShown(updatedProgress.topics_to_be_shown || [])
+      setTotalXP(updatedProgress.completed_topics * 10)
+      
+      // Update roadmapData with new completion stats
+      setRoadmapData(prev => ({
+        ...prev,
+        completedTopics: updatedProgress.completed_topics,
+        completionPercentage: updatedProgress.completion_percentage
+      }))
+    } catch (error) {
+      console.error('Failed to refresh progress', error)
+    }
   }
 
   // Filter out known topics from the roadmap
-  const filteredTopics = courseData?.topics?.filter(
+  const filteredTopics = roadmapData?.topics?.filter(
     topic => !knownTopics.includes(topic.name)
   ) || []
 
@@ -96,7 +136,9 @@ function RoadmapPage() {
   const totalSubtopics = filteredTopics.reduce((total, topic) => {
     return total + (topic.subtopics ? topic.subtopics.length : 0)
   }, 0)
-  const completedSubtopics = progress.completed || 0
+  
+  // Count completed subtopics from progress object
+  const completedSubtopics = Object.values(progress).filter(v => v === true).length
   const overallProgress = totalSubtopics > 0 ? (completedSubtopics / totalSubtopics) * 100 : 0
 
   const goalDeadline = settings?.goalDeadline
@@ -112,7 +154,7 @@ function RoadmapPage() {
     )
   }
 
-  if (!course || !courseData) {
+  if (!course || !roadmapData) {
     return null
   }
 
@@ -132,7 +174,7 @@ function RoadmapPage() {
               </button>
               <div>
                 <h1 className="font-heading text-lg font-bold text-[var(--color-foreground)]">
-                  {courseData.courseName || course.name}
+                  {roadmapData.courseName || course.name}
                 </h1>
                 <div className="flex items-center gap-2 mt-0.5">
                   {settings?.roadmapType === 'PRACTICE' ? (
@@ -144,6 +186,11 @@ function RoadmapPage() {
                     <span className="flex items-center gap-1 text-xs text-[var(--color-primary)]">
                       <BookOpen className="w-3 h-3" />
                       Learning + Practice
+                    </span>
+                  )}
+                  {topicsToBeShown.length > 0 && (
+                    <span className="text-xs text-[var(--color-muted)]">
+                      ({topicsToBeShown.length} remaining)
                     </span>
                   )}
                 </div>
@@ -215,7 +262,7 @@ function RoadmapPage() {
                 </span>
               </div>
               <p className="text-2xl font-bold text-[var(--color-foreground)]">
-                {daysRemaining !== null ? daysRemaining : (courseData.estimatedHours || '--')}
+                {daysRemaining !== null ? daysRemaining : (roadmapData.estimatedHours || '--')}
               </p>
             </div>
           </div>

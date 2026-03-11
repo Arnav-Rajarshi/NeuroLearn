@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronDown, ChevronRight, CheckCircle2, Circle, BookOpen, Code, Award } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProgressBar from './ProgressBar.jsx'
-import { updateCourseProgress } from '../utils/api.js'
+import { updateRoadmapProgress } from '../utils/api.js'
 
 // XP values for gamification
 const XP_VALUES = {
@@ -32,13 +32,16 @@ function TopicAccordion({
     if (localCompletedSubtopics.includes(subtopicName)) return
     
     try {
-      // Update progress in backend
-      await updateCourseProgress(courseId, topic.name, subtopicName)
+      // Create topic key in format "TopicName::SubtopicName"
+      const topicKey = `${topic.name}::${subtopicName}`
+      
+      // Update progress in backend using the new roadmap pipeline
+      await updateRoadmapProgress(courseId, topicKey, true)
       
       // Update local state
       setLocalCompletedSubtopics(prev => [...prev, subtopicName])
       
-      // Notify parent
+      // Notify parent to refresh progress
       if (onTopicComplete) {
         onTopicComplete(topic.name, XP_VALUES.SUBTOPIC_COMPLETION)
       }

@@ -230,6 +230,80 @@ export async function enrollInCourse(courseIdOrSlug) {
   })
 }
 
+// ============ ROADMAP API ============
+// New roadmap pipeline: JSON is source of truth, DB stores only user progress
+
+/**
+ * Get full roadmap with structure and user progress
+ * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
+ */
+export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
+  const cid = getCid(courseIdOrSlug)
+  return await fetchApi(`/roadmap/${cid}?lm=${lm}`)
+}
+
+/**
+ * Get roadmap progress summary (lighter than full roadmap)
+ * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
+ */
+export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
+  const cid = getCid(courseIdOrSlug)
+  try {
+    return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
+  } catch (error) {
+    return {
+      cid,
+      total_topics: 0,
+      completed_topics: 0,
+      completion_percentage: 0,
+      progress: {},
+      topics_to_be_shown: [],
+      current_topic: null
+    }
+  }
+}
+
+/**
+ * Mark a topic as complete or incomplete
+ * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {string} topicKey - Topic key in format "TopicName::SubtopicName"
+ * @param {boolean} completed - Whether the topic is completed
+ */
+export async function updateRoadmapProgress(courseIdOrSlug, topicKey, completed = true) {
+  const cid = getCid(courseIdOrSlug)
+  return await fetchApi('/roadmap/progress/update', {
+    method: 'POST',
+    body: JSON.stringify({
+      cid,
+      topic_key: topicKey,
+      completed
+    }),
+  })
+}
+
+/**
+ * Get all topic keys for a course roadmap
+ * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
+ */
+export async function getRoadmapTopics(courseIdOrSlug, lm = 'PNL') {
+  const cid = getCid(courseIdOrSlug)
+  return await fetchApi(`/roadmap/${cid}/topics?lm=${lm}`)
+}
+
+/**
+ * Reset all progress for a course
+ * @param {string|number} courseIdOrSlug - Course slug or cid
+ */
+export async function resetRoadmapProgress(courseIdOrSlug) {
+  const cid = getCid(courseIdOrSlug)
+  return await fetchApi(`/roadmap/${cid}/reset`, {
+    method: 'POST',
+  })
+}
+
 // ============ ADMIN API ============
 
 export async function getAdminDashboard() {

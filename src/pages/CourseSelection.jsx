@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
-import { getCourseProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
+import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function CourseSelection() {
@@ -40,10 +40,10 @@ function CourseSelection() {
             }
           }
 
-          // Load user progress from backend API
+          // Load user progress from backend using the new roadmap pipeline
           try {
-            const progressData = await getCourseProgress(course.id)
-            progressMap[course.id] = progressData?.completed || 0
+            const progressData = await getRoadmapProgress(course.id)
+            progressMap[course.id] = progressData?.completed_topics || 0
           } catch (error) {
             progressMap[course.id] = 0
           }
