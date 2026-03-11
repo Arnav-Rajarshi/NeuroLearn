@@ -3,22 +3,24 @@ import os
 from contextlib import asynccontextmanager
 import asyncpg
 from typing import Optional
+from dotenv import load_dotenv
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+load_dotenv()
 
+DATABASE_URL="postgresql://neondb_owner:npg_ehNz4XPW7COM@ep-flat-union-a10rmr6m-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require"
 # Connection pool
 _pool: Optional[asyncpg.Pool] = None
 
 
 async def init_pool():
-    """Initialize the database connection pool."""
     global _pool
     if _pool is None:
+        # load_dotenv() should be called at the top of this file!
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
             min_size=2,
             max_size=10,
-            ssl="require"
+            ssl=True  # Explicitly force SSL for Neon
         )
     return _pool
 
