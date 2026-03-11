@@ -9,42 +9,42 @@ from datetime import date, datetime
 
 class User(BaseModel):
     """Represents a user in the system."""
-    uid: str
+    uid: int
     email: Optional[str] = None
     name: Optional[str] = None
 
 
 class Course(BaseModel):
     """Represents a course."""
-    cid: str
+    cid: int
     name: str
     total_topics: int
 
 
 class CourseEnrolled(BaseModel):
     """Represents a user's enrollment in a course."""
-    uid: str
-    cid: str
+    uid: int
+    cid: int
     enrolled_at: Optional[datetime] = None
 
 
 class ProgressLevel(BaseModel):
     """Represents user's progress in a course."""
-    uid: str
-    cid: str
+    uid: int
+    cid: int
     progress_json: dict  # JSON containing progress data
 
 
 class TopicsToBeShown(BaseModel):
     """Represents topics for a course."""
-    cid: str
+    cid: int
     topics_json: dict  # JSON containing topic structure
 
 
 class CoursePreferences(BaseModel):
     """Represents user's course preferences and goals."""
-    uid: str
-    cid: str
+    uid: int
+    cid: int
     goal_date: Optional[date] = None
     hrs_per_week: Optional[float] = None
 
