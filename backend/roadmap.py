@@ -260,16 +260,70 @@ def get_user_progress(
     return progress.progress_json
 
 
+def compute_top_id_index(all_topic_keys: List[str], topic_key: str) -> int:
+    """
+    Compute a stable top_id index for a topic key.
+    
+    Format: topic_index * 100 + subtopic_index
+    Example: Topic 0, Subtopic 2 = 2
+             Topic 1, Subtopic 0 = 100
+             Topic 1, Subtopic 3 = 103
+    
+    Args:
+        all_topic_keys: List of all topic keys in order
+        topic_key: The specific topic key
+    
+    Returns:
+        Integer index for the topic
+    """
+    try:
+        # Find the index in the flat list
+        flat_index = all_topic_keys.index(topic_key)
+        
+        # Parse topic and subtopic names
+        topic_name = topic_key.split("::")[0]
+        
+        # Count topics before this one
+        topic_index = 0
+        subtopic_index = 0
+        current_topic = None
+        
+        for i, key in enumerate(all_topic_keys):
+            key_topic = key.split("::")[0]
+            if key_topic != current_topic:
+                if current_topic is not None:
+                    topic_index += 1
+                current_topic = key_topic
+                subtopic_index = 0
+            
+            if i == flat_index:
+                break
+            
+            if key_topic == topic_name:
+                subtopic_index += 1
+        
+        return topic_index * 100 + subtopic_index
+    except (ValueError, IndexError):
+        return 0
+
+
 def update_user_progress(
     db: Session,
     uid: int,
     cid: int,
     topic_key: str,
     completed: bool,
-    top_id: Optional[int] = None
+    top_id_ref: Optional[int] = None,
+    all_topic_keys: Optional[List[str]] = None
 ) -> Dict[str, bool]:
     """
     Update user's progress for a specific topic.
+    
+    SAFE UPDATE PATTERN:
+    1. Load existing progress_json from database
+    2. Check if topic_key already exists and is already True (skip if so)
+    3. Merge the new topic_key into it
+    4. Save merged JSON
     
     Args:
         db: Database session
@@ -277,11 +331,14 @@ def update_user_progress(
         cid: Course ID
         topic_key: The topic to mark as complete/incomplete
         completed: Whether the topic is completed
-        top_id: Optional reference to TopicsToBeShown record
+        top_id_ref: Optional reference to TopicsToBeShown record
+        all_topic_keys: List of all topic keys for computing top_id index
     
     Returns:
         Updated progress dictionary
     """
+    from sqlalchemy.orm.attributes import flag_modified
+    
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
         ProgressLevel.cid == cid
@@ -291,23 +348,39 @@ def update_user_progress(
         progress = ProgressLevel(
             uid=uid,
             cid=cid,
-            top_id=top_id,
+            top_id=top_id_ref,
             progress_json={}
         )
         db.add(progress)
+        db.flush()
     
-    # Update the progress JSON
-    current_progress = progress.progress_json or {}
+    # Load existing progress (NEVER overwrite entirely)
+    current_progress = dict(progress.progress_json or {})
     
+    # PREVENT DUPLICATE COMPLETION
+    # If marking as completed and already True, skip update
     if completed:
+        if current_progress.get(topic_key) is True:
+            # Already completed, return current state without modification
+            return current_progress
         current_progress[topic_key] = True
     else:
-        # Remove the key if marking as incomplete
-        current_progress.pop(topic_key, None)
+        # Only allow marking as incomplete if it exists
+        if topic_key in current_progress:
+            current_progress[topic_key] = False
     
+    # Compute the top_id index if topic keys provided
+    computed_top_id = None
+    if all_topic_keys:
+        computed_top_id = compute_top_id_index(all_topic_keys, topic_key)
+    
+    # Update progress_json (must create new dict for SQLAlchemy JSONB detection)
     progress.progress_json = current_progress
-    progress.top_id = top_id
+    progress.top_id = top_id_ref
     progress.last_updated = datetime.utcnow()
+    
+    # Explicitly mark JSONB as modified for SQLAlchemy to detect change
+    flag_modified(progress, "progress_json")
     
     db.flush()
     return current_progress
@@ -318,10 +391,15 @@ def update_topics_to_be_shown(
     uid: int,
     rid: int,
     topics_list: List[str],
-    current_topic: Optional[str] = None
+    current_topic: Optional[str] = None,
+    all_topic_keys: Optional[List[str]] = None
 ) -> TopicsToBeShown:
     """
     Update or create the topics_to_be_shown record.
+    
+    topics_to_be_shown must:
+    - Contain the remaining roadmap topics not yet completed
+    - Never be empty unless the roadmap is complete
     
     Args:
         db: Database session
@@ -329,32 +407,42 @@ def update_topics_to_be_shown(
         rid: Roadmap ID
         topics_list: List of remaining topic keys
         current_topic: The current topic being shown
+        all_topic_keys: All topic keys for computing indices
     
     Returns:
         Updated TopicsToBeShown record
     """
+    from sqlalchemy.orm.attributes import flag_modified
+    
     topics_record = db.query(TopicsToBeShown).filter(
         TopicsToBeShown.uid == uid,
         TopicsToBeShown.rid == rid
     ).first()
     
+    # Compute current_topic_index if we have all keys
+    current_topic_index = None
+    if current_topic and all_topic_keys:
+        current_topic_index = compute_top_id_index(all_topic_keys, current_topic)
+    
+    new_json = {
+        "remaining": topics_list,
+        "current": current_topic,
+        "current_index": current_topic_index,
+        "total_remaining": len(topics_list),
+        "is_complete": len(topics_list) == 0
+    }
+    
     if not topics_record:
         topics_record = TopicsToBeShown(
             uid=uid,
             rid=rid,
-            topics_json={
-                "remaining": topics_list,
-                "current": current_topic,
-                "total_remaining": len(topics_list)
-            }
+            topics_json=new_json
         )
         db.add(topics_record)
     else:
-        topics_record.topics_json = {
-            "remaining": topics_list,
-            "current": current_topic,
-            "total_remaining": len(topics_list)
-        }
+        topics_record.topics_json = new_json
+        # Explicitly mark JSONB as modified
+        flag_modified(topics_record, "topics_json")
     
     db.flush()
     return topics_record
@@ -412,7 +500,8 @@ def get_roadmap(
         current_user.uid, 
         roadmap_record.rid, 
         topics_to_show,
-        current_topic
+        current_topic,
+        all_topic_keys
     )
     
     # Update the top_id reference in progress if exists
@@ -550,22 +639,25 @@ def update_roadmap_progress(
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
         topics_record = update_topics_to_be_shown(
             db, current_user.uid, roadmap_record.rid, 
-            topics_to_show, get_current_topic(topics_to_show)
+            topics_to_show, get_current_topic(topics_to_show),
+            all_topic_keys
         )
     
-    # Update progress
+    # Update progress with all_topic_keys for proper top_id computation
     updated_progress = update_user_progress(
-        db, current_user.uid, cid, topic_key, completed, topics_record.top_id
+        db, current_user.uid, cid, topic_key, completed, 
+        top_id_ref=topics_record.top_id,
+        all_topic_keys=all_topic_keys
     )
     
     # Recompute topics_to_be_shown
     topics_to_show = compute_topics_to_be_shown(all_topic_keys, updated_progress)
     current_topic = get_current_topic(topics_to_show)
     
-    # Update TopicsToBeShown record
+    # Update TopicsToBeShown record with all_topic_keys for proper indexing
     update_topics_to_be_shown(
         db, current_user.uid, roadmap_record.rid, 
-        topics_to_show, current_topic
+        topics_to_show, current_topic, all_topic_keys
     )
     
     # Ensure user is enrolled
@@ -660,7 +752,8 @@ def reset_roadmap_progress(
         
         update_topics_to_be_shown(
             db, current_user.uid, roadmap_record.rid,
-            all_topic_keys, all_topic_keys[0] if all_topic_keys else None
+            all_topic_keys, all_topic_keys[0] if all_topic_keys else None,
+            all_topic_keys
         )
     
     db.commit()

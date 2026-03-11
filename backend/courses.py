@@ -5,7 +5,7 @@ from typing import Optional, List
 from datetime import date, datetime
 
 from database import get_db
-from models import User, Course, CoursePreference, Roadmap, CourseEnrolled
+from models import User, Course, CoursePreference, Roadmap, CourseEnrolled, TopicsToBeShown
 from auth import get_current_user
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
@@ -105,12 +105,20 @@ def save_course_preferences(
         CoursePreference.cid == pref_data.cid
     ).first()
     
+    # Try to find existing topics_to_be_shown record to link top_id
+    topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == current_user.uid,
+        TopicsToBeShown.rid == roadmap.rid
+    ).first()
+    top_id = topics_record.top_id if topics_record else None
+    
     if pref:
         # Update existing preference
         pref.rid = roadmap.rid
         pref.lm = pref_data.lm
         pref.goal_date = pref_data.goal_date
         pref.hrs_per_week = pref_data.hrs_per_week
+        pref.top_id = top_id
     else:
         # Create new preference
         pref = CoursePreference(
@@ -119,7 +127,8 @@ def save_course_preferences(
             rid=roadmap.rid,
             lm=pref_data.lm,
             goal_date=pref_data.goal_date,
-            hrs_per_week=pref_data.hrs_per_week
+            hrs_per_week=pref_data.hrs_per_week,
+            top_id=top_id
         )
         db.add(pref)
     
