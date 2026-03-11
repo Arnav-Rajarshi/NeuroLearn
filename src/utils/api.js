@@ -26,28 +26,38 @@ async function fetchApi(endpoint, options = {}) {
     const response = await fetch(url, config)
     
     if (!response.ok) {
+      let errorData
+      try {
+        errorData = await response.json()
+      } catch {
+        throw new Error(`Request failed with status ${response.status}`)
+      }
 
-  const errorData = await response.json()
+      // Extract a human-readable error message
+      let message = "API request failed"
 
-  console.error("Backend error payload:", errorData)
+      if (typeof errorData?.detail === "string") {
+        // Simple string detail (e.g., "Invalid credentials")
+        message = errorData.detail
+      } else if (Array.isArray(errorData?.detail)) {
+        // FastAPI validation errors: [{loc: [...], msg: "...", type: "..."}]
+        const firstError = errorData.detail[0]
+        if (firstError?.msg) {
+          message = firstError.msg
+        } else {
+          message = "Validation error"
+        }
+      } else if (typeof errorData?.detail === "object" && errorData.detail !== null) {
+        // Object detail - extract message field or stringify
+        message = errorData.detail.message || errorData.detail.msg || "Request failed"
+      } else if (typeof errorData?.message === "string") {
+        message = errorData.message
+      } else if (typeof errorData === "string") {
+        message = errorData
+      }
 
-  let message = "API request failed"
-
-  if (typeof errorData?.detail === "string") {
-    message = errorData.detail
-  } 
-  else if (typeof errorData?.detail === "object") {
-    message = JSON.stringify(errorData.detail)
-  } 
-  else if (errorData?.message) {
-    message = errorData.message
-  } 
-  else {
-    message = JSON.stringify(errorData)
-  }
-
-  throw new Error(message)
-}
+      throw new Error(message)
+    }
     
     return await response.json()
   } catch (error) {
