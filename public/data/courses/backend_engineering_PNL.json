@@ -1,0 +1,164 @@
+{
+  "courseName": "Backend Engineering",
+  "totalTopics": 6,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "Server Fundamentals",
+      "subtopics": [
+        {
+          "name": "HTTP and REST",
+          "learningResources": [
+            {"type": "youtube", "title": "HTTP Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=a-sBfyiXysI"},
+            {"type": "youtube", "title": "REST API Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=WXsD0ZgxjRw"}
+          ],
+          "practice": [
+            {"title": "Design Twitter", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-twitter/"}
+          ]
+        },
+        {
+          "name": "Server Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Server Architecture - ByteByteGo", "url": "https://www.youtube.com/watch?v=SqcXvc_URCo"}
+          ],
+          "practice": [
+            {"title": "Design Patterns", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-browser-history/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Node.js and Express",
+      "subtopics": [
+        {
+          "name": "Node.js Fundamentals",
+          "learningResources": [
+            {"type": "youtube", "title": "Node.js Full Course - freeCodeCamp", "url": "https://www.youtube.com/watch?v=Oe421EPjeBE"}
+          ],
+          "practice": [
+            {"title": "Build REST API", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Express.js Middleware",
+          "learningResources": [
+            {"type": "youtube", "title": "Express Crash Course - Traversy Media", "url": "https://www.youtube.com/watch?v=L72fhGm1tfE"}
+          ],
+          "practice": [
+            {"title": "API Development", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "CRUD API Development",
+          "learningResources": [
+            {"type": "youtube", "title": "CRUD API Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=_7UQPve99r4"}
+          ],
+          "practice": [
+            {"title": "REST API Project", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Databases",
+      "subtopics": [
+        {
+          "name": "PostgreSQL",
+          "learningResources": [
+            {"type": "youtube", "title": "PostgreSQL Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=qw--VYLpxG4"}
+          ],
+          "practice": [
+            {"title": "SQL Practice", "platform": "LeetCode", "url": "https://leetcode.com/problemset/database/"}
+          ]
+        },
+        {
+          "name": "MongoDB",
+          "learningResources": [
+            {"type": "youtube", "title": "MongoDB Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=-56x56UppqQ"}
+          ],
+          "practice": [
+            {"title": "NoSQL Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/domains/sql"}
+          ]
+        },
+        {
+          "name": "ORM - Prisma",
+          "learningResources": [
+            {"type": "youtube", "title": "Prisma Tutorial - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=RebA5J-rlwg"}
+          ],
+          "practice": [
+            {"title": "ORM Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "subtopics": [
+        {
+          "name": "JWT Authentication",
+          "learningResources": [
+            {"type": "youtube", "title": "JWT Explained - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=7Q17ubqLfaM"}
+          ],
+          "practice": [
+            {"title": "Auth Implementation", "platform": "LeetCode", "url": "https://leetcode.com/problems/design-authentication-manager/"}
+          ]
+        },
+        {
+          "name": "OAuth 2.0",
+          "learningResources": [
+            {"type": "youtube", "title": "OAuth 2.0 Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=ZV5yTm4pT8g"}
+          ],
+          "practice": [
+            {"title": "OAuth Integration", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "API Security",
+      "subtopics": [
+        {
+          "name": "Input Validation",
+          "learningResources": [
+            {"type": "youtube", "title": "API Security - ByteByteGo", "url": "https://www.youtube.com/watch?v=6WZ6S-qmtqY"}
+          ],
+          "practice": [
+            {"title": "Security Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Rate Limiting",
+          "learningResources": [
+            {"type": "youtube", "title": "Rate Limiting - ByteByteGo", "url": "https://www.youtube.com/watch?v=FU4WlwfS3G0"}
+          ],
+          "practice": [
+            {"title": "Rate Limiter", "platform": "LeetCode", "url": "https://leetcode.com/problems/logger-rate-limiter/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Testing and Deployment",
+      "subtopics": [
+        {
+          "name": "Unit Testing",
+          "learningResources": [
+            {"type": "youtube", "title": "Jest Tutorial - Traversy Media", "url": "https://www.youtube.com/watch?v=7r4xVDI2vho"}
+          ],
+          "practice": [
+            {"title": "Testing Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Docker Deployment",
+          "learningResources": [
+            {"type": "youtube", "title": "Docker Tutorial - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=3c-iBn73dDE"}
+          ],
+          "practice": [
+            {"title": "Deployment Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "courseName": "Blockchain Basics",
+  "totalTopics": 6,
+  "estimatedHours": 150,
+  "topics": [
+    {
+      "name": "Blockchain Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Blockchain",
+          "learningResources": [
+            {"type": "youtube", "title": "Blockchain Explained - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=bBC-nXj3Ng4"},
+            {"type": "youtube", "title": "Blockchain Basics with Web3.js", "url": "https://www.youtube.com/watch?v=Vk08iHVCUw8"}
+          ],
+          "practice": [
+            {"title": "Blockchain Quiz", "platform": "Self Study", "url": "https://www.simplilearn.com/blockchain-quiz"}
+          ]
+        },
+        {
+          "name": "How Blockchain Works",
+          "learningResources": [
+            {"type": "youtube", "title": "Blockchain Demo - Anders Brownworth", "url": "https://www.youtube.com/watch?v=_160oMzblY8"}
+          ],
+          "practice": [
+            {"title": "Blockchain Demo", "platform": "Anders.com", "url": "https://andersbrownworth.com/blockchain/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ethereum",
+      "subtopics": [
+        {
+          "name": "Ethereum Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Ethereum 101", "url": "https://www.youtube.com/watch?v=Qknyw-PCUFA"}
+          ],
+          "practice": [
+            {"title": "Ethereum Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        },
+        {
+          "name": "Ethereum Virtual Machine",
+          "learningResources": [
+            {"type": "youtube", "title": "EVM Explained", "url": "https://www.youtube.com/watch?v=sTOcqS4msoU"}
+          ],
+          "practice": [
+            {"title": "EVM Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Smart Contracts",
+      "subtopics": [
+        {
+          "name": "Solidity Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Solidity Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=jYEqoIeAoBg"}
+          ],
+          "practice": [
+            {"title": "Solidity Lessons", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        },
+        {
+          "name": "Smart Contract Development",
+          "learningResources": [
+            {"type": "youtube", "title": "Smart Contracts - freeCodeCamp", "url": "https://www.youtube.com/watch?v=3ZP1R0_t-00"}
+          ],
+          "practice": [
+            {"title": "Contract Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        },
+        {
+          "name": "Token Standards (ERC20, ERC721)",
+          "learningResources": [
+            {"type": "youtube", "title": "ERC Tokens - Dapp University", "url": "https://www.youtube.com/watch?v=XNILz2c0LXc"}
+          ],
+          "practice": [
+            {"title": "Token Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Web3 Development",
+      "subtopics": [
+        {
+          "name": "Web3.js and Ethers.js",
+          "learningResources": [
+            {"type": "youtube", "title": "Web3.js Tutorial - Dapp University", "url": "https://www.youtube.com/watch?v=t3wM5903ty0"}
+          ],
+          "practice": [
+            {"title": "Web3 Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        },
+        {
+          "name": "MetaMask Integration",
+          "learningResources": [
+            {"type": "youtube", "title": "MetaMask Tutorial", "url": "https://www.youtube.com/watch?v=byWul4xOBx0"}
+          ],
+          "practice": [
+            {"title": "MetaMask Lab", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Development Tools",
+      "subtopics": [
+        {
+          "name": "Hardhat",
+          "learningResources": [
+            {"type": "youtube", "title": "Hardhat Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=gyMwXuJrbJQ"}
+          ],
+          "practice": [
+            {"title": "Hardhat Lab", "platform": "Hardhat", "url": "https://hardhat.org/tutorial"}
+          ]
+        },
+        {
+          "name": "Remix IDE",
+          "learningResources": [
+            {"type": "youtube", "title": "Remix Tutorial", "url": "https://www.youtube.com/watch?v=xxJfQJ5bMfw"}
+          ],
+          "practice": [
+            {"title": "Remix Practice", "platform": "Remix", "url": "https://remix.ethereum.org/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DApp Development",
+      "subtopics": [
+        {
+          "name": "Building a DApp",
+          "learningResources": [
+            {"type": "youtube", "title": "Full DApp Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=3ZP1R0_t-00"}
+          ],
+          "practice": [
+            {"title": "DApp Project", "platform": "CryptoZombies", "url": "https://cryptozombies.io/"}
+          ]
+        },
+        {
+          "name": "Testing Smart Contracts",
+          "learningResources": [
+            {"type": "youtube", "title": "Testing Contracts", "url": "https://www.youtube.com/watch?v=62t3HPrKqkE"}
+          ],
+          "practice": [
+            {"title": "Testing Lab", "platform": "Hardhat", "url": "https://hardhat.org/tutorial"}
+          ]
+        }
+      ]
+    }
+  ]
+}

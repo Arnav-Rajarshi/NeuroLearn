@@ -1,0 +1,62 @@
+{
+  "courseName": "Cybersecurity Basics",
+  "courseId": "cybersecurity_basics",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Network Security",
+      "subtopics": [
+        {
+          "name": "Firewalls and VPNs",
+          "practice": [
+            {"title": "Firewall Concepts", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/introduction-of-firewall-in-computer-network/"},
+            {"title": "VPN Protocols", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/types-of-vpn/"},
+            {"title": "Network Segmentation", "platform": "TryHackMe", "difficulty": "Medium", "url": "https://tryhackme.com/room/introtolan"}
+          ]
+        },
+        {
+          "name": "Intrusion Detection",
+          "practice": [
+            {"title": "IDS vs IPS", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/intrusion-detection-system-ids/"},
+            {"title": "Snort Basics", "platform": "TryHackMe", "difficulty": "Medium", "url": "https://tryhackme.com/room/snort"},
+            {"title": "SIEM Systems", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.ibm.com/topics/siem"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cryptography",
+      "subtopics": [
+        {
+          "name": "Encryption Algorithms",
+          "practice": [
+            {"title": "Symmetric Encryption", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/symmetric-key-cryptography/"},
+            {"title": "Asymmetric Encryption", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/asymmetric-encryption-cryptography/"},
+            {"title": "Hash Functions", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/domains/algorithms"}
+          ]
+        },
+        {
+          "name": "PKI and Certificates",
+          "practice": [
+            {"title": "SSL/TLS Basics", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/secure-socket-layer-ssl/"},
+            {"title": "Certificate Chain", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.ssl.com/faqs/what-is-a-certificate-chain/"},
+            {"title": "OpenSSL Practice", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.openssl.org/docs/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ethical Hacking",
+      "subtopics": [
+        {
+          "name": "Penetration Testing",
+          "practice": [
+            {"title": "Pen Test Basics", "platform": "TryHackMe", "difficulty": "Easy", "url": "https://tryhackme.com/room/pentestingfundamentals"},
+            {"title": "Web App Testing", "platform": "HackTheBox", "difficulty": "Medium", "url": "https://www.hackthebox.com/hacker/hacking-labs"},
+            {"title": "OWASP Top 10", "platform": "TryHackMe", "difficulty": "Hard", "url": "https://tryhackme.com/room/owasptop10"}
+          ]
+        }
+      ]
+    }
+  ]
+}

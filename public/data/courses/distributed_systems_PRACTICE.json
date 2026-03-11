@@ -1,0 +1,54 @@
+{
+  "courseName": "Distributed Systems",
+  "courseId": "distributed_systems",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Distributed Computing Fundamentals",
+      "subtopics": [
+        {
+          "name": "CAP Theorem",
+          "practice": [
+            {"title": "CAP Basics", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/cap-theorem-distributed-systems/"},
+            {"title": "Consistency Models", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/consistency-models-in-distributed-system/"},
+            {"title": "Trade-off Analysis", "platform": "Self Study", "difficulty": "Hard", "url": "https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html"}
+          ]
+        },
+        {
+          "name": "Consensus Algorithms",
+          "practice": [
+            {"title": "Paxos Basics", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/paxos-algorithm/"},
+            {"title": "Raft Protocol", "platform": "Self Study", "difficulty": "Hard", "url": "https://raft.github.io/"},
+            {"title": "Leader Election", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/discuss/interview-question/system-design/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Distributed Data Storage",
+      "subtopics": [
+        {
+          "name": "Replication",
+          "practice": [
+            {"title": "Master-Slave", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/data-replication-in-dbms/"},
+            {"title": "Multi-Master", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/multi-master-replication-databases/"},
+            {"title": "Conflict Resolution", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/last-write-wins-lww/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Microservices",
+      "subtopics": [
+        {
+          "name": "Service Communication",
+          "practice": [
+            {"title": "REST vs gRPC", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/rest-api-vs-grpc/"},
+            {"title": "Service Discovery", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.nginx.com/blog/service-discovery-in-a-microservices-architecture/"},
+            {"title": "Circuit Breaker", "platform": "Self Study", "difficulty": "Hard", "url": "https://martinfowler.com/bliki/CircuitBreaker.html"}
+          ]
+        }
+      ]
+    }
+  ]
+}
