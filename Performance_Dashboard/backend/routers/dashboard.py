@@ -28,7 +28,7 @@ async def health_check():
 
 
 @router.get("/progress/{uid}/{cid}", response_model=ProgressResponse)
-async def get_progress(uid: str, cid: str):
+async def get_progress(uid: int, cid: int):
     """
     Get learning progress data for a user's course enrollment.
     
@@ -92,7 +92,7 @@ async def get_progress(uid: str, cid: str):
             )
             
             # Build course progress
-            course_name = course_row["name"] if course_row else "Course"
+            course_name = course_row["course_name"] if course_row else "Course"
             courses = [
                 CourseProgress(
                     name=course_name,
@@ -128,7 +128,7 @@ async def get_progress(uid: str, cid: str):
 
 
 @router.get("/metrics/{uid}/{cid}", response_model=MetricsResponse)
-async def get_metrics(uid: str, cid: str):
+async def get_metrics(uid: int, cid: int):
     """
     Compute and return learning metrics for dashboard.
     
@@ -223,7 +223,7 @@ async def get_metrics(uid: str, cid: str):
 
 
 @router.get("/all/{uid}/{cid}", response_model=DashboardDataResponse)
-async def get_all_dashboard_data(uid: str, cid: str):
+async def get_all_dashboard_data(uid: int, cid: int):
     """
     Get all dashboard data in a single request.
     
@@ -254,7 +254,7 @@ async def get_all_dashboard_data(uid: str, cid: str):
             # Get course info
             course_row = await conn.fetchrow(
                 """
-                SELECT cid, name FROM courses WHERE cid = $1
+                SELECT cid, course_name FROM courses WHERE cid = $1
                 """,
                 cid
             )
@@ -283,7 +283,7 @@ async def get_all_dashboard_data(uid: str, cid: str):
             )
             
             # Build course progress
-            course_name = course_row["name"] if course_row else "Course"
+            course_name = course_row["course_name"] if course_row else "Course"
             courses = [
                 CourseProgress(
                     name=course_name,
@@ -352,7 +352,7 @@ async def get_all_dashboard_data(uid: str, cid: str):
 
 
 @router.get("/user/{uid}/courses")
-async def get_user_courses(uid: str):
+async def get_user_courses(uid: int):
     """Get all courses enrolled by a user with their progress."""
     try:
         async with get_connection() as conn:

@@ -8,8 +8,8 @@ from datetime import date
 
 class ProgressRequest(BaseModel):
     """Request for progress data."""
-    uid: str
-    cid: str
+    uid: int
+    cid: int
 
 
 # ─── Response Schemas ─────────────────────────────────────────────────────────
