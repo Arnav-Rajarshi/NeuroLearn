@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 import json
 
-from ..database import get_connection
-from ..schemas import (
+from ..core.database import get_connection
+from ..schemas.roadmap_schema import (
     ProgressResponse,
     MetricsResponse,
     DashboardDataResponse,

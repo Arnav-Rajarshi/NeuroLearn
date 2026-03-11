@@ -30,11 +30,11 @@ import os
 import re
 
 from database import get_db
-from models import (
+from NeuroLearn.backend.models.models import (
     User, Course, Roadmap, TopicsToBeShown, 
     ProgressLevel, CoursePreference, CourseEnrolled
 )
-from auth import get_current_user
+from NeuroLearn.backend.core.auth import get_current_user
 
 router = APIRouter(prefix="/roadmap", tags=["Roadmap"])
 

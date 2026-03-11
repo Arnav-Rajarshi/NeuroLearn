@@ -8,8 +8,8 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 from database import get_db
-from models import User
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from NeuroLearn.backend.models.models import User
+from NeuroLearn.backend.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 

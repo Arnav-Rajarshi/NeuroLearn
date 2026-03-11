@@ -7,8 +7,8 @@ from typing import List, Optional
 from decimal import Decimal
 
 from database import get_db
-from models import User, Payment, Course, CourseEnrolled, ProgressLevel
-from auth import get_current_admin
+from NeuroLearn.backend.models.models import User, Payment, Course, CourseEnrolled, ProgressLevel
+from NeuroLearn.backend.core.auth import get_current_admin
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 

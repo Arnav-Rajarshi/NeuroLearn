@@ -10,9 +10,9 @@ import json
 import hashlib
 
 from database import get_db
-from models import User, Payment
-from auth import get_current_user
-from config import RAZORPAY_KEY, RAZORPAY_SECRET, PREMIUM_AMOUNT, PREMIUM_CURRENCY
+from NeuroLearn.backend.models.models import User, Payment
+from NeuroLearn.backend.core.auth import get_current_user
+from NeuroLearn.backend.core.config import RAZORPAY_KEY, RAZORPAY_SECRET, PREMIUM_AMOUNT, PREMIUM_CURRENCY
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 

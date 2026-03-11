@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import asyncpg
 from typing import Optional
 from dotenv import load_dotenv
-
+from core.database import init_db
 load_dotenv()
 
 DATABASE_URL="postgresql://neondb_owner:npg_ehNz4XPW7COM@ep-flat-union-a10rmr6m-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require"

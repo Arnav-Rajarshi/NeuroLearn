@@ -5,8 +5,8 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 from database import get_db
-from models import User, ProgressLevel, Course
-from auth import get_current_user
+from NeuroLearn.backend.models.models import User, ProgressLevel, Course
+from NeuroLearn.backend.core.auth import get_current_user
 
 router = APIRouter(prefix="/progress", tags=["Progress"])
 
