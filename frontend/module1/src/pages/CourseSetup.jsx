@@ -12,7 +12,8 @@ import {
   Rocket
 } from 'lucide-react'
 import { getCourseById, loadCourseData, getTopicNames } from '../utils/loadCourseData.js'
-import { saveCoursePreferences } from '../utils/api.js'
+import { saveCoursePreferences, getStoredUser } from '../utils/api.js'
+import { getCid } from '../constants/courseMap.js'
 
 function CourseSetup() {
   const { course: courseId } = useParams()
@@ -73,12 +74,27 @@ function CourseSetup() {
         known_topics: knownTopics
       })
 
+      // Store UID and CID in localStorage for Module 3 (Dashboard) to use
+      const user = getStoredUser()
+      const cid = getCid(courseId)
+      if (user && user.uid) {
+        localStorage.setItem('neurolearn_active_uid', String(user.uid))
+        localStorage.setItem('neurolearn_active_cid', String(cid))
+      }
+
       // Navigate to roadmap with known topics in state
       navigate(`/roadmap-engine/roadmap/${courseId}`, {
         state: { knownTopics }
       })
     } catch (error) {
       console.error('Failed to save preferences:', error)
+      // Still save UID/CID even if API call fails
+      const user = getStoredUser()
+      const cid = getCid(courseId)
+      if (user && user.uid) {
+        localStorage.setItem('neurolearn_active_uid', String(user.uid))
+        localStorage.setItem('neurolearn_active_cid', String(cid))
+      }
       // Still navigate even if save fails - preferences can be saved later
       navigate(`/roadmap-engine/roadmap/${courseId}`, {
         state: { knownTopics }

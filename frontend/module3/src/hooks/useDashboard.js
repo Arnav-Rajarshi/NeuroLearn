@@ -43,23 +43,26 @@ const DEFAULT_DATA = {
 /**
  * Custom hook for fetching and managing dashboard data.
  * 
- * @param {string} uid - User ID
- * @param {string} cid - Course ID (optional, will fetch first enrolled course if not provided)
+ * @param {string} uid - User ID (optional, will read from localStorage if not provided)
+ * @param {string} cid - Course ID (optional, will read from localStorage if not provided)
  * @returns {Object} Dashboard state and methods
  */
-export function useDashboard(uid, cid = null) {
+export function useDashboard(uid = null, cid = null) {
+  // Read from localStorage if not provided (set by Module 1)
+  const effectiveUid = uid || localStorage.getItem('neurolearn_active_uid')
+  const initialCid = cid || localStorage.getItem('neurolearn_active_cid')
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState(cid);
+  const [selectedCourse, setSelectedCourse] = useState(initialCid);
   const [allCourses, setAllCourses] = useState([]);
 
   // Fetch all courses for a user
   const loadCourses = useCallback(async () => {
-    if (!uid) return;
+    if (!effectiveUid) return;
     
     try {
-      const result = await fetchUserCourses(uid);
+      const result = await fetchUserCourses(effectiveUid);
       setAllCourses(result.courses || []);
       
       // Set first course as selected if none specified
@@ -69,12 +72,13 @@ export function useDashboard(uid, cid = null) {
     } catch (err) {
       console.warn('Could not fetch courses, using defaults:', err.message);
     }
-  }, [uid, selectedCourse]);
+  }, [effectiveUid, selectedCourse]);
 
   // Fetch dashboard data
   const loadDashboard = useCallback(async () => {
-    if (!uid) {
-      setData(DEFAULT_DATA);
+    if (!effectiveUid) {
+      setError('No user ID available. Please log in.');
+      setData(null);
       setLoading(false);
       return;
     }
@@ -84,23 +88,25 @@ export function useDashboard(uid, cid = null) {
 
     try {
       // If we have a course ID, fetch dashboard data
-      const courseId = selectedCourse || cid;
+      const courseId = selectedCourse || initialCid;
       
       if (courseId) {
-        const result = await fetchDashboardData(uid, courseId);
+        const result = await fetchDashboardData(effectiveUid, courseId);
         setData(result);
       } else {
-        // No course selected, use default data
-        setData(DEFAULT_DATA);
+        // No course selected
+        setError('No course selected. Please select a course in the Roadmap Engine.');
+        setData(null);
       }
     } catch (err) {
-      console.warn('API error, using fallback data:', err.message);
+      console.warn('API error:', err.message);
       setError(err.message);
+      // Use fallback data only if API fails but we have valid UID/CID
       setData(DEFAULT_DATA);
     } finally {
       setLoading(false);
     }
-  }, [uid, selectedCourse, cid]);
+  }, [effectiveUid, selectedCourse, initialCid]);
 
   // Initial load
   useEffect(() => {

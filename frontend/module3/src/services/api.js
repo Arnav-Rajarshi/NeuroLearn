@@ -1,8 +1,7 @@
 // ─── NeuroLearn · Performance Dashboard · API Service ────────────────────────
 
-// Use empty string for relative URLs (works with Vite proxy in dev)
-// or set VITE_API_URL for production/direct API access
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+// Backend API URL - set VITE_API_URL in environment or defaults to localhost:8000
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
  * Fetch all dashboard data in a single request.

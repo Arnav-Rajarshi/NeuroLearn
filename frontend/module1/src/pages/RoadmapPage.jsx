@@ -14,7 +14,8 @@ import {
 import TopicAccordion from '../components/TopicAccordion.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import { getCourseById } from '../utils/loadCourseData.js'
-import { getRoadmap, getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
+import { getRoadmap, getRoadmapProgress, getCoursePreferences, getStoredUser } from '../utils/api.js'
+import { getCid } from '../constants/courseMap.js'
 
 function RoadmapPage() {
   const { course: courseId } = useParams()
@@ -49,6 +50,14 @@ function RoadmapPage() {
         // Redirect to setup if no settings
         navigate(`/roadmap-engine/setup/${courseId}`)
         return
+      }
+
+      // Store UID and CID in localStorage for Module 3 (Dashboard) to use
+      const user = getStoredUser()
+      const cid = getCid(courseId)
+      if (user && user.uid) {
+        localStorage.setItem('neurolearn_active_uid', String(user.uid))
+        localStorage.setItem('neurolearn_active_cid', String(cid))
       }
       
       const roadmapType = prefs.lm

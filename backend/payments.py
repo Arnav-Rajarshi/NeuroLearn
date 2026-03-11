@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime
@@ -10,9 +10,9 @@ import json
 import hashlib
 
 from database import get_db
-from NeuroLearn.backend.models.models import User, Payment
-from NeuroLearn.backend.core.auth import get_current_user
-from NeuroLearn.backend.core.config import RAZORPAY_KEY, RAZORPAY_SECRET, PREMIUM_AMOUNT, PREMIUM_CURRENCY
+from models.roadmap_models import User, Payment
+from core.auth import get_current_user
+from core.config import RAZORPAY_KEY, RAZORPAY_SECRET, PREMIUM_AMOUNT, PREMIUM_CURRENCY
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 

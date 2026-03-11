@@ -8,15 +8,15 @@ This module implements the correct roadmap progress pipeline:
 
 Data Flow:
 Frontend requests roadmap
-    ↓
+    |
 Backend loads JSON roadmap file
-    ↓
+    |
 Backend fetches user's completed topics from DB
-    ↓
+    |
 Backend computes remaining topics (JSON - completed)
-    ↓
+    |
 topics_to_be_shown stored in TopicsToBeShown table
-    ↓
+    |
 Filtered roadmap returned to frontend
 """
 
@@ -30,17 +30,17 @@ import os
 import re
 
 from database import get_db
-from NeuroLearn.backend.models.models import (
+from models.roadmap_models import (
     User, Course, Roadmap, TopicsToBeShown, 
     ProgressLevel, CoursePreference, CourseEnrolled
 )
-from NeuroLearn.backend.core.auth import get_current_user
+from core.auth import get_current_user
 
 router = APIRouter(prefix="/roadmap", tags=["Roadmap"])
 
 # Path to roadmap JSON files (relative to backend directory)
 # In production, these would be served from a CDN or stored in the database
-ROADMAP_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "public", "data", "courses")
+ROADMAP_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "module1", "public", "data", "courses")
 
 # Course slug to cid mapping (mirrors frontend courseMap.js)
 COURSE_SLUG_TO_CID = {

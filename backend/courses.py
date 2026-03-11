@@ -5,8 +5,8 @@ from typing import Optional, List
 from datetime import date, datetime
 
 from database import get_db
-from NeuroLearn.backend.models.models import User, Course, CoursePreference, Roadmap, CourseEnrolled
-from NeuroLearn.backend.core.auth import get_current_user
+from models.roadmap_models import User, Course, CoursePreference, Roadmap, CourseEnrolled
+from core.auth import get_current_user
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 

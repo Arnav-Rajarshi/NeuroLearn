@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.database import init_db
+from database import init_db
 
 from core.auth import router as auth_router
 from progress import router as progress_router

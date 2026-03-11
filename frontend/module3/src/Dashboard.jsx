@@ -92,6 +92,74 @@ function LoadingSkeleton() {
   )
 }
 
+// No course selected state
+function NoCourseSelected() {
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: 'var(--color-background)', 
+      padding: '2rem 1rem',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '1.5rem'
+    }}>
+      <div style={{
+        width: '4rem',
+        height: '4rem',
+        borderRadius: '1rem',
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <AlertCircle size={32} style={{ color: 'var(--color-muted)' }} />
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{ 
+          fontFamily: 'var(--font-heading)',
+          fontSize: '1.25rem',
+          fontWeight: 700,
+          color: 'var(--color-foreground)',
+          marginBottom: '0.5rem'
+        }}>
+          No Course Selected
+        </h2>
+        <p style={{ 
+          color: 'var(--color-muted)', 
+          fontSize: '0.9rem',
+          maxWidth: '24rem',
+          lineHeight: 1.5
+        }}>
+          Please select a course in the Roadmap Engine to view your progress analytics.
+        </p>
+      </div>
+      <a 
+        href="/roadmap-engine/courses"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '0.5rem',
+          background: 'var(--color-primary)',
+          color: 'white',
+          fontSize: '0.9rem',
+          fontWeight: 500,
+          textDecoration: 'none',
+          transition: 'opacity 0.2s ease'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+      >
+        Go to Roadmap Engine
+      </a>
+    </div>
+  )
+}
+
 function Dashboard() {
   // State for dashboard data
   const [data, setData] = useState(null)
@@ -99,9 +167,10 @@ function Dashboard() {
   const [error, setError] = useState(null)
   const [isUsingFallback, setIsUsingFallback] = useState(false)
 
-  // For demo purposes - in production, get from auth context or URL params
-  const uid = import.meta.env.VITE_USER_ID || 'demo-user'
-  const cid = import.meta.env.VITE_COURSE_ID || 'demo-course'
+  // Read UID and CID from localStorage (set by Module 1 when user selects a course)
+  // Falls back to environment variables for development
+  const uid = localStorage.getItem('neurolearn_active_uid') || import.meta.env.VITE_USER_ID || null
+  const cid = localStorage.getItem('neurolearn_active_cid') || import.meta.env.VITE_COURSE_ID || null
 
   // Fetch dashboard data
   const loadData = async () => {
@@ -126,6 +195,11 @@ function Dashboard() {
   useEffect(() => {
     loadData()
   }, [uid, cid])
+
+  // Show no course selected state if UID or CID is missing
+  if (!uid || !cid) {
+    return <NoCourseSelected />
+  }
 
   // Show loading state
   if (loading && !data) {
