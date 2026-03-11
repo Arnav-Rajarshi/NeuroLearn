@@ -1,0 +1,46 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# virtual environments
+.venv/
+venv/
+env/
+
+# environment variables
+.env
+.env.*
+
+# -----------------------------
+# Node / Frontend
+# -----------------------------
+node_modules/
+**/node_modules/
+
+.vite/
+**/.vite/
+
+dist/
+dist-ssr/
+
+# lock files (optional)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# logs
+*.log
+
+# -----------------------------
+# Editor / OS
+# -----------------------------
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.swp
