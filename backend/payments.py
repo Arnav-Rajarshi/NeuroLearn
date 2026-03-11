@@ -5,6 +5,8 @@ from datetime import datetime
 from decimal import Decimal
 import razorpay
 import hmac
+import razorpay.errors
+import json
 import hashlib
 
 from database import get_db
@@ -37,16 +39,19 @@ class PaymentResponse(BaseModel):
 
 # Initialize Razorpay client
 def get_razorpay_client():
+    print("RAZORPAY_KEY:", RAZORPAY_KEY)
+    print("RAZORPAY_SECRET:", RAZORPAY_SECRET)
+
     if not RAZORPAY_KEY or not RAZORPAY_SECRET:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Razorpay credentials not configured"
         )
+
     return razorpay.Client(auth=(RAZORPAY_KEY, RAZORPAY_SECRET))
 
-
 # Endpoints
-@router.get("/create-order", response_model=OrderResponse)
+@router.post("/create-order", response_model=OrderResponse)
 def create_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -93,13 +98,25 @@ def create_order(
             currency=PREMIUM_CURRENCY,
             key=RAZORPAY_KEY
         )
-        
-    except Exception as e:
+    
+
+    except razorpay.errors.AuthenticationError:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create order: {str(e)}"
+            status_code=500,
+            detail="Razorpay authentication failed. Check API keys."
         )
 
+    except razorpay.errors.BadRequestError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid Razorpay request: {str(e)}"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Unexpected payment error"
+        )
 
 @router.post("/verify-payment", response_model=PaymentResponse)
 def verify_payment(
@@ -185,3 +202,33 @@ def get_payment_history(
         }
         for p in payments
     ]
+
+@router.post("/razorpay")
+async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
+    payload = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature")
+
+    generated = hmac.new(
+        RAZORPAY_SECRET.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+
+    if generated != signature:
+        raise HTTPException(status_code=400, detail="Invalid webhook")
+
+    data = json.loads(payload)
+
+    if data["event"] == "payment.captured":
+        order_id = data["payload"]["payment"]["entity"]["order_id"]
+        payment_id = data["payload"]["payment"]["entity"]["id"]
+
+        payment = db.query(Payment).filter(Payment.order_id == order_id).first()
+
+        if payment:
+            payment.razor_id = payment_id
+            user = db.query(User).filter(User.uid == payment.uid).first()
+            user.acc_status = "premium"
+            db.commit()
+
+    return {"status": "ok"}
