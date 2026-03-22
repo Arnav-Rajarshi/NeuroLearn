@@ -12,21 +12,21 @@ import {
   Rocket
 } from 'lucide-react'
 import { getCourseById, loadCourseData, getTopicNames } from '../utils/loadCourseData.js'
-import { saveCourseSettings, setGoalDeadline } from '../utils/progressStore.js'
+import { saveCoursePreferences } from '../utils/api.js'
 
 function CourseSetup() {
   const { course: courseId } = useParams()
   const navigate = useNavigate()
   
   const [course, setCourse] = useState(null)
-  const [courseData, setCourseData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [topics, setTopics] = useState([])
   
   // Form state
-  const [roadmapType, setRoadmapType] = useState('pnl')
+  const [roadmapType, setRoadmapType] = useState('PNL')
   const [knownTopics, setKnownTopics] = useState([])
-  const [goalDeadline, setGoalDeadlineValue] = useState('')
+  const [goalDeadline, setGoalDeadline] = useState('')
   const [weeklyHours, setWeeklyHours] = useState(10)
   const [isTopicDropdownOpen, setIsTopicDropdownOpen] = useState(false)
 
@@ -42,7 +42,6 @@ function CourseSetup() {
 
       try {
         const data = await loadCourseData(courseId, 'pnl')
-        setCourseData(data)
         setTopics(getTopicNames(data))
       } catch (error) {
         console.error('Failed to load course data', error)
@@ -60,25 +59,33 @@ function CourseSetup() {
     )
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
     
-    // Save settings
-    saveCourseSettings(courseId, {
-      roadmapType,
-      knownTopics,
-      weeklyHours,
-      setupDate: new Date().toISOString(),
-    })
-    
-    if (goalDeadline) {
-      setGoalDeadline(goalDeadline)
-    }
+    try {
+      // Save preferences to backend API
+      await saveCoursePreferences({
+        cid: courseId,
+        lm: roadmapType,
+        goal_date: goalDeadline || null,
+        hrs_per_week: weeklyHours,
+        known_topics: knownTopics
+      })
 
-    // Navigate to roadmap with known topics in state
-    navigate(`/roadmap-engine/roadmap/${courseId}`, {
-      state: { knownTopics }
-    })
+      // Navigate to roadmap with known topics in state
+      navigate(`/roadmap-engine/roadmap/${courseId}`, {
+        state: { knownTopics }
+      })
+    } catch (error) {
+      console.error('Failed to save preferences:', error)
+      // Still navigate even if save fails - preferences can be saved later
+      navigate(`/roadmap-engine/roadmap/${courseId}`, {
+        state: { knownTopics }
+      })
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -132,9 +139,9 @@ function CourseSetup() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => setRoadmapType('pnl')}
+                  onClick={() => setRoadmapType('PNL')}
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    roadmapType === 'pnl'
+                    roadmapType === 'PNL'
                       ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10'
                       : 'border-[var(--color-border)] hover:border-[var(--color-muted)]'
                   }`}
@@ -143,7 +150,7 @@ function CourseSetup() {
                     <div className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/20 flex items-center justify-center">
                       <BookOpen className="w-5 h-5 text-[var(--color-primary)]" />
                     </div>
-                    {roadmapType === 'pnl' && (
+                    {roadmapType === 'PNL' && (
                       <Check className="w-5 h-5 text-[var(--color-primary)]" />
                     )}
                   </div>
@@ -155,9 +162,9 @@ function CourseSetup() {
 
                 <button
                   type="button"
-                  onClick={() => setRoadmapType('practice')}
+                  onClick={() => setRoadmapType('PRACTICE')}
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    roadmapType === 'practice'
+                    roadmapType === 'PRACTICE'
                       ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10'
                       : 'border-[var(--color-border)] hover:border-[var(--color-muted)]'
                   }`}
@@ -166,7 +173,7 @@ function CourseSetup() {
                     <div className="w-10 h-10 rounded-lg bg-[var(--color-accent)]/20 flex items-center justify-center">
                       <Code className="w-5 h-5 text-[var(--color-accent)]" />
                     </div>
-                    {roadmapType === 'practice' && (
+                    {roadmapType === 'PRACTICE' && (
                       <Check className="w-5 h-5 text-[var(--color-accent)]" />
                     )}
                   </div>
@@ -261,7 +268,7 @@ function CourseSetup() {
               <input
                 type="date"
                 value={goalDeadline}
-                onChange={(e) => setGoalDeadlineValue(e.target.value)}
+                onChange={(e) => setGoalDeadline(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
                 className="w-full p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)]"
               />
@@ -295,10 +302,15 @@ function CourseSetup() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-semibold text-lg hover:opacity-90 transition-opacity glow-streak"
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-semibold text-lg hover:opacity-90 transition-opacity glow-streak disabled:opacity-50"
             >
-              <Rocket className="w-5 h-5" />
-              Start Learning
+              {saving ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Rocket className="w-5 h-5" />
+              )}
+              {saving ? 'Saving...' : 'Start Learning'}
             </button>
           </form>
         </div>

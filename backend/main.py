@@ -6,6 +6,8 @@ from auth import router as auth_router
 from progress import router as progress_router
 from payments import router as payments_router
 from admin import router as admin_router
+from courses import router as courses_router
+from roadmap import router as roadmap_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -37,6 +39,8 @@ app.include_router(auth_router)
 app.include_router(progress_router)
 app.include_router(payments_router)
 app.include_router(admin_router)
+app.include_router(courses_router)
+app.include_router(roadmap_router)
 
 
 # Root endpoint
@@ -50,7 +54,9 @@ def root():
             "auth": "/auth",
             "progress": "/progress",
             "payments": "/payments",
-            "admin": "/admin"
+            "admin": "/admin",
+            "courses": "/courses",
+            "roadmap": "/roadmap"
         }
     }
 

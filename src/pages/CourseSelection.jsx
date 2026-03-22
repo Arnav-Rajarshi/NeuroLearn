@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User } from 'lucide-react'
+import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User, BarChart3 } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
-import { 
-  getTotalCompletedSubtopics,
-  getCourseSettings 
-} from '../utils/progressStore.js'
+import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import { createRazorpayOrder, verifyPayment, API_BASE_URL } from '../utils/api.js'
 
 function CourseSelection() {
   const navigate = useNavigate()
@@ -16,6 +12,7 @@ function CourseSelection() {
   
   const [courses, setCourses] = useState([])
   const [courseData, setCourseData] = useState({})
+  const [progress, setProgress] = useState({})
   const [loading, setLoading] = useState(true)
   const [learningGoal, setLearningGoal] = useState('')
   const [showGoalMessage, setShowGoalMessage] = useState(false)
@@ -27,32 +24,52 @@ function CourseSelection() {
       const allCourses = getAllCourses()
       setCourses(allCourses)
 
-      // Load course data for each free course to get total topics
+      // Load course data and progress in parallel
       const dataMap = {}
-      for (const course of allCourses) {
-        if (course.free && course.pnlFile) {
-          try {
-            const data = await loadCourseData(course.id, 'pnl')
-            dataMap[course.id] = data
-          } catch (error) {
-            console.error(`Failed to load data for ${course.id}`, error)
+      const progressMap = {}
+
+      await Promise.all(
+        allCourses.map(async (course) => {
+          // Load course JSON data for free courses
+          if (course.free && course.pnlFile) {
+            try {
+              const data = await loadCourseData(course.id, 'pnl')
+              dataMap[course.id] = data
+            } catch (error) {
+              console.error(`Failed to load data for ${course.id}`, error)
+            }
           }
-        }
-      }
+
+          // Load user progress from backend using the new roadmap pipeline
+          try {
+            const progressData = await getRoadmapProgress(course.id)
+            progressMap[course.id] = progressData?.completed_topics || 0
+          } catch (error) {
+            progressMap[course.id] = 0
+          }
+        })
+      )
+
       setCourseData(dataMap)
+      setProgress(progressMap)
       setLoading(false)
     }
     loadData()
   }, [])
 
-  const handleCourseClick = (course) => {
-    // Check if course has existing settings/roadmap
-    const settings = getCourseSettings(course.id)
-    if (settings?.roadmapType) {
-      // Go directly to roadmap if already set up
-      navigate(`/roadmap-engine/roadmap/${course.id}`)
-    } else {
-      // Go to setup modal
+  const handleCourseClick = async (course) => {
+    // Check if course has existing preferences/roadmap from backend
+    try {
+      const prefs = await getCoursePreferences(course.id)
+      if (prefs?.lm) {
+        // Go directly to roadmap if already set up
+        navigate(`/roadmap-engine/roadmap/${course.id}`)
+      } else {
+        // Go to setup modal
+        navigate(`/roadmap-engine/setup/${course.id}`)
+      }
+    } catch (error) {
+      // No preferences found, go to setup
       navigate(`/roadmap-engine/setup/${course.id}`)
     }
   }
@@ -65,6 +82,13 @@ function CourseSelection() {
     try {
       // Create Razorpay order
       const orderData = await createRazorpayOrder()
+      
+      // Safety guard: ensure Razorpay script is loaded
+      if (!window.Razorpay) {
+        alert("Payment system failed to load. Please refresh the page.")
+        setPaymentLoading(false)
+        return
+      }
       
       // Initialize Razorpay checkout
       const options = {
@@ -93,7 +117,7 @@ function CourseSelection() {
           }
         },
         prefill: {
-          name: user?.username || '',
+          name: user?.name || '',
           email: user?.email || '',
         },
         theme: {
@@ -121,7 +145,7 @@ function CourseSelection() {
     if (!data) return { completedTopics: 0, totalTopics: 0 }
     
     const totalTopics = getTotalSubtopics(data)
-    const completedTopics = getTotalCompletedSubtopics(courseId)
+    const completedTopics = progress[courseId] || 0
     
     return { completedTopics, totalTopics }
   }
@@ -153,10 +177,19 @@ function CourseSelection() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Performance Dashboard Link */}
+              <button
+                onClick={() => navigate('/roadmap-engine/dashboard')}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)] hover:bg-[var(--color-border)] transition-colors"
+              >
+                <BarChart3 className="w-4 h-4 text-[var(--color-accent)]" />
+                <span className="text-sm text-[var(--color-foreground)] hidden sm:inline">Dashboard</span>
+              </button>
+              
               {/* User Info */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)]">
                 <User className="w-4 h-4 text-[var(--color-muted)]" />
-                <span className="text-sm text-[var(--color-foreground)]">{user?.username}</span>
+                <span className="text-sm text-[var(--color-foreground)]">{user?.name}</span>
               </div>
               
               {/* Premium/Upgrade Button */}
@@ -267,7 +300,7 @@ function CourseSelection() {
               </div>
             </section>
 
-            {/* AI Goal Input Textplate */}
+            {/* AI Goal Input */}
             <section className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <div className={`dashboard-card relative overflow-hidden ${!premium ? 'opacity-80' : ''}`}>
                 {/* Premium Lock Overlay */}
