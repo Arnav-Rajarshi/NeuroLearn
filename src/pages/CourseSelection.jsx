@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User } from 'lucide-react'
+import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User, BarChart3 } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
 import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
@@ -177,6 +177,15 @@ function CourseSelection() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Performance Dashboard Link */}
+              <button
+                onClick={() => navigate('/roadmap-engine/dashboard')}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)] hover:bg-[var(--color-border)] transition-colors"
+              >
+                <BarChart3 className="w-4 h-4 text-[var(--color-accent)]" />
+                <span className="text-sm text-[var(--color-foreground)] hidden sm:inline">Dashboard</span>
+              </button>
+              
               {/* User Info */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)]">
                 <User className="w-4 h-4 text-[var(--color-muted)]" />

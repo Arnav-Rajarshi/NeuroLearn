@@ -14,6 +14,7 @@ import CourseSetup from './pages/CourseSetup.jsx'
 import RoadmapPage from './pages/RoadmapPage.jsx'
 import TopicPage from './pages/TopicPage.jsx'
 import PracticePage from './pages/PracticePage.jsx'
+import PerformanceDashboard from './pages/PerformanceDashboard.jsx'
 
 function App() {
   return (
@@ -42,6 +43,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CourseSelection />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/roadmap-engine/dashboard" 
+            element={
+              <ProtectedRoute>
+                <PerformanceDashboard />
               </ProtectedRoute>
             } 
           />
