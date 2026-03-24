@@ -6,3 +6,4 @@ python-dotenv
 razorpay
 python-jose[cryptography]
 pydantic
+google-generativeai

@@ -8,6 +8,7 @@ from payments import router as payments_router
 from admin import router as admin_router
 from courses import router as courses_router
 from roadmap import router as roadmap_router
+from routes.ai_learning import router as ai_learning_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -41,6 +42,7 @@ app.include_router(payments_router)
 app.include_router(admin_router)
 app.include_router(courses_router)
 app.include_router(roadmap_router)
+app.include_router(ai_learning_router)
 
 
 # Root endpoint
@@ -56,7 +58,8 @@ def root():
             "payments": "/payments",
             "admin": "/admin",
             "courses": "/courses",
-            "roadmap": "/roadmap"
+            "roadmap": "/roadmap",
+            "ai_learning": "/ai-learning"
         }
     }
 

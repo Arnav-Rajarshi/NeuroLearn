@@ -16,6 +16,9 @@ import TopicPage from './pages/TopicPage.jsx'
 import PracticePage from './pages/PracticePage.jsx'
 import PerformanceDashboard from './pages/PerformanceDashboard.jsx'
 
+// AI Learning Module
+import AILearningPage from './modules/ai-learning/AILearningPage.jsx'
+
 function App() {
   return (
     <AuthProvider>
@@ -83,6 +86,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <PracticePage />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* AI Learning Module */}
+          <Route 
+            path="/ai-learning" 
+            element={
+              <ProtectedRoute>
+                <AILearningPage />
               </ProtectedRoute>
             } 
           />

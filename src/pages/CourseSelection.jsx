@@ -177,6 +177,15 @@ function CourseSelection() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* AI Learning Link */}
+              <button
+                onClick={() => navigate('/ai-learning')}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)] hover:bg-[var(--color-border)] transition-colors"
+              >
+                <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
+                <span className="text-sm text-[var(--color-foreground)] hidden sm:inline">AI Learning</span>
+              </button>
+              
               {/* Performance Dashboard Link */}
               <button
                 onClick={() => navigate('/roadmap-engine/dashboard')}

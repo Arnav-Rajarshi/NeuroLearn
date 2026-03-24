@@ -22,3 +22,6 @@ ADMIN_PASSWORD = "1234567890"
 # Payment amount in rupees (stored as rupees, converted to paise for Razorpay API)
 PREMIUM_AMOUNT = 49  # ₹49 in rupees
 PREMIUM_CURRENCY = "INR"
+
+# Gemini AI Configuration
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
