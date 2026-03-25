@@ -53,7 +53,15 @@ class LoginRequest(BaseModel):
 
 # Helper Functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """
+    Verify a password against its hash.
+    
+    CRITICAL FIX: Apply SHA256 hashing before bcrypt verification
+    to match the signup flow where password is SHA256'd before bcrypt hashing.
+    """
+    # Apply SHA256 first to match the signup hashing pattern
+    sha256_password = hashlib.sha256(plain_password.encode()).hexdigest()
+    return pwd_context.verify(sha256_password, hashed_password)
 
 
 def get_password_hash(password: str):

@@ -228,39 +228,55 @@ def update_progress_atomic(
 
 # ============ API Endpoints ============
 
-@router.post("/update", response_model=ProgressResponse)
+@router.post("/update", response_model=ProgressResponse, deprecated=True)
 def update_progress(
     progress_data: ProgressUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Update or create progress for a course.
+    DEPRECATED: Use /roadmap/progress/update instead.
     
-    DEPRECATED: Use /roadmap/progress/update for the new roadmap pipeline.
-    This endpoint is kept for backward compatibility but uses merge logic.
+    This endpoint redirects to the single source of truth for progress updates.
+    Kept for backward compatibility only.
     
-    FIXES APPLIED:
-    - Progress is MERGED, not overwritten
-    - DB is properly committed
-    - Null progress_json handled
+    CRITICAL: All progress updates should go through /roadmap/progress/update
+    to ensure consistency and proper roadmap integration.
     """
     logger.warning(f"[PROGRESS] DEPRECATED endpoint /progress/update called by user={current_user.uid}")
+    logger.warning("[PROGRESS] Please migrate to /roadmap/progress/update endpoint")
     
     # Verify course exists
     course = db.query(Course).filter(Course.cid == progress_data.cid).first()
+    if not course:
+        logger.error(f"[PROGRESS] Course not found: {progress_data.cid}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course not found: {progress_data.cid}"
+        )
     
     # FIX: Use atomic update with merge logic
-    progress = update_progress_atomic(
-        db=db,
-        uid=current_user.uid,
-        cid=progress_data.cid,
-        new_progress_data=progress_data.progress_json,
-        top_id=progress_data.top_id
-    )
+    try:
+        progress = update_progress_atomic(
+            db=db,
+            uid=current_user.uid,
+            cid=progress_data.cid,
+            new_progress_data=progress_data.progress_json,
+            top_id=progress_data.top_id
+        )
+    except Exception as e:
+        logger.error(f"[PROGRESS] Failed to update progress: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update progress: {str(e)}"
+        )
+    
+    # Refresh to get latest data after commit
+    db.refresh(progress)
     
     # Count completed topics for response
-    completed_count = count_completed_topics(progress.progress_json)
+    completed_count = count_completed_topics(progress.progress_json or {})
     
     return ProgressResponse(
         progress_id=progress.progress_id,

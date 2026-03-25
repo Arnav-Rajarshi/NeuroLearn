@@ -294,3 +294,103 @@ def batch_validate_topic_keys(
             invalid.append(key)
     
     return valid, invalid
+
+
+def fix_null_progress_for_old_users(
+    db: Session,
+    progress: ProgressLevel
+) -> ProgressLevel:
+    """
+    FIX: Handle old users with null progress_json.
+    
+    This function safely initializes progress_json to an empty dict
+    for old users who have NULL values.
+    
+    MUST be called before any progress operations on existing records.
+    
+    Args:
+        db: Database session
+        progress: The ProgressLevel record to fix
+    
+    Returns:
+        The fixed ProgressLevel record (flushed but not committed)
+    """
+    if progress.progress_json is None:
+        logger.info(f"[UTILS] Fixing null progress_json for user={progress.uid}, course={progress.cid}")
+        progress.progress_json = {}
+        flag_modified(progress, "progress_json")
+        db.flush()
+    
+    return progress
+
+
+def create_standardized_response(
+    success: bool,
+    progress: Optional[ProgressLevel],
+    all_topic_keys: Optional[List[str]] = None,
+    course_name: Optional[str] = None,
+    error_message: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Create a standardized API response for progress operations.
+    
+    This ensures ALL progress endpoints return the same format:
+    {
+        "success": true/false,
+        "updated_progress": {...},  # or "progress"
+        "completed_topics": X,
+        "remaining_topics": Y,
+        "total_topics": Z,
+        "completion_percentage": P,
+        "error": "..." (only if success=false)
+    }
+    
+    Args:
+        success: Whether the operation succeeded
+        progress: The ProgressLevel record (can be None on error)
+        all_topic_keys: List of all topic keys (for computing stats)
+        course_name: Optional course name to include
+        error_message: Error message if success=False
+    
+    Returns:
+        Standardized response dictionary
+    """
+    if not success or progress is None:
+        return {
+            "success": False,
+            "error": error_message or "Unknown error",
+            "updated_progress": {},
+            "completed_topics": 0,
+            "remaining_topics": 0,
+            "total_topics": 0,
+            "completion_percentage": 0
+        }
+    
+    progress_json = ensure_progress_json_valid(progress.progress_json)
+    
+    if all_topic_keys:
+        stats = compute_completion_stats(all_topic_keys, progress_json)
+    else:
+        completed = count_completed_from_progress(progress_json)
+        stats = {
+            "total_topics": 0,
+            "completed_topics": completed,
+            "remaining_topics": 0,
+            "completion_percentage": 0,
+            "topics_to_be_shown": [],
+            "current_topic": None,
+            "is_complete": False
+        }
+    
+    return {
+        "success": True,
+        "progress_id": progress.progress_id,
+        "uid": progress.uid,
+        "cid": progress.cid,
+        "course_name": course_name,
+        "top_id": progress.top_id,
+        "updated_progress": progress_json,  # Named for clarity
+        "progress": progress_json,  # Alias for backward compatibility
+        "last_updated": progress.last_updated.isoformat() if progress.last_updated else None,
+        **stats
+    }
