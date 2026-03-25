@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
       try {
         return await apiCall()
       } catch (error) {
-        console.log(`[v0] Auth API call attempt ${i + 1} failed:`, error.message)
         if (i === retries) throw error
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)))
       }
@@ -40,11 +39,8 @@ export function AuthProvider({ children }) {
       const token = getToken()
       const storedUser = getStoredUser()
       
-      console.log('[v0] Auth status: token exists =', !!token, ', stored user =', storedUser?.email || 'none')
-      
       if (token && storedUser) {
         // First, set user from localStorage immediately (optimistic)
-        console.log('[v0] Auth status: setting user from localStorage')
         setUser(storedUser)
         setPremium(storedUser.acc_status === 'premium')
         setIsAdmin(storedUser.is_admin === true)
@@ -53,23 +49,19 @@ export function AuthProvider({ children }) {
         try {
           // Then verify token is still valid by fetching current user (with retry)
           const currentUser = await retryApiCall(() => getCurrentUser())
-          console.log('[v0] Auth status: verified user =', currentUser?.email)
           setUser(currentUser)
           setPremium(currentUser.acc_status === 'premium')
           setIsAdmin(currentUser.is_admin === true)
           setIsAuthenticated(true)
           setAuthError(null)
         } catch (error) {
-          console.log('[v0] Auth status: verification failed =', error.message)
           // Check if it's a network error or auth error
           if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
             // Network error - keep using stored user, don't logout
-            console.log('[v0] Auth status: network error, using cached user')
             setAuthError('Unable to connect to server. Using cached data.')
             // Keep the optimistic state we set above
           } else {
             // Token is actually invalid, clear storage
-            console.log('[v0] Auth status: token invalid, logging out')
             apiLogout()
             setUser(null)
             setPremium(false)
@@ -78,8 +70,6 @@ export function AuthProvider({ children }) {
             setAuthError(null)
           }
         }
-      } else {
-        console.log('[v0] Auth status: no token or user, not authenticated')
       }
       
       setLoading(false)

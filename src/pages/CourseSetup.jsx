@@ -11,7 +11,7 @@ import {
   X,
   Rocket
 } from 'lucide-react'
-import { getCourseById, loadCourseData, getTopicNames } from '../utils/loadCourseData.js'
+import { getCourseById, getTopicNames } from '../utils/loadCourseData.js'
 import { saveCoursePreferences, getRoadmap } from '../utils/api.js'
 
 function CourseSetup() {
@@ -39,7 +39,6 @@ function CourseSetup() {
     async function loadData() {
       // Validate cid
       if (!cid || isNaN(cid)) {
-        console.error('[v0] Invalid course cid:', courseIdParam)
         navigate('/roadmap-engine/courses')
         return
       }
@@ -52,48 +51,31 @@ function CourseSetup() {
         const courseInfo = await getCourseById(cid)
         
         if (!courseInfo) {
-          console.error('[v0] Course not found for cid:', cid)
           navigate('/roadmap-engine/courses')
           return
         }
         setCourse(courseInfo)
-      } catch (error) {
-        console.error('[v0] Failed to fetch course:', error)
+      } catch {
         navigate('/roadmap-engine/courses')
         return
       } finally {
         setLoading(false)
       }
 
-      // Fetch topics - try roadmap API first, then local JSON as fallback
+      // Fetch topics from backend API only (no local JSON files)
       try {
-        console.log('[v0] Fetching roadmap for cid:', cid)
         const roadmapData = await getRoadmap(cid, 'PNL')
-        console.log('[v0] Roadmap response:', roadmapData)
         
         if (roadmapData?.topics && Array.isArray(roadmapData.topics)) {
-          const topicNames = roadmapData.topics.map(t => t.name || t.topic_name)
-          console.log('[v0] Fetched topics:', topicNames)
-          setTopics(topicNames.filter(Boolean))
-        } else {
-          console.log('[v0] No topics array in roadmap, throwing error')
-          throw new Error('No topics in roadmap response')
-        }
-      } catch (roadmapError) {
-        console.log('[v0] Roadmap API failed:', roadmapError.message)
-        // Fallback to local JSON file
-        try {
-          console.log('[v0] Trying local JSON fallback for cid:', cid)
-          const data = await loadCourseData(cid, 'pnl')
-          console.log('[v0] Local JSON data:', data)
-          const topicNames = getTopicNames(data)
-          console.log('[v0] Topics from local JSON:', topicNames)
+          const topicNames = getTopicNames(roadmapData)
           setTopics(topicNames)
-        } catch (jsonError) {
-          console.log('[v0] JSON fallback also failed:', jsonError.message)
-          setTopicsError('Unable to load topics. You can still continue without selecting known topics.')
+        } else {
+          setTopicsError('No topics available for this course.')
           setTopics([])
         }
+      } catch (error) {
+        setTopicsError('Unable to load topics. You can still continue without selecting known topics.')
+        setTopics([])
       } finally {
         setTopicsLoading(false)
       }

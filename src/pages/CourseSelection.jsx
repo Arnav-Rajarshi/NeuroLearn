@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User, BarChart3, AlertCircle, RefreshCw } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
-import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
+import { getAllCourses } from '../utils/loadCourseData.js'
 import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -11,7 +11,6 @@ function CourseSelection() {
   const { user, premium, logout, updatePremiumStatus, authError } = useAuth()
   
   const [courses, setCourses] = useState([])
-  const [courseData, setCourseData] = useState({})
   const [progress, setProgress] = useState({})
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -36,35 +35,25 @@ function CourseSelection() {
       
       setCourses(allCourses)
 
-      // Load course data and progress in parallel
-      const dataMap = {}
+      // Load user progress from backend for each course
       const progressMap = {}
 
       await Promise.all(
         allCourses.map(async (course) => {
           if (!course?.cid) return // Validate cid exists
           
-          // Load course JSON data for free courses
-          if (course.free && course.pnlFile) {
-            try {
-              const data = await loadCourseData(course.cid, 'pnl')
-              dataMap[course.cid] = data
-            } catch {
-              // Silently fail for missing JSON files
-            }
-          }
-
-          // Load user progress from backend using the course cid
           try {
             const progressData = await getRoadmapProgress(course.cid)
-            progressMap[course.cid] = progressData?.completed_topics || 0
-          } catch (error) {
-            progressMap[course.cid] = 0
+            progressMap[course.cid] = {
+              completedTopics: progressData?.completed_topics || 0,
+              totalTopics: progressData?.total_topics || 0
+            }
+          } catch {
+            progressMap[course.cid] = { completedTopics: 0, totalTopics: 0 }
           }
         })
       )
 
-      setCourseData(dataMap)
       setProgress(progressMap)
     } catch (error) {
       setLoadError('Failed to load courses. Please check your connection and try again.')
@@ -163,13 +152,7 @@ function CourseSelection() {
   }
 
   const getProgressForCourse = (cid) => {
-    const data = courseData[cid]
-    if (!data) return { completedTopics: 0, totalTopics: 0 }
-    
-    const totalTopics = getTotalSubtopics(data)
-    const completedTopics = progress[cid] || 0
-    
-    return { completedTopics, totalTopics }
+    return progress[cid] || { completedTopics: 0, totalTopics: 0 }
   }
 
   const handleGenerateRoadmap = () => {

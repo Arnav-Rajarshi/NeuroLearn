@@ -366,16 +366,11 @@ export async function getCourseById(cid) {
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
 export async function getRoadmap(cid, lm = 'PNL') {
-  console.log('[v0] getRoadmap called with cid:', cid, 'lm:', lm)
   const validCid = await validateCid(cid)
   if (!validCid) {
-    console.error("[v0] Invalid CID - cannot fetch roadmap for:", cid)
     throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log('[v0] Fetching roadmap from API for validCid:', validCid)
-  const result = await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
-  console.log('[v0] Roadmap API response:', result)
-  return result
+  return await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
 }
 
 /**

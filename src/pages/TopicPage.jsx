@@ -11,12 +11,8 @@ import {
   Circle,
   ChevronRight
 } from 'lucide-react'
-import { getCourseById, loadCourseData } from '../utils/loadCourseData.js'
-import { 
-  getCourseSettings,
-  markSubtopicCompleted,
-  isSubtopicCompleted
-} from '../utils/progressStore.js'
+import { getCourseById } from '../utils/loadCourseData.js'
+import { getRoadmap, getCoursePreferences, updateRoadmapProgress } from '../utils/api.js'
 
 function TopicPage() {
   const { course: courseIdParam, topic: topicSlug } = useParams()
@@ -31,12 +27,18 @@ function TopicPage() {
   const [subtopic, setSubtopic] = useState(null)
   const [loading, setLoading] = useState(true)
   const [completed, setCompleted] = useState(false)
+  const [progress, setProgress] = useState({})
+
+  // Check if a subtopic is completed from progress state
+  const checkSubtopicCompleted = (topicName, subtopicName) => {
+    const key = `${topicName}::${subtopicName}`
+    return progress[key] === true
+  }
 
   useEffect(() => {
     async function loadData() {
       // Validate cid
       if (!cid || isNaN(cid)) {
-        console.error('[v0] Invalid course cid:', courseIdParam)
         navigate('/roadmap-engine/courses')
         return
       }
@@ -45,36 +47,41 @@ function TopicPage() {
       
       const courseInfo = await getCourseById(cid)
       if (!courseInfo) {
-        console.error('[v0] Course not found for cid:', cid)
         navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
 
       // Try to get data from location state first
-      if (location.state?.topic && location.state?.subtopic) {
+      if (location.state?.topic && location.state?.subtopic && location.state?.progress) {
         setTopic(location.state.topic)
         setSubtopic(location.state.subtopic)
-        setCompleted(isSubtopicCompleted(cid, location.state.topic.name, location.state.subtopic.name))
+        setProgress(location.state.progress || {})
+        const key = `${location.state.topic.name}::${location.state.subtopic.name}`
+        setCompleted(location.state.progress?.[key] === true)
         setLoading(false)
         return
       }
 
-      // Otherwise load from course data
-      const settings = getCourseSettings(cid)
-      const roadmapType = settings?.roadmapType || 'pnl'
-
+      // Otherwise load from backend API
       try {
-        const data = await loadCourseData(cid, roadmapType)
+        const prefs = await getCoursePreferences(cid)
+        const roadmapType = prefs?.lm || 'PNL'
+        
+        const roadmap = await getRoadmap(cid, roadmapType)
+        setProgress(roadmap.progress || {})
+        
         const topicName = decodeURIComponent(topicSlug)
-        const foundTopic = data.topics?.find(t => t.name === topicName)
+        const foundTopic = roadmap.topics?.find(t => t.name === topicName)
         
         if (foundTopic) {
           setTopic(foundTopic)
           // Default to first subtopic
           if (foundTopic.subtopics?.length > 0) {
-            setSubtopic(foundTopic.subtopics[0])
-            setCompleted(isSubtopicCompleted(cid, foundTopic.name, foundTopic.subtopics[0].name))
+            const firstSubtopic = foundTopic.subtopics[0]
+            setSubtopic(firstSubtopic)
+            const key = `${foundTopic.name}::${firstSubtopic.name}`
+            setCompleted(roadmap.progress?.[key] === true)
           }
         }
       } catch (error) {
@@ -85,16 +92,22 @@ function TopicPage() {
     loadData()
   }, [cid, courseIdParam, topicSlug, navigate, location.state])
 
-  const handleMarkComplete = () => {
+  const handleMarkComplete = async () => {
     if (topic && subtopic && cid) {
-      markSubtopicCompleted(cid, topic.name, subtopic.name)
-      setCompleted(true)
+      try {
+        const topicKey = `${topic.name}::${subtopic.name}`
+        await updateRoadmapProgress(cid, topicKey, true)
+        setCompleted(true)
+        setProgress(prev => ({ ...prev, [topicKey]: true }))
+      } catch (error) {
+        console.error('Failed to mark subtopic as complete:', error)
+      }
     }
   }
 
   const handleSubtopicChange = (newSubtopic) => {
     setSubtopic(newSubtopic)
-    setCompleted(isSubtopicCompleted(cid, topic.name, newSubtopic.name))
+    setCompleted(checkSubtopicCompleted(topic.name, newSubtopic.name))
   }
 
   const handlePracticeClick = (question, index) => {
@@ -186,7 +199,7 @@ function TopicPage() {
               <nav className="space-y-1">
                 {topic.subtopics?.map((st, index) => {
                   const isActive = st.name === subtopic.name
-                  const isCompleted = isSubtopicCompleted(cid, topic.name, st.name)
+                  const isCompleted = checkSubtopicCompleted(topic.name, st.name)
                   
                   return (
                     <button
