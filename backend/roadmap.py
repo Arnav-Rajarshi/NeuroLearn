@@ -400,28 +400,20 @@ def update_user_progress(
 def filter_roadmap_json(roadmap_json, known_topics):
     if not known_topics:
         return roadmap_json
-
+    
     known_set = set([kt.lower().strip() for kt in known_topics])
-
+    
     new_topics = []
-
+    
     for topic in roadmap_json.get("topics", []):
-        topic_name = topic.get("name", "")
-        subtopics = topic.get("subtopics", [])
-
-        filtered_subtopics = []
-
-        for sub in subtopics:
-            sub_name = sub.get("name", "").lower().strip()
-
-            if sub_name not in known_set:
-                filtered_subtopics.append(sub)
-
-        # Only keep topic if it still has subtopics
-        if filtered_subtopics:
-            topic["subtopics"] = filtered_subtopics
-            new_topics.append(topic)
-
+        topic_name = topic.get("name", "").lower().strip()
+        
+        # 🔥 REMOVE ENTIRE TOPIC IF USER KNOWS IT
+        if topic_name in known_set:
+            continue
+        
+        new_topics.append(topic)
+    
     roadmap_json["topics"] = new_topics
     return roadmap_json
 
