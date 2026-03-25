@@ -19,9 +19,12 @@ import {
 } from '../utils/progressStore.js'
 
 function TopicPage() {
-  const { course: courseId, topic: topicSlug } = useParams()
+  const { course: courseIdParam, topic: topicSlug } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Parse cid from URL or get from state
+  const cid = location.state?.cid || parseInt(courseIdParam, 10)
   
   const [course, setCourse] = useState(null)
   const [topic, setTopic] = useState(null)
@@ -31,10 +34,18 @@ function TopicPage() {
 
   useEffect(() => {
     async function loadData() {
+      // Validate cid
+      if (!cid || isNaN(cid)) {
+        console.error('[v0] Invalid course cid:', courseIdParam)
+        navigate('/roadmap-engine/courses')
+        return
+      }
+      
       setLoading(true)
       
-      const courseInfo = getCourseById(courseId)
+      const courseInfo = await getCourseById(cid)
       if (!courseInfo) {
+        console.error('[v0] Course not found for cid:', cid)
         navigate('/roadmap-engine/courses')
         return
       }
@@ -44,17 +55,17 @@ function TopicPage() {
       if (location.state?.topic && location.state?.subtopic) {
         setTopic(location.state.topic)
         setSubtopic(location.state.subtopic)
-        setCompleted(isSubtopicCompleted(courseId, location.state.topic.name, location.state.subtopic.name))
+        setCompleted(isSubtopicCompleted(cid, location.state.topic.name, location.state.subtopic.name))
         setLoading(false)
         return
       }
 
       // Otherwise load from course data
-      const settings = getCourseSettings(courseId)
+      const settings = getCourseSettings(cid)
       const roadmapType = settings?.roadmapType || 'pnl'
 
       try {
-        const data = await loadCourseData(courseId, roadmapType)
+        const data = await loadCourseData(cid, roadmapType)
         const topicName = decodeURIComponent(topicSlug)
         const foundTopic = data.topics?.find(t => t.name === topicName)
         
@@ -63,7 +74,7 @@ function TopicPage() {
           // Default to first subtopic
           if (foundTopic.subtopics?.length > 0) {
             setSubtopic(foundTopic.subtopics[0])
-            setCompleted(isSubtopicCompleted(courseId, foundTopic.name, foundTopic.subtopics[0].name))
+            setCompleted(isSubtopicCompleted(cid, foundTopic.name, foundTopic.subtopics[0].name))
           }
         }
       } catch (error) {
@@ -72,23 +83,23 @@ function TopicPage() {
       setLoading(false)
     }
     loadData()
-  }, [courseId, topicSlug, navigate, location.state])
+  }, [cid, courseIdParam, topicSlug, navigate, location.state])
 
   const handleMarkComplete = () => {
-    if (topic && subtopic) {
-      markSubtopicCompleted(courseId, topic.name, subtopic.name)
+    if (topic && subtopic && cid) {
+      markSubtopicCompleted(cid, topic.name, subtopic.name)
       setCompleted(true)
     }
   }
 
   const handleSubtopicChange = (newSubtopic) => {
     setSubtopic(newSubtopic)
-    setCompleted(isSubtopicCompleted(courseId, topic.name, newSubtopic.name))
+    setCompleted(isSubtopicCompleted(cid, topic.name, newSubtopic.name))
   }
 
   const handlePracticeClick = (question, index) => {
-    navigate(`/roadmap-engine/practice/${courseId}/${encodeURIComponent(question.title || `question-${index}`)}`, {
-      state: { question, topic, subtopic }
+    navigate(`/roadmap-engine/practice/${cid}/${encodeURIComponent(question.title || `question-${index}`)}`, {
+      state: { question, topic, subtopic, cid }
     })
   }
 
@@ -106,7 +117,7 @@ function TopicPage() {
         <div className="text-center">
           <p className="text-[var(--color-muted)] mb-4">Topic not found</p>
           <button
-            onClick={() => navigate(`/roadmap-engine/roadmap/${courseId}`)}
+            onClick={() => navigate(`/roadmap-engine/roadmap/${cid}`)}
             className="text-[var(--color-primary)] hover:underline"
           >
             Back to Roadmap
@@ -126,7 +137,7 @@ function TopicPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(`/roadmap-engine/roadmap/${courseId}`)}
+              onClick={() => navigate(`/roadmap-engine/roadmap/${cid}`)}
               className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
               aria-label="Back to roadmap"
             >
@@ -175,7 +186,7 @@ function TopicPage() {
               <nav className="space-y-1">
                 {topic.subtopics?.map((st, index) => {
                   const isActive = st.name === subtopic.name
-                  const isCompleted = isSubtopicCompleted(courseId, topic.name, st.name)
+                  const isCompleted = isSubtopicCompleted(cid, topic.name, st.name)
                   
                   return (
                     <button

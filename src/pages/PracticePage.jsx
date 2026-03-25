@@ -12,9 +12,12 @@ import {
 import { recordQuestionAttempt, isQuestionAttempted } from '../utils/progressStore.js'
 
 function PracticePage() {
-  const { course: courseId, question: questionSlug } = useParams()
+  const { course: courseIdParam, question: questionSlug } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Parse cid from URL or get from state
+  const cid = location.state?.cid || parseInt(courseIdParam, 10)
   
   const [question, setQuestion] = useState(null)
   const [topic, setTopic] = useState(null)
@@ -24,21 +27,28 @@ function PracticePage() {
   const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
+    // Validate cid
+    if (!cid || isNaN(cid)) {
+      console.error('[v0] Invalid course cid:', courseIdParam)
+      navigate('/roadmap-engine/courses')
+      return
+    }
+    
     if (location.state?.question) {
       setQuestion(location.state.question)
       setTopic(location.state.topic)
       setSubtopic(location.state.subtopic)
-      setAttempted(isQuestionAttempted(courseId, location.state.question.title))
+      setAttempted(isQuestionAttempted(cid, location.state.question.title))
     } else {
       // If no state, redirect back to roadmap
-      navigate(`/roadmap-engine/roadmap/${courseId}`)
+      navigate(`/roadmap-engine/roadmap/${cid}`)
     }
-    }, [location.state, courseId, navigate])
+  }, [location.state, cid, courseIdParam, navigate])
 
   const handleSubmit = () => {
-    if (question) {
+    if (question && cid) {
       // Record attempt (mark as correct for demo)
-      recordQuestionAttempt(courseId, question.title, true)
+      recordQuestionAttempt(cid, question.title, true)
       setAttempted(true)
       setSubmitted(true)
     }

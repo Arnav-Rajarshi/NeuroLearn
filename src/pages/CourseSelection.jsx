@@ -21,7 +21,9 @@ function CourseSelection() {
   useEffect(() => {
     async function loadData() {
       setLoading(true)
-      const allCourses = getAllCourses()
+      
+      // Fetch all courses from backend (single source of truth)
+      const allCourses = await getAllCourses()
       setCourses(allCourses)
 
       // Load course data and progress in parallel
@@ -30,22 +32,24 @@ function CourseSelection() {
 
       await Promise.all(
         allCourses.map(async (course) => {
+          if (!course?.cid) return // Validate cid exists
+          
           // Load course JSON data for free courses
           if (course.free && course.pnlFile) {
             try {
-              const data = await loadCourseData(course.id, 'pnl')
-              dataMap[course.id] = data
+              const data = await loadCourseData(course.cid, 'pnl')
+              dataMap[course.cid] = data
             } catch (error) {
-              console.error(`Failed to load data for ${course.id}`, error)
+              console.error(`Failed to load data for cid ${course.cid}`, error)
             }
           }
 
-          // Load user progress from backend using the new roadmap pipeline
+          // Load user progress from backend using the course cid
           try {
-            const progressData = await getRoadmapProgress(course.id)
-            progressMap[course.id] = progressData?.completed_topics || 0
+            const progressData = await getRoadmapProgress(course.cid)
+            progressMap[course.cid] = progressData?.completed_topics || 0
           } catch (error) {
-            progressMap[course.id] = 0
+            progressMap[course.cid] = 0
           }
         })
       )
@@ -58,19 +62,24 @@ function CourseSelection() {
   }, [])
 
   const handleCourseClick = async (course) => {
+    if (!course?.cid) {
+      console.error('[v0] Invalid course - no cid:', course)
+      return
+    }
+    
     // Check if course has existing preferences/roadmap from backend
     try {
-      const prefs = await getCoursePreferences(course.id)
+      const prefs = await getCoursePreferences(course.cid)
       if (prefs?.lm) {
         // Go directly to roadmap if already set up
-        navigate(`/roadmap-engine/roadmap/${course.id}`)
-            } else {
+        navigate(`/roadmap-engine/roadmap/${course.cid}`)
+      } else {
         // Go to setup modal
-        navigate(`/roadmap-engine/setup/${course.id}`)
-            }
+        navigate(`/roadmap-engine/setup/${course.cid}`)
+      }
     } catch (error) {
       // No preferences found, go to setup
-      navigate(`/roadmap-engine/setup/${course.id}`)
+      navigate(`/roadmap-engine/setup/${course.cid}`)
     }
   }
 
@@ -140,12 +149,12 @@ function CourseSelection() {
     navigate('/login')
   }
 
-  const getProgressForCourse = (courseId) => {
-    const data = courseData[courseId]
+  const getProgressForCourse = (cid) => {
+    const data = courseData[cid]
     if (!data) return { completedTopics: 0, totalTopics: 0 }
     
     const totalTopics = getTotalSubtopics(data)
-    const completedTopics = progress[courseId] || 0
+    const completedTopics = progress[cid] || 0
     
     return { completedTopics, totalTopics }
   }
@@ -269,13 +278,13 @@ function CourseSelection() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {freeCourses.map((course, index) => (
                   <div 
-                    key={course.id} 
+                    key={course.cid} 
                     className="animate-fade-in-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <CourseCard
                       course={course}
-                      progress={getProgressForCourse(course.id)}
+                      progress={getProgressForCourse(course.cid)}
                       isLocked={false}
                       onClick={handleCourseClick}
                     />
@@ -293,7 +302,7 @@ function CourseSelection() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {premiumCourses.map((course, index) => (
                   <div 
-                    key={course.id}
+                    key={course.cid}
                     className="animate-fade-in-up"
                     style={{ animationDelay: `${(freeCourses.length + index) * 0.1}s` }}
                   >
