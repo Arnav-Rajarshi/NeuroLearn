@@ -1,30 +1,53 @@
 """
 Roadmap Pipeline Module
 
-CRITICAL FIXES APPLIED:
-1. Progress MERGE instead of overwrite
-2. Proper DB persistence with commit() and refresh()
-3. Handle null progress_json for old users
-4. Logging for all operations (fetch vs generate, progress updates, DB writes)
-5. Single source of truth for progress updates (update_user_progress)
-6. Computed top_id (not stale input)
-7. Deterministic progress calculation (completed tasks are source of truth)
-8. Enhanced API responses with success/completed/remaining
-9. Atomic operations to prevent race conditions
-10. Stable roadmap - always fetches from DB, never regenerates on reload
+=== SINGLE SOURCE OF TRUTH ARCHITECTURE ===
 
-Data Flow:
-Frontend requests roadmap
-    ↓
-Backend loads JSON roadmap file (source of truth for structure)
-    ↓
-Backend fetches user's completed topics from DB (source of truth for progress)
-    ↓
-Backend computes remaining topics (JSON - completed)
-    ↓
-topics_to_be_shown stored in TopicsToBeShown table
-    ↓
-Filtered roadmap returned to frontend
+CRITICAL: This module enforces a strict single-source-of-truth pattern:
+
+1. topics_to_be_shown_json (DB) = ONLY source for remaining topics to display
+2. progress_json (DB) = ONLY source for completion status
+3. Roadmap JSON file = ONLY source for topic STRUCTURE (names, subtopics, metadata)
+
+=== CRITICAL FIXES APPLIED ===
+
+1.  STOP RECOMPUTATION ON RELOAD - Topics are fetched from DB, NOT recomputed
+2.  Progress MERGE instead of overwrite - existing.update(new_data)
+3.  Proper DB persistence with commit() and refresh()
+4.  Handle null progress_json for old users
+5.  Logging: "FETCHING STORED ROADMAP" vs "GENERATING NEW ROADMAP"
+6.  Single source of truth for progress updates (update_user_progress)
+7.  Computed top_id (not stale input)
+8.  Deterministic progress calculation (completed tasks are source of truth)
+9.  Enhanced API responses with success/completed/remaining
+10. Atomic operations to prevent race conditions
+11. Stable roadmap - NEVER regenerates on reload
+
+=== DATA FLOW ===
+
+GET /roadmap/{cid} (EXISTING USER):
+    Frontend requests roadmap
+        ↓
+    Backend checks for STORED topics_to_be_shown_json in DB
+        ↓
+    IF EXISTS: Return stored data directly (NO recomputation)
+        ↓
+    ELSE (new user): Compute, store in DB, then return
+
+POST /roadmap/progress/update (SINGLE PROGRESS UPDATE ENDPOINT):
+    Frontend sends topic completion
+        ↓
+    Backend MERGES into existing progress_json (never overwrites)
+        ↓
+    Backend updates topics_to_be_shown_json in DB
+        ↓
+    Backend commits and returns updated state
+
+=== REMOVED BEHAVIORS ===
+
+- compute_topics_to_be_shown() is NO LONGER called on every reload
+- topics_to_be_shown is NO LONGER overwritten on GET requests for existing users
+- Roadmap structure is NEVER regenerated after initial creation
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -207,6 +230,32 @@ def compute_topics_to_be_shown(
 def get_current_topic(topics_to_be_shown: List[str]) -> Optional[str]:
     """Get the first topic that should be shown to the user."""
     return topics_to_be_shown[0] if topics_to_be_shown else None
+
+
+def get_stored_topics_to_be_shown(
+    db: Session,
+    uid: int,
+    rid: int
+) -> Optional[Dict[str, Any]]:
+    """
+    CRITICAL: Fetch stored topics_to_be_shown from DB.
+    
+    This is the SINGLE SOURCE OF TRUTH for remaining topics.
+    Returns None if no stored record exists (new user).
+    
+    LOGGING: Logs "FETCHING STORED ROADMAP" when data exists.
+    """
+    topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == uid,
+        TopicsToBeShown.rid == rid
+    ).first()
+    
+    if topics_record and topics_record.topics_json:
+        logger.info(f"[ROADMAP] FETCHING STORED ROADMAP - Found existing topics_to_be_shown for user={uid}, rid={rid}")
+        return topics_record.topics_json
+    
+    logger.info(f"[ROADMAP] No stored topics_to_be_shown found for user={uid}, rid={rid} - will generate")
+    return None
 
 
 # ============ Database Operations ============
@@ -466,10 +515,15 @@ def get_roadmap(
     """
     Get the full roadmap for a course with user's progress.
     
-    FIX: Roadmap is STABLE - always loads from JSON (source of truth for structure)
-    and DB (source of truth for progress). NEVER regenerates on reload.
+    CRITICAL FIX: This endpoint now uses STORED DATA from DB as single source of truth.
+    - topics_to_be_shown_json (DB) = ONLY source for remaining topics
+    - progress_json (DB) = ONLY source for completion status
+    - Roadmap JSON file = ONLY source for topic STRUCTURE (names, subtopics, etc.)
     
-    LOGGING: Logs whether fetching from file vs DB.
+    NEVER recomputes topics_to_be_shown on reload - uses stored DB value.
+    Only computes/initializes if user is NEW (no stored record exists).
+    
+    LOGGING: Logs "FETCHING STORED ROADMAP" vs "GENERATING NEW ROADMAP"
     """
     logger.info(f"[ROADMAP] GET /{cid} called by user={current_user.uid}, lm={lm}")
     
@@ -487,46 +541,81 @@ def get_roadmap(
     if lm not in ["PNL", "PRACTICE"]:
         lm = "PNL"
     
-    # Step 1: Load roadmap JSON (source of truth for STRUCTURE)
-    logger.info(f"[ROADMAP] Step 1: Loading JSON roadmap (source of truth for structure)")
+    # Step 1: Load roadmap JSON (source of truth for STRUCTURE only)
+    logger.info(f"[ROADMAP] Step 1: Loading JSON roadmap (source of truth for STRUCTURE)")
     roadmap_json = load_roadmap_json(course_slug, lm)
     
-    # Step 2: Extract all topic keys from JSON
+    # Step 2: Extract all topic keys from JSON (for structure reference)
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     logger.info(f"[ROADMAP] Step 2: Extracted {len(all_topic_keys)} topic keys from JSON")
     
-    # Step 3: Get user's completed topics from database (source of truth for PROGRESS)
-    logger.info(f"[ROADMAP] Step 3: Fetching progress from DB (source of truth for progress)")
+    # Step 3: Get or create roadmap record
+    roadmap_record = get_or_create_roadmap(db, cid, lm)
+    
+    # Step 4: CRITICAL FIX - Check if user has EXISTING stored topics_to_be_shown
+    # If YES -> USE STORED DATA (no recomputation)
+    # If NO -> GENERATE and store (new user flow)
+    existing_topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == current_user.uid,
+        TopicsToBeShown.rid == roadmap_record.rid
+    ).first()
+    
+    # Step 5: Get user's progress from DB (SINGLE SOURCE OF TRUTH for completion)
+    logger.info(f"[ROADMAP] Step 3: Fetching progress from DB (source of truth for PROGRESS)")
     user_progress = get_user_progress(db, current_user.uid, cid)
     
-    # Step 4: Compute topics_to_be_shown (deterministic: JSON - completed)
-    topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
-    current_topic = get_current_topic(topics_to_show)
-    logger.info(f"[ROADMAP] Step 4: Computed {len(topics_to_show)} remaining topics")
-    
-    # Step 5: Get or create roadmap record and update TopicsToBeShown
-    logger.info(f"[ROADMAP] Step 5: Updating topics_to_be_shown in DB")
-    roadmap_record = get_or_create_roadmap(db, cid, lm)
-    topics_record = update_topics_to_be_shown(
-        db, 
-        current_user.uid, 
-        roadmap_record.rid, 
-        topics_to_show,
-        current_topic,
-        all_topic_keys
-    )
-    
-    # Update the top_id reference in progress if exists
-    progress = db.query(ProgressLevel).filter(
-        ProgressLevel.uid == current_user.uid,
-        ProgressLevel.cid == cid
-    ).first()
-    if progress:
-        progress.top_id = topics_record.top_id
-    
-    # FIX: Ensure DB persistence
-    db.commit()
-    logger.info(f"[ROADMAP] DB committed successfully")
+    if existing_topics_record and existing_topics_record.topics_json:
+        # ============ EXISTING USER - USE STORED DATA ============
+        logger.info(f"[ROADMAP] FETCHING STORED ROADMAP - Using topics_to_be_shown from DB (NO recomputation)")
+        
+        # FIX: Use stored topics_to_be_shown directly from DB
+        stored_topics_json = existing_topics_record.topics_json
+        topics_to_show = stored_topics_json.get("remaining", [])
+        current_topic = stored_topics_json.get("current")
+        
+        logger.info(f"[ROADMAP] Loaded {len(topics_to_show)} remaining topics from stored DB record")
+        
+    else:
+        # ============ NEW USER - GENERATE AND STORE ============
+        logger.info(f"[ROADMAP] GENERATING NEW ROADMAP - First time user, computing topics_to_be_shown")
+        
+        # Compute topics_to_be_shown ONLY for new users (deterministic: JSON - completed)
+        topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
+        current_topic = get_current_topic(topics_to_show)
+        
+        logger.info(f"[ROADMAP] Computed {len(topics_to_show)} remaining topics for new user")
+        
+        # Store in DB for future fetches (so we don't recompute again)
+        update_topics_to_be_shown(
+            db, 
+            current_user.uid, 
+            roadmap_record.rid, 
+            topics_to_show,
+            current_topic,
+            all_topic_keys
+        )
+        
+        # Update the top_id reference in progress if exists
+        progress = db.query(ProgressLevel).filter(
+            ProgressLevel.uid == current_user.uid,
+            ProgressLevel.cid == cid
+        ).first()
+        
+        # Create progress record if it doesn't exist (for new users)
+        if not progress:
+            logger.info(f"[ROADMAP] Creating initial progress record for new user")
+            progress = ProgressLevel(
+                uid=current_user.uid,
+                cid=cid,
+                progress_json={},  # FIX: Initialize to empty dict, NEVER None
+                top_id=None
+            )
+            db.add(progress)
+            db.flush()
+        
+        # FIX: Ensure DB persistence for new user data
+        db.commit()
+        logger.info(f"[ROADMAP] New user data committed to DB")
     
     # Calculate statistics (deterministic: completed tasks are source of truth)
     total_topics = len(all_topic_keys)
@@ -562,7 +651,11 @@ def get_roadmap_progress(
     """
     Get just the progress summary for a roadmap (lighter endpoint).
     
-    FIX: Properly handles null progress_json and returns consistent response.
+    CRITICAL FIX: Uses STORED topics_to_be_shown from DB - NO recomputation on reload.
+    - topics_to_be_shown_json (DB) = SINGLE source of truth for remaining topics
+    - progress_json (DB) = SINGLE source of truth for completion
+    
+    Only computes if no stored record exists (new user).
     """
     logger.info(f"[ROADMAP] GET /{cid}/progress called by user={current_user.uid}, lm={lm}")
     
@@ -580,11 +673,38 @@ def get_roadmap_progress(
     if lm not in ["PNL", "PRACTICE"]:
         lm = "PNL"
     
-    # Load roadmap and compute progress
+    # Load roadmap JSON for structure reference only
     roadmap_json = load_roadmap_json(course_slug, lm)
     all_topic_keys = extract_all_topic_keys(roadmap_json)
+    
+    # Get user progress from DB (SINGLE SOURCE OF TRUTH)
     user_progress = get_user_progress(db, current_user.uid, cid)
-    topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
+    
+    # CRITICAL FIX: Use STORED topics_to_be_shown from DB
+    roadmap_record = get_or_create_roadmap(db, cid, lm)
+    existing_topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == current_user.uid,
+        TopicsToBeShown.rid == roadmap_record.rid
+    ).first()
+    
+    if existing_topics_record and existing_topics_record.topics_json:
+        # USE STORED DATA - NO RECOMPUTATION
+        logger.info(f"[ROADMAP] FETCHING STORED PROGRESS - Using topics_to_be_shown from DB")
+        stored_topics_json = existing_topics_record.topics_json
+        topics_to_show = stored_topics_json.get("remaining", [])
+        current_topic = stored_topics_json.get("current")
+    else:
+        # NEW USER - compute and store
+        logger.info(f"[ROADMAP] GENERATING NEW PROGRESS - First time user")
+        topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
+        current_topic = get_current_topic(topics_to_show)
+        
+        # Store for future fetches
+        update_topics_to_be_shown(
+            db, current_user.uid, roadmap_record.rid,
+            topics_to_show, current_topic, all_topic_keys
+        )
+        db.commit()
     
     total_topics = len(all_topic_keys)
     completed_count = len([k for k in all_topic_keys if user_progress.get(k) is True])
@@ -602,7 +722,7 @@ def get_roadmap_progress(
         completion_percentage=round(completion_percentage, 1),
         progress=user_progress,
         topics_to_be_shown=topics_to_show,
-        current_topic=get_current_topic(topics_to_show)
+        current_topic=current_topic
     )
 
 
