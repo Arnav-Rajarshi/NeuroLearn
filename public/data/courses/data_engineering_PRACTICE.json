@@ -1,0 +1,62 @@
+{
+  "courseName": "Data Engineering",
+  "courseId": "data_engineering",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Data Pipelines",
+      "subtopics": [
+        {
+          "name": "ETL Processes",
+          "practice": [
+            {"title": "ETL Basics", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/etl-process-in-data-warehouse/"},
+            {"title": "Data Transformation", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/domains/sql"},
+            {"title": "Pipeline Design", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.ibm.com/topics/data-pipeline"}
+          ]
+        },
+        {
+          "name": "Apache Airflow",
+          "practice": [
+            {"title": "Airflow DAGs", "platform": "Self Study", "difficulty": "Medium", "url": "https://airflow.apache.org/docs/apache-airflow/stable/tutorial/fundamentals.html"},
+            {"title": "Task Dependencies", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/apache-airflow/"},
+            {"title": "Complex Workflows", "platform": "Self Study", "difficulty": "Hard", "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Big Data Processing",
+      "subtopics": [
+        {
+          "name": "Apache Spark",
+          "practice": [
+            {"title": "Spark Basics", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/code/alexisbcook/getting-started-with-apache-spark"},
+            {"title": "RDD Operations", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/apache-spark-rdd/"},
+            {"title": "Spark SQL", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/nilaychauhan/pyspark-tutorial"}
+          ]
+        },
+        {
+          "name": "Hadoop Ecosystem",
+          "practice": [
+            {"title": "HDFS Basics", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/hadoop-hdfs-hadoop-distributed-file-system/"},
+            {"title": "MapReduce", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/mapreduce-architecture/"},
+            {"title": "Hive Queries", "platform": "HackerRank", "difficulty": "Hard", "url": "https://www.hackerrank.com/domains/sql"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Warehousing",
+      "subtopics": [
+        {
+          "name": "Warehouse Design",
+          "practice": [
+            {"title": "Star Schema", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/star-schema-in-data-warehouse-modeling/"},
+            {"title": "Snowflake Schema", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/snowflake-schema-in-data-warehouse-model/"},
+            {"title": "OLAP Cubes", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/olap-operations-in-dbms/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

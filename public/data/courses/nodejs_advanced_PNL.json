@@ -1,0 +1,164 @@
+{
+  "courseName": "Node.js Advanced",
+  "totalTopics": 6,
+  "estimatedHours": 160,
+  "topics": [
+    {
+      "name": "Core Concepts",
+      "subtopics": [
+        {
+          "name": "Event Loop Deep Dive",
+          "learningResources": [
+            {"type": "youtube", "title": "Event Loop - Philip Roberts", "url": "https://www.youtube.com/watch?v=8aGhZQkoFbQ"},
+            {"type": "youtube", "title": "Node.js Event Loop - Akshay Saini", "url": "https://www.youtube.com/watch?v=8zKuYvjFFS8"}
+          ],
+          "practice": [
+            {"title": "Event Loop Quiz", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Streams and Buffers",
+          "learningResources": [
+            {"type": "youtube", "title": "Node.js Streams - freeCodeCamp", "url": "https://www.youtube.com/watch?v=Oe421EPjeBE"}
+          ],
+          "practice": [
+            {"title": "Stream Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Worker Threads",
+          "learningResources": [
+            {"type": "youtube", "title": "Worker Threads - Fireship", "url": "https://www.youtube.com/watch?v=zphcsoSJMvM"}
+          ],
+          "practice": [
+            {"title": "Concurrency Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Advanced Express",
+      "subtopics": [
+        {
+          "name": "Custom Middleware",
+          "learningResources": [
+            {"type": "youtube", "title": "Express Middleware - Traversy Media", "url": "https://www.youtube.com/watch?v=L72fhGm1tfE"}
+          ],
+          "practice": [
+            {"title": "Middleware Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Error Handling",
+          "learningResources": [
+            {"type": "youtube", "title": "Error Handling - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=DyqVqaf1KnA"}
+          ],
+          "practice": [
+            {"title": "Error Handling", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "subtopics": [
+        {
+          "name": "Passport.js Strategies",
+          "learningResources": [
+            {"type": "youtube", "title": "Passport.js - Traversy Media", "url": "https://www.youtube.com/watch?v=6FOq4cUdH8k"}
+          ],
+          "practice": [
+            {"title": "Auth Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Session Management",
+          "learningResources": [
+            {"type": "youtube", "title": "Sessions and Cookies - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=GihQAC1I39Q"}
+          ],
+          "practice": [
+            {"title": "Session Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Database Integration",
+      "subtopics": [
+        {
+          "name": "MongoDB with Mongoose",
+          "learningResources": [
+            {"type": "youtube", "title": "Mongoose - freeCodeCamp", "url": "https://www.youtube.com/watch?v=-56x56UppqQ"}
+          ],
+          "practice": [
+            {"title": "MongoDB Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "SQL with Sequelize",
+          "learningResources": [
+            {"type": "youtube", "title": "Sequelize Tutorial", "url": "https://www.youtube.com/watch?v=pxo7L5nd1gA"}
+          ],
+          "practice": [
+            {"title": "SQL Lab", "platform": "LeetCode", "url": "https://leetcode.com/problemset/database/"}
+          ]
+        },
+        {
+          "name": "Connection Pooling",
+          "learningResources": [
+            {"type": "youtube", "title": "Connection Pooling - ByteByteGo", "url": "https://www.youtube.com/watch?v=jOUJAiC88p8"}
+          ],
+          "practice": [
+            {"title": "DB Performance", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Real-time Features",
+      "subtopics": [
+        {
+          "name": "WebSockets with Socket.io",
+          "learningResources": [
+            {"type": "youtube", "title": "Socket.io - Traversy Media", "url": "https://www.youtube.com/watch?v=ZKEqqIO7n-k"}
+          ],
+          "practice": [
+            {"title": "WebSocket Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Server-Sent Events",
+          "learningResources": [
+            {"type": "youtube", "title": "SSE - Web Dev Simplified", "url": "https://www.youtube.com/watch?v=4HlNv1qpZFY"}
+          ],
+          "practice": [
+            {"title": "SSE Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deployment and Scaling",
+      "subtopics": [
+        {
+          "name": "PM2 Process Management",
+          "learningResources": [
+            {"type": "youtube", "title": "PM2 Tutorial - Traversy Media", "url": "https://www.youtube.com/watch?v=oykl1Ih9pMg"}
+          ],
+          "practice": [
+            {"title": "PM2 Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        },
+        {
+          "name": "Clustering",
+          "learningResources": [
+            {"type": "youtube", "title": "Node.js Clustering - Fireship", "url": "https://www.youtube.com/watch?v=iGpzf_wuOJY"}
+          ],
+          "practice": [
+            {"title": "Cluster Lab", "platform": "HackerRank", "url": "https://www.hackerrank.com/skills-directory/node_js"}
+          ]
+        }
+      ]
+    }
+  ]
+}

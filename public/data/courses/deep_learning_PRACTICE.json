@@ -1,0 +1,62 @@
+{
+  "courseName": "Deep Learning",
+  "courseId": "deep_learning",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Neural Network Basics",
+      "subtopics": [
+        {
+          "name": "Perceptrons",
+          "practice": [
+            {"title": "Single Perceptron", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/code/tentotheminus9/neural-network-from-scratch"},
+            {"title": "Multi-layer Perceptron", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/challenges/predicting-house-prices/problem"},
+            {"title": "XOR Problem", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/implementation-of-perceptron-algorithm-for-xor-logic-gate/"}
+          ]
+        },
+        {
+          "name": "Activation Functions",
+          "practice": [
+            {"title": "ReLU vs Sigmoid", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/code/dansbecker/rectified-linear-units-relu-in-deep-learning"},
+            {"title": "Softmax Implementation", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/softmax-function/"},
+            {"title": "Leaky ReLU", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/pavansanagapati/activation-functions-comparison"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Convolutional Neural Networks",
+      "subtopics": [
+        {
+          "name": "CNN Architecture",
+          "practice": [
+            {"title": "MNIST Classification", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/competitions/digit-recognizer"},
+            {"title": "CIFAR-10 CNN", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/ektasharma/simple-cifar10-cnn-keras-code-with-88-accuracy"},
+            {"title": "Image Classification", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/competitions/dogs-vs-cats"}
+          ]
+        },
+        {
+          "name": "Transfer Learning",
+          "practice": [
+            {"title": "VGG16 Transfer", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/dansbecker/transfer-learning"},
+            {"title": "ResNet Fine-tuning", "platform": "Kaggle", "difficulty": "Hard", "url": "https://www.kaggle.com/code/pmigdal/transfer-learning-with-resnet"},
+            {"title": "Custom Dataset CNN", "platform": "Kaggle", "difficulty": "Hard", "url": "https://www.kaggle.com/code/leighplt/pytorch-tutorial-for-deep-learning-lovers"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Recurrent Neural Networks",
+      "subtopics": [
+        {
+          "name": "LSTM Networks",
+          "practice": [
+            {"title": "Text Generation", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/shivamb/beginners-guide-to-text-generation-using-lstms"},
+            {"title": "Sentiment Analysis", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/lakshmi25npathi/sentiment-analysis-of-imdb-movie-reviews"},
+            {"title": "Time Series LSTM", "platform": "Kaggle", "difficulty": "Hard", "url": "https://www.kaggle.com/code/ternaryrealm/lstm-time-series-explorations-with-keras"}
+          ]
+        }
+      ]
+    }
+  ]
+}

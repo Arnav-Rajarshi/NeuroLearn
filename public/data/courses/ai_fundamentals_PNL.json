@@ -1,0 +1,157 @@
+{
+  "courseName": "AI Fundamentals",
+  "totalTopics": 6,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "Introduction to AI",
+      "subtopics": [
+        {
+          "name": "What is Artificial Intelligence",
+          "learningResources": [
+            {"type": "youtube", "title": "AI Fundamentals - Stanford CS221", "url": "https://www.youtube.com/watch?v=J8Eh7RqggsU"},
+            {"type": "youtube", "title": "What is AI - IBM Technology", "url": "https://www.youtube.com/watch?v=ad79nYk2keg"}
+          ],
+          "practice": [
+            {"title": "AI Quiz - Basics", "platform": "Self Study", "url": "https://www.javatpoint.com/artificial-intelligence-mcq"}
+          ]
+        },
+        {
+          "name": "History of AI",
+          "learningResources": [
+            {"type": "youtube", "title": "History of AI - ColdFusion", "url": "https://www.youtube.com/watch?v=056v4OxKwlI"}
+          ],
+          "practice": [
+            {"title": "AI History Quiz", "platform": "Self Study", "url": "https://www.proprofs.com/quiz-school/story.php?title=history-of-artificial-intelligence"}
+          ]
+        },
+        {
+          "name": "Types of AI Systems",
+          "learningResources": [
+            {"type": "youtube", "title": "Types of AI - Simplilearn", "url": "https://www.youtube.com/watch?v=Yg0qBAWdPzY"}
+          ],
+          "practice": [
+            {"title": "AI Types Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/artificial-intelligence-mcqs-intelligent-agents/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search Algorithms",
+      "subtopics": [
+        {
+          "name": "Uninformed Search",
+          "learningResources": [
+            {"type": "youtube", "title": "BFS and DFS - Abdul Bari", "url": "https://www.youtube.com/watch?v=pcKY4hjDrxk"}
+          ],
+          "practice": [
+            {"title": "Number of Islands", "platform": "LeetCode", "url": "https://leetcode.com/problems/number-of-islands/"},
+            {"title": "Word Ladder", "platform": "LeetCode", "url": "https://leetcode.com/problems/word-ladder/"}
+          ]
+        },
+        {
+          "name": "Informed Search - A* Algorithm",
+          "learningResources": [
+            {"type": "youtube", "title": "A* Search Algorithm - Computerphile", "url": "https://www.youtube.com/watch?v=ySN5Wnu88nE"}
+          ],
+          "practice": [
+            {"title": "Shortest Path in Grid", "platform": "LeetCode", "url": "https://leetcode.com/problems/shortest-path-in-binary-matrix/"},
+            {"title": "Sliding Puzzle", "platform": "LeetCode", "url": "https://leetcode.com/problems/sliding-puzzle/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Knowledge Representation",
+      "subtopics": [
+        {
+          "name": "Propositional Logic",
+          "learningResources": [
+            {"type": "youtube", "title": "Propositional Logic - Gate Smashers", "url": "https://www.youtube.com/watch?v=xlUFkMKSB3Y"}
+          ],
+          "practice": [
+            {"title": "Logic Quiz", "platform": "Self Study", "url": "https://www.sanfoundry.com/artificial-intelligence-mcqs-propositional-logic/"}
+          ]
+        },
+        {
+          "name": "First Order Logic",
+          "learningResources": [
+            {"type": "youtube", "title": "First Order Logic - Neso Academy", "url": "https://www.youtube.com/watch?v=gP4-rY3F_GE"}
+          ],
+          "practice": [
+            {"title": "FOL Problems", "platform": "Self Study", "url": "https://www.sanfoundry.com/artificial-intelligence-mcqs-first-order-logic/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Machine Learning Basics",
+      "subtopics": [
+        {
+          "name": "Supervised Learning",
+          "learningResources": [
+            {"type": "youtube", "title": "Machine Learning Basics - freeCodeCamp", "url": "https://www.youtube.com/watch?v=bmmQA8A-yUA"}
+          ],
+          "practice": [
+            {"title": "Iris Dataset Classification", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"}
+          ]
+        },
+        {
+          "name": "Unsupervised Learning",
+          "learningResources": [
+            {"type": "youtube", "title": "Unsupervised Learning - StatQuest", "url": "https://www.youtube.com/watch?v=FgakZw6K1QQ"}
+          ],
+          "practice": [
+            {"title": "K-Means Clustering", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Neural Networks Introduction",
+      "subtopics": [
+        {
+          "name": "Perceptron and Activation Functions",
+          "learningResources": [
+            {"type": "youtube", "title": "But what is a Neural Network - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=aircAruvnKk"}
+          ],
+          "practice": [
+            {"title": "Neural Network Basics", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "Backpropagation",
+          "learningResources": [
+            {"type": "youtube", "title": "Gradient Descent - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=IHZwWFHWa-w"}
+          ],
+          "practice": [
+            {"title": "Backprop Implementation", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AI Ethics and Applications",
+      "subtopics": [
+        {
+          "name": "AI Ethics",
+          "learningResources": [
+            {"type": "youtube", "title": "AI Ethics - MIT OpenCourseWare", "url": "https://www.youtube.com/watch?v=5rrL6HvKNPY"}
+          ],
+          "practice": [
+            {"title": "Ethics Case Studies", "platform": "Self Study", "url": "https://www.elementsofai.com/"}
+          ]
+        },
+        {
+          "name": "Real-world AI Applications",
+          "learningResources": [
+            {"type": "youtube", "title": "AI Applications - TED Talks", "url": "https://www.youtube.com/watch?v=aR5N2Jl8k14"}
+          ],
+          "practice": [
+            {"title": "AI Use Cases", "platform": "Self Study", "url": "https://www.elementsofai.com/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

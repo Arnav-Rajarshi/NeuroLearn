@@ -1,0 +1,199 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import Optional, List
+from datetime import date, datetime
+
+from database import get_db
+from models import User, Course, CoursePreference, Roadmap, CourseEnrolled, TopicsToBeShown
+from auth import get_current_user
+
+router = APIRouter(prefix="/courses", tags=["Courses"])
+
+
+# Pydantic schemas
+class CoursePreferenceCreate(BaseModel):
+    cid: int
+    lm: str  # 'PNL' or 'PRACTICE'
+    goal_date: Optional[date] = None
+    hrs_per_week: Optional[int] = None
+
+
+class CoursePreferenceResponse(BaseModel):
+    pref_id: int
+    uid: int
+    cid: int
+    lm: Optional[str]
+    goal_date: Optional[date]
+    hrs_per_week: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+
+class CourseResponse(BaseModel):
+    cid: int
+    course_name: str
+
+    class Config:
+        from_attributes = True
+
+
+# Endpoints
+@router.get("/", response_model=List[CourseResponse])
+def get_all_courses(db: Session = Depends(get_db)):
+    courses = db.query(Course).all()
+    return courses
+
+
+@router.get("/preferences/{cid}", response_model=CoursePreferenceResponse)
+def get_course_preferences(
+    cid: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    pref = db.query(CoursePreference).filter(
+        CoursePreference.uid == current_user.uid,
+        CoursePreference.cid == cid
+    ).first()
+
+    if not pref:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No preferences found for this course"
+        )
+
+    return pref
+
+
+@router.post("/preferences", response_model=CoursePreferenceResponse)
+def save_course_preferences(
+    pref_data: CoursePreferenceCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Save or update user preferences for a course"""
+
+    # Verify course exists
+    course = db.query(Course).filter(Course.cid == pref_data.cid).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+
+    # Find or create roadmap
+    roadmap = db.query(Roadmap).filter(
+        Roadmap.cid == pref_data.cid,
+        Roadmap.lm == pref_data.lm
+    ).first()
+
+    if not roadmap:
+        roadmap = Roadmap(
+            cid=pref_data.cid,
+            lm=pref_data.lm
+        )
+        db.add(roadmap)
+        db.flush()
+
+    # Check for existing preference
+    pref = db.query(CoursePreference).filter(
+        CoursePreference.uid == current_user.uid,
+        CoursePreference.cid == pref_data.cid
+    ).first()
+
+    # Restore original logic (WITH top_id dependency)
+    topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == current_user.uid,
+        TopicsToBeShown.rid == roadmap.rid
+    ).first()
+
+    top_id = topics_record.top_id if topics_record else None
+
+    if pref:
+        # UPDATE
+        pref.rid = roadmap.rid
+        pref.lm = pref_data.lm
+        pref.goal_date = pref_data.goal_date
+        pref.hrs_per_week = pref_data.hrs_per_week
+        pref.top_id = top_id
+
+    else:
+        # CREATE
+        pref = CoursePreference(
+            uid=current_user.uid,
+            cid=pref_data.cid,
+            rid=roadmap.rid,
+            lm=pref_data.lm,
+            goal_date=pref_data.goal_date,
+            hrs_per_week=pref_data.hrs_per_week,
+            top_id=top_id
+        )
+        db.add(pref)
+
+    # Ensure enrollment
+    enrollment = db.query(CourseEnrolled).filter(
+        CourseEnrolled.uid == current_user.uid,
+        CourseEnrolled.cid == pref_data.cid
+    ).first()
+
+    if not enrollment:
+        enrollment = CourseEnrolled(
+            uid=current_user.uid,
+            cid=pref_data.cid
+        )
+        db.add(enrollment)
+
+    db.commit()
+    db.refresh(pref)
+
+    return pref
+
+
+@router.get("/enrolled", response_model=List[CourseResponse])
+def get_enrolled_courses(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    enrollments = db.query(CourseEnrolled).filter(
+        CourseEnrolled.uid == current_user.uid
+    ).all()
+
+    courses = []
+    for enrollment in enrollments:
+        course = db.query(Course).filter(Course.cid == enrollment.cid).first()
+        if course:
+            courses.append(course)
+
+    return courses
+
+
+@router.post("/enroll/{cid}")
+def enroll_in_course(
+    cid: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    course = db.query(Course).filter(Course.cid == cid).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+
+    existing = db.query(CourseEnrolled).filter(
+        CourseEnrolled.uid == current_user.uid,
+        CourseEnrolled.cid == cid
+    ).first()
+
+    if existing:
+        return {"message": "Already enrolled in this course"}
+
+    enrollment = CourseEnrolled(
+        uid=current_user.uid,
+        cid=cid
+    )
+    db.add(enrollment)
+    db.commit()
+
+    return {"message": "Successfully enrolled in course", "cid": cid}
