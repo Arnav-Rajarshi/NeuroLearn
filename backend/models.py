@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric, Date, Boolean ,JSON
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Numeric, Date, Boolean, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -85,12 +85,16 @@ class TopicsToBeShown(Base):
 class ProgressLevel(Base):
     """progress_level table"""
     __tablename__ = "progress_level"
+    __table_args__ = (
+        UniqueConstraint('uid', 'cid', name='uq_progress_uid_cid'),
+    )
 
     progress_id = Column(Integer, primary_key=True, index=True)
     uid = Column(Integer, ForeignKey("users.uid"), nullable=False)
     cid = Column(Integer, ForeignKey("courses.cid"), nullable=False)
     top_id = Column(Integer, ForeignKey("topics_to_be_shown.top_id"), nullable=True)
-    progress_json = Column(JSONB, nullable=True)
+    progress_json = Column(JSONB, default=list, nullable=False)
+    topics_to_be_shown_json = Column(JSONB, default=list, nullable=False)
     last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
