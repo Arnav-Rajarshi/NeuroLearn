@@ -84,6 +84,7 @@ def get_or_create_progress(
     
     progress = get_user_progress_strict(db, uid, cid)
     
+    
     if progress is None:
         progress = ProgressLevel(
             uid=uid,
@@ -152,6 +153,7 @@ def update_progress(
     
     # Get or create progress (prevents duplicates)
     progress = get_or_create_progress(db, uid, cid)
+    
     
     # Validate consistency
     if int(progress.uid) != uid or int(progress.cid) != cid:
@@ -264,6 +266,7 @@ def get_course_progress(
     
     progress = get_user_progress_strict(db, uid, cid)
     
+    
     if not progress:
         # Return empty progress if not found
         return ProgressResponse(
@@ -318,6 +321,7 @@ def complete_topic(
     uid = int(current_user.uid)
     
     progress = get_or_create_progress(db, uid, cid)
+    
     
     # Get current progress as list
     current_progress = progress.progress_json

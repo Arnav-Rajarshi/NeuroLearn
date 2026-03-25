@@ -64,10 +64,10 @@ function CourseSelection() {
       if (prefs?.lm) {
         // Go directly to roadmap if already set up
         navigate(`/roadmap-engine/roadmap/${course.id}`)
-      } else {
+            } else {
         // Go to setup modal
         navigate(`/roadmap-engine/setup/${course.id}`)
-      }
+            }
     } catch (error) {
       // No preferences found, go to setup
       navigate(`/roadmap-engine/setup/${course.id}`)

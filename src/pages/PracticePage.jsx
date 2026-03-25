@@ -33,7 +33,7 @@ function PracticePage() {
       // If no state, redirect back to roadmap
       navigate(`/roadmap-engine/roadmap/${courseId}`)
     }
-  }, [location.state, courseId, navigate])
+    }, [location.state, courseId, navigate])
 
   const handleSubmit = () => {
     if (question) {

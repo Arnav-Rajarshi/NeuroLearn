@@ -276,6 +276,7 @@ def get_or_create_progress(
     
     progress = get_user_progress_record(db, uid, cid)
     
+    
     if progress is None:
         # Create new progress with proper initialization
         progress = ProgressLevel(
@@ -326,6 +327,7 @@ def update_user_progress(
     cid = int(cid)
     
     progress = get_or_create_progress(db, uid, cid)
+    
     
     # Validate the record matches
     if int(progress.uid) != uid or int(progress.cid) != cid:
@@ -479,6 +481,7 @@ def get_roadmap(
     
     # Step 3: Get or create progress record
     progress = get_or_create_progress(db, uid, cid)
+    
     
     # Step 4: Validate record consistency
     if int(progress.uid) != uid or int(progress.cid) != cid:

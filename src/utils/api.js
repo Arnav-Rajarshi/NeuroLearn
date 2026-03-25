@@ -251,6 +251,7 @@ export async function enrollInCourse(courseIdOrSlug) {
 export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
   const cid = getCid(courseIdOrSlug)
   return await fetchApi(`/roadmap/${cid}?lm=${lm}`)
+  
 }
 
 /**
@@ -261,7 +262,7 @@ export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
 export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
   const cid = getCid(courseIdOrSlug)
   try {
-    return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
+      return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
   } catch (error) {
     return {
       cid,

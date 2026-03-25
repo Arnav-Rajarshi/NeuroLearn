@@ -77,7 +77,7 @@ function CourseSetup() {
       navigate(`/roadmap-engine/roadmap/${courseId}`, {
         state: { knownTopics }
       })
-    } catch (error) {
+        } catch (error) {
       console.error('Failed to save preferences:', error)
       // Still navigate even if save fails - preferences can be saved later
       navigate(`/roadmap-engine/roadmap/${courseId}`, {
