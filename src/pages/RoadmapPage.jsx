@@ -34,6 +34,7 @@ function RoadmapPage() {
   const [progress, setProgress] = useState({})
   const [topicsToBeShown, setTopicsToBeShown] = useState([])
   const [totalXP, setTotalXP] = useState(0)
+  const [loadError, setLoadError] = useState(null)
 
   useEffect(() => {
     async function loadData() {
@@ -45,33 +46,40 @@ function RoadmapPage() {
       }
       
       setLoading(true)
+      setLoadError(null)
       
-      const courseInfo = await getCourseById(cid)
-      if (!courseInfo) {
-        console.error('[v0] Course not found for cid:', cid)
-        navigate('/roadmap-engine/courses')
-        return
-      }
-      setCourse(courseInfo)
-
-      // Load preferences from backend API using cid
-      const prefs = await getCoursePreferences(cid)
-      if (!prefs || !prefs.lm) {
-        // Redirect to setup if no settings
-        navigate(`/roadmap-engine/setup/${cid}`)
-        return
-      }
-      
-      const roadmapType = prefs.lm
-      setSettings({
-        roadmapType,
-        goalDeadline: prefs.goal_date,
-        weeklyHours: prefs.hrs_per_week
-      })
-
       try {
+        const courseInfo = await getCourseById(cid)
+        
+        if (!courseInfo) {
+          console.error('[v0] Course not found for cid:', cid)
+          navigate('/roadmap-engine/courses')
+          return
+        }
+        setCourse(courseInfo)
+
+        // Load preferences from backend API using cid
+        const prefs = await getCoursePreferences(cid)
+        
+        if (!prefs || !prefs.lm) {
+          // Redirect to setup if no settings
+          navigate(`/roadmap-engine/setup/${cid}`)
+          return
+        }
+        
+        const roadmapType = prefs.lm
+        setSettings({
+          roadmapType,
+          goalDeadline: prefs.goal_date,
+          weeklyHours: prefs.hrs_per_week
+        })
+
         // Load full roadmap with progress from backend using cid
         const roadmap = await getRoadmap(cid, roadmapType)
+        
+        if (!roadmap || !roadmap.topics) {
+          throw new Error('Invalid roadmap data received')
+        }
         
         setRoadmapData({
           courseName: roadmap.course_name,
@@ -88,9 +96,11 @@ function RoadmapPage() {
         // Calculate XP from completed subtopics (10 XP per subtopic)
         setTotalXP(roadmap.completed_topics * 10)
       } catch (error) {
-        console.error('Failed to load roadmap data', error)
+        console.error('[v0] Failed to load roadmap data:', error)
+        setLoadError(error.message || 'Failed to load roadmap. Please try again.')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     loadData()
   }, [cid, courseIdParam, navigate])
@@ -161,7 +171,42 @@ function RoadmapPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-        <div className="animate-pulse text-[var(--color-muted)]">Loading roadmap...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <p className="text-[var(--color-muted)] text-sm">Loading roadmap...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4">
+        <div className="dashboard-card max-w-md text-center">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+            <Target className="w-8 h-8 text-red-400" />
+          </div>
+          <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-2">
+            Failed to Load Roadmap
+          </h3>
+          <p className="text-[var(--color-muted)] text-sm mb-4">
+            {loadError}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => navigate('/roadmap-engine/courses')}
+              className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:bg-[var(--color-surface-raised)] transition-colors text-sm"
+            >
+              Back to Courses
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white hover:opacity-90 transition-opacity text-sm"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     )
   }

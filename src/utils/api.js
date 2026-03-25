@@ -296,10 +296,8 @@ export async function fetchBackendCourses() {
     try {
       const courses = await fetchApi('/courses/')
       _coursesCache = courses
-      console.log("[v0] Fetched backend courses:", courses)
       return courses
     } catch (error) {
-      console.error("[v0] Failed to fetch backend courses:", error)
       _coursesCachePromise = null
       throw error
     }

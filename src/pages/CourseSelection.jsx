@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User, BarChart3 } from 'lucide-react'
+import { GraduationCap, Sparkles, Crown, Wand2, Lock, LogOut, User, BarChart3, AlertCircle, RefreshCw } from 'lucide-react'
 import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses, loadCourseData, getTotalSubtopics } from '../utils/loadCourseData.js'
 import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
@@ -8,22 +8,32 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 function CourseSelection() {
   const navigate = useNavigate()
-  const { user, premium, logout, updatePremiumStatus } = useAuth()
+  const { user, premium, logout, updatePremiumStatus, authError } = useAuth()
   
   const [courses, setCourses] = useState([])
   const [courseData, setCourseData] = useState({})
   const [progress, setProgress] = useState({})
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [learningGoal, setLearningGoal] = useState('')
   const [showGoalMessage, setShowGoalMessage] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true)
-      
+  const loadData = async () => {
+    setLoading(true)
+    setLoadError(null)
+    
+    try {
       // Fetch all courses from backend (single source of truth)
       const allCourses = await getAllCourses()
+      
+      if (!allCourses || allCourses.length === 0) {
+        setLoadError('No courses available. Please check your connection and try again.')
+        setCourses([])
+        setLoading(false)
+        return
+      }
+      
       setCourses(allCourses)
 
       // Load course data and progress in parallel
@@ -39,8 +49,8 @@ function CourseSelection() {
             try {
               const data = await loadCourseData(course.cid, 'pnl')
               dataMap[course.cid] = data
-            } catch (error) {
-              console.error(`Failed to load data for cid ${course.cid}`, error)
+            } catch {
+              // Silently fail for missing JSON files
             }
           }
 
@@ -56,8 +66,15 @@ function CourseSelection() {
 
       setCourseData(dataMap)
       setProgress(progressMap)
+    } catch (error) {
+      console.error('[v0] Failed to load courses:', error)
+      setLoadError('Failed to load courses. Please check your connection and try again.')
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
     loadData()
   }, [])
 
@@ -242,7 +259,38 @@ function CourseSelection() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Auth Error Banner */}
+        {authError && (
+          <div className="mb-6 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+            <p className="text-sm text-yellow-500">{authError}</p>
+          </div>
+        )}
+
+        {/* Load Error State */}
+        {loadError && !loading && (
+          <div className="dashboard-card max-w-md mx-auto text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-2">
+              Failed to Load Courses
+            </h3>
+            <p className="text-[var(--color-muted)] text-sm mb-4">
+              {loadError}
+            </p>
+            <button
+              onClick={loadData}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white hover:opacity-90 transition-opacity text-sm"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* Hero Section */}
+        {!loadError && (
         <div className="mb-10 animate-fade-in-up">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-[var(--color-accent)]" />
@@ -386,6 +434,7 @@ function CourseSelection() {
               </div>
             </section>
           </>
+        )}
         )}
       </main>
     </div>

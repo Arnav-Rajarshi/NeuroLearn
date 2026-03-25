@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { 
   getStoredUser, 
   getToken, 
@@ -9,12 +9,30 @@ import {
 
 const AuthContext = createContext(null)
 
+// Max retry attempts for API calls
+const MAX_RETRIES = 2
+const RETRY_DELAY = 1000
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [premium, setPremium] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authError, setAuthError] = useState(null)
+
+  // Retry helper function
+  const retryApiCall = useCallback(async (apiCall, retries = MAX_RETRIES) => {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await apiCall()
+      } catch (error) {
+        console.log(`[v0] Auth API call attempt ${i + 1} failed:`, error.message)
+        if (i === retries) throw error
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)))
+      }
+    }
+  }, [])
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -23,22 +41,35 @@ export function AuthProvider({ children }) {
       const storedUser = getStoredUser()
       
       if (token && storedUser) {
+        // First, set user from localStorage immediately (optimistic)
+        setUser(storedUser)
+        setPremium(storedUser.acc_status === 'premium')
+        setIsAdmin(storedUser.is_admin === true)
+        setIsAuthenticated(true)
+        
         try {
-          // Verify token is still valid by fetching current user
-          const currentUser = await getCurrentUser()
+          // Then verify token is still valid by fetching current user (with retry)
+          const currentUser = await retryApiCall(() => getCurrentUser())
           setUser(currentUser)
-          // Check premium status based on acc_status
           setPremium(currentUser.acc_status === 'premium')
-          // Check admin status
           setIsAdmin(currentUser.is_admin === true)
           setIsAuthenticated(true)
+          setAuthError(null)
         } catch (error) {
-          // Token is invalid, clear storage
-          apiLogout()
-          setUser(null)
-          setPremium(false)
-          setIsAdmin(false)
-          setIsAuthenticated(false)
+          // Check if it's a network error or auth error
+          if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            // Network error - keep using stored user, don't logout
+            setAuthError('Unable to connect to server. Using cached data.')
+            // Keep the optimistic state we set above
+          } else {
+            // Token is actually invalid, clear storage
+            apiLogout()
+            setUser(null)
+            setPremium(false)
+            setIsAdmin(false)
+            setIsAuthenticated(false)
+            setAuthError(null)
+          }
         }
       }
       
@@ -46,7 +77,7 @@ export function AuthProvider({ children }) {
     }
     
     initAuth()
-  }, [])
+  }, [retryApiCall])
 
   const login = (userData, token) => {
     setUser(userData)
@@ -94,6 +125,7 @@ export function AuthProvider({ children }) {
     isAdmin,
     loading,
     isAuthenticated,
+    authError,
     login,
     logout,
     updatePremiumStatus,
