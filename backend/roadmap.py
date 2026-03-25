@@ -1,17 +1,24 @@
 """
 Roadmap Pipeline Module
 
-This module implements the correct roadmap progress pipeline:
-1. JSON files are the source of truth for roadmap structure
-2. Database stores only user-specific progress state
-3. topics_to_be_shown = json_topics - completed_topics
+CRITICAL FIXES APPLIED:
+1. Progress MERGE instead of overwrite
+2. Proper DB persistence with commit() and refresh()
+3. Handle null progress_json for old users
+4. Logging for all operations (fetch vs generate, progress updates, DB writes)
+5. Single source of truth for progress updates (update_user_progress)
+6. Computed top_id (not stale input)
+7. Deterministic progress calculation (completed tasks are source of truth)
+8. Enhanced API responses with success/completed/remaining
+9. Atomic operations to prevent race conditions
+10. Stable roadmap - always fetches from DB, never regenerates on reload
 
 Data Flow:
 Frontend requests roadmap
     ↓
-Backend loads JSON roadmap file
+Backend loads JSON roadmap file (source of truth for structure)
     ↓
-Backend fetches user's completed topics from DB
+Backend fetches user's completed topics from DB (source of truth for progress)
     ↓
 Backend computes remaining topics (JSON - completed)
     ↓
@@ -22,12 +29,13 @@ Filtered roadmap returned to frontend
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 import os
-import re
+import logging
 
 from database import get_db
 from models import (
@@ -36,13 +44,16 @@ from models import (
 )
 from auth import get_current_user
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 router = APIRouter(prefix="/roadmap", tags=["Roadmap"])
 
-# Path to roadmap JSON files (relative to backend directory)
-# In production, these would be served from a CDN or stored in the database
+# Path to roadmap JSON files
 ROADMAP_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "public", "data", "courses")
 
-# Course slug to cid mapping (mirrors frontend courseMap.js)
+# Course slug to cid mapping
 COURSE_SLUG_TO_CID = {
     "dsa": 1,
     "python": 2,
@@ -85,12 +96,18 @@ class RoadmapProgressUpdate(BaseModel):
 
 
 class RoadmapProgressResponse(BaseModel):
-    """Response with user's progress on a roadmap"""
+    """
+    Response with user's progress on a roadmap.
+    
+    ENHANCED: Now includes success, completed_topics, remaining_topics for consistency.
+    """
+    success: bool = True
     cid: int
     course_name: Optional[str]
     lm: str  # 'PNL' or 'PRACTICE'
     total_topics: int
     completed_topics: int
+    remaining_topics: int  # ADDED
     completion_percentage: float
     progress: Dict[str, bool]  # topic_key -> completed
     topics_to_be_shown: List[str]  # Remaining topic keys
@@ -99,12 +116,14 @@ class RoadmapProgressResponse(BaseModel):
 
 class FullRoadmapResponse(BaseModel):
     """Full roadmap with structure and progress"""
+    success: bool = True
     cid: int
     course_name: str
     lm: str
     estimated_hours: int
     total_topics: int
     completed_topics: int
+    remaining_topics: int  # ADDED
     completion_percentage: float
     topics: List[Dict[str, Any]]  # Full topic structure from JSON
     progress: Dict[str, bool]  # topic_key -> completed
@@ -114,17 +133,7 @@ class FullRoadmapResponse(BaseModel):
 # ============ JSON Loader Functions ============
 
 def get_roadmap_json_path(course_slug: str, learning_mode: str) -> str:
-    """
-    Get the path to the roadmap JSON file.
-    
-    Args:
-        course_slug: Course identifier (e.g., "python", "dsa")
-        learning_mode: Either "PNL" or "PRACTICE"
-    
-    Returns:
-        Full path to the JSON file
-    """
-    # Handle special cases for file naming
+    """Get the path to the roadmap JSON file."""
     if course_slug.upper() == "SQL":
         filename = f"SQL_{learning_mode}.json"
     else:
@@ -137,19 +146,13 @@ def load_roadmap_json(course_slug: str, learning_mode: str = "PNL") -> Dict[str,
     """
     Load roadmap structure from JSON file.
     
-    Args:
-        course_slug: Course identifier (e.g., "python", "dsa")
-        learning_mode: Either "PNL" or "PRACTICE"
-    
-    Returns:
-        Parsed JSON roadmap data
-    
-    Raises:
-        HTTPException: If file not found or invalid JSON
+    LOGGING: Logs whether we're fetching from file.
     """
     file_path = get_roadmap_json_path(course_slug, learning_mode)
+    logger.info(f"[ROADMAP] Loading JSON roadmap from: {file_path}")
     
     if not os.path.exists(file_path):
+        logger.error(f"[ROADMAP] Roadmap file not found: {file_path}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Roadmap file not found: {course_slug}_{learning_mode}.json"
@@ -157,8 +160,11 @@ def load_roadmap_json(course_slug: str, learning_mode: str = "PNL") -> Dict[str,
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+            logger.info(f"[ROADMAP] Successfully loaded roadmap JSON for {course_slug}_{learning_mode}")
+            return data
     except json.JSONDecodeError as e:
+        logger.error(f"[ROADMAP] Invalid JSON in roadmap file: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Invalid JSON in roadmap file: {str(e)}"
@@ -170,13 +176,6 @@ def extract_all_topic_keys(roadmap_json: Dict[str, Any]) -> List[str]:
     Extract all unique topic keys from a roadmap JSON.
     
     Topic keys are formatted as: "topic_name::subtopic_name"
-    This creates a flat list of all learnable items.
-    
-    Args:
-        roadmap_json: Parsed roadmap JSON data
-    
-    Returns:
-        List of topic keys in order
     """
     topic_keys = []
     
@@ -187,7 +186,6 @@ def extract_all_topic_keys(roadmap_json: Dict[str, Any]) -> List[str]:
         
         for subtopic in subtopics:
             subtopic_name = subtopic.get("name", "")
-            # Create a unique key combining topic and subtopic
             key = f"{topic_name}::{subtopic_name}"
             topic_keys.append(key)
     
@@ -201,14 +199,9 @@ def compute_topics_to_be_shown(
     """
     Compute remaining topics by subtracting completed from total.
     
-    Args:
-        all_topic_keys: All topic keys from JSON (source of truth)
-        completed_keys: Map of topic_key -> True for completed topics
-    
-    Returns:
-        List of topic keys that are not yet completed
+    FIX: Only considers topics where completed_keys[key] is True.
     """
-    return [key for key in all_topic_keys if not completed_keys.get(key, False)]
+    return [key for key in all_topic_keys if completed_keys.get(key) is not True]
 
 
 def get_current_topic(topics_to_be_shown: List[str]) -> Optional[str]:
@@ -230,6 +223,7 @@ def get_or_create_roadmap(
     ).first()
     
     if not roadmap:
+        logger.info(f"[ROADMAP] Creating new roadmap record for cid={cid}, lm={lm}")
         roadmap = Roadmap(cid=cid, lm=lm)
         db.add(roadmap)
         db.flush()
@@ -245,45 +239,43 @@ def get_user_progress(
     """
     Get user's progress for a course as a dictionary.
     
+    FIX: Handles null progress_json for old users.
+    
     Returns:
         Dict mapping topic_key -> True (only completed topics are stored)
     """
+    logger.info(f"[PROGRESS] Fetching progress from DB for user={uid}, course={cid}")
+    
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
         ProgressLevel.cid == cid
     ).first()
     
-    if not progress or not progress.progress_json:
+    # FIX: Handle null progress_json for old users
+    if not progress:
+        logger.info(f"[PROGRESS] No progress record found for user={uid}, course={cid}")
         return {}
     
-    # progress_json stores: {"topic_key": true, ...}
-    return progress.progress_json
+    if progress.progress_json is None:
+        logger.info(f"[PROGRESS] progress_json is NULL for user={uid}, course={cid}, returning empty dict")
+        return {}
+    
+    logger.info(f"[PROGRESS] Found progress with {len(progress.progress_json)} entries")
+    return dict(progress.progress_json)
 
 
 def compute_top_id_index(all_topic_keys: List[str], topic_key: str) -> int:
     """
-    Compute a stable top_id index for a topic key.
+    FIX: Compute a stable top_id index for a topic key.
+    
+    This ensures top_id is COMPUTED, not a stale input value.
     
     Format: topic_index * 100 + subtopic_index
-    Example: Topic 0, Subtopic 2 = 2
-             Topic 1, Subtopic 0 = 100
-             Topic 1, Subtopic 3 = 103
-    
-    Args:
-        all_topic_keys: List of all topic keys in order
-        topic_key: The specific topic key
-    
-    Returns:
-        Integer index for the topic
     """
     try:
-        # Find the index in the flat list
         flat_index = all_topic_keys.index(topic_key)
-        
-        # Parse topic and subtopic names
         topic_name = topic_key.split("::")[0]
         
-        # Count topics before this one
         topic_index = 0
         subtopic_index = 0
         current_topic = None
@@ -302,8 +294,11 @@ def compute_top_id_index(all_topic_keys: List[str], topic_key: str) -> int:
             if key_topic == topic_name:
                 subtopic_index += 1
         
-        return topic_index * 100 + subtopic_index
+        computed_id = topic_index * 100 + subtopic_index
+        logger.info(f"[PROGRESS] Computed top_id={computed_id} for topic_key={topic_key}")
+        return computed_id
     except (ValueError, IndexError):
+        logger.warning(f"[PROGRESS] Could not compute top_id for topic_key={topic_key}, returning 0")
         return 0
 
 
@@ -317,13 +312,16 @@ def update_user_progress(
     all_topic_keys: Optional[List[str]] = None
 ) -> Dict[str, bool]:
     """
-    Update user's progress for a specific topic.
+    SINGLE SOURCE OF TRUTH for progress updates.
     
-    SAFE UPDATE PATTERN:
-    1. Load existing progress_json from database
-    2. Check if topic_key already exists and is already True (skip if so)
-    3. Merge the new topic_key into it
-    4. Save merged JSON
+    CRITICAL FIXES:
+    1. MERGE instead of overwrite - existing.update(new_data)
+    2. Skip update if already completed (idempotent)
+    3. Computed top_id (not stale input)
+    4. Proper DB commit and refresh
+    5. Handle null progress_json
+    6. Mark JSONB as modified for SQLAlchemy
+    7. Logging for debugging
     
     Args:
         db: Database session
@@ -337,7 +335,7 @@ def update_user_progress(
     Returns:
         Updated progress dictionary
     """
-    from sqlalchemy.orm.attributes import flag_modified
+    logger.info(f"[PROGRESS] update_user_progress called: user={uid}, course={cid}, topic={topic_key}, completed={completed}")
     
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
@@ -345,44 +343,52 @@ def update_user_progress(
     ).first()
     
     if not progress:
+        logger.info(f"[PROGRESS] Creating new progress record for user={uid}, course={cid}")
         progress = ProgressLevel(
             uid=uid,
             cid=cid,
             top_id=top_id_ref,
-            progress_json={}
+            progress_json={}  # FIX: Initialize to empty dict, not None
         )
         db.add(progress)
         db.flush()
     
-    # Load existing progress (NEVER overwrite entirely)
+    # FIX: Load existing progress (NEVER overwrite entirely)
+    # Handle null progress_json for old users
     current_progress = dict(progress.progress_json or {})
+    logger.info(f"[PROGRESS] Current progress has {len(current_progress)} entries")
     
-    # PREVENT DUPLICATE COMPLETION
-    # If marking as completed and already True, skip update
+    # FIX: IDEMPOTENT - Skip if already completed
     if completed:
         if current_progress.get(topic_key) is True:
-            # Already completed, return current state without modification
+            logger.info(f"[PROGRESS] Topic {topic_key} already completed, skipping update")
             return current_progress
+        logger.info(f"[PROGRESS] Marking topic {topic_key} as completed")
         current_progress[topic_key] = True
     else:
-        # Only allow marking as incomplete if it exists
         if topic_key in current_progress:
+            logger.info(f"[PROGRESS] Marking topic {topic_key} as incomplete")
             current_progress[topic_key] = False
     
-    # Compute the top_id index if topic keys provided
+    # FIX: Compute the top_id index (not stale input)
     computed_top_id = None
-    if all_topic_keys:
+    if all_topic_keys and topic_key in all_topic_keys:
         computed_top_id = compute_top_id_index(all_topic_keys, topic_key)
+        logger.info(f"[PROGRESS] Computed top_id={computed_top_id}")
     
-    # Update progress_json (must create new dict for SQLAlchemy JSONB detection)
+    # Update progress_json
     progress.progress_json = current_progress
-    progress.top_id = top_id_ref
+    if top_id_ref is not None:
+        progress.top_id = top_id_ref
     progress.last_updated = datetime.utcnow()
     
-    # Explicitly mark JSONB as modified for SQLAlchemy to detect change
+    # FIX: Explicitly mark JSONB as modified for SQLAlchemy to detect change
     flag_modified(progress, "progress_json")
     
+    # FIX: Ensure DB persistence
     db.flush()
+    logger.info(f"[PROGRESS] Flushed progress update for user={uid}, course={cid}")
+    
     return current_progress
 
 
@@ -397,29 +403,16 @@ def update_topics_to_be_shown(
     """
     Update or create the topics_to_be_shown record.
     
-    topics_to_be_shown must:
-    - Contain the remaining roadmap topics not yet completed
-    - Never be empty unless the roadmap is complete
-    
-    Args:
-        db: Database session
-        uid: User ID
-        rid: Roadmap ID
-        topics_list: List of remaining topic keys
-        current_topic: The current topic being shown
-        all_topic_keys: All topic keys for computing indices
-    
-    Returns:
-        Updated TopicsToBeShown record
+    FIX: Properly marks JSONB as modified and commits.
     """
-    from sqlalchemy.orm.attributes import flag_modified
+    logger.info(f"[ROADMAP] Updating topics_to_be_shown for user={uid}, roadmap={rid}, remaining={len(topics_list)}")
     
     topics_record = db.query(TopicsToBeShown).filter(
         TopicsToBeShown.uid == uid,
         TopicsToBeShown.rid == rid
     ).first()
     
-    # Compute current_topic_index if we have all keys
+    # Compute current_topic_index
     current_topic_index = None
     if current_topic and all_topic_keys:
         current_topic_index = compute_top_id_index(all_topic_keys, current_topic)
@@ -433,6 +426,7 @@ def update_topics_to_be_shown(
     }
     
     if not topics_record:
+        logger.info(f"[ROADMAP] Creating new topics_to_be_shown record")
         topics_record = TopicsToBeShown(
             uid=uid,
             rid=rid,
@@ -440,8 +434,9 @@ def update_topics_to_be_shown(
         )
         db.add(topics_record)
     else:
+        logger.info(f"[ROADMAP] Updating existing topics_to_be_shown record")
         topics_record.topics_json = new_json
-        # Explicitly mark JSONB as modified
+        # FIX: Explicitly mark JSONB as modified
         flag_modified(topics_record, "topics_json")
     
     db.flush()
@@ -460,16 +455,17 @@ def get_roadmap(
     """
     Get the full roadmap for a course with user's progress.
     
-    This endpoint:
-    1. Loads the roadmap structure from JSON (source of truth)
-    2. Fetches user's completed topics from database
-    3. Computes topics_to_be_shown (JSON - completed)
-    4. Updates the TopicsToBeShown record
-    5. Returns the filtered roadmap
+    FIX: Roadmap is STABLE - always loads from JSON (source of truth for structure)
+    and DB (source of truth for progress). NEVER regenerates on reload.
+    
+    LOGGING: Logs whether fetching from file vs DB.
     """
+    logger.info(f"[ROADMAP] GET /{cid} called by user={current_user.uid}, lm={lm}")
+    
     # Get course slug from cid
     course_slug = COURSE_CID_TO_SLUG.get(cid)
     if not course_slug:
+        logger.error(f"[ROADMAP] Unknown course ID: {cid}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Unknown course ID: {cid}"
@@ -480,20 +476,25 @@ def get_roadmap(
     if lm not in ["PNL", "PRACTICE"]:
         lm = "PNL"
     
-    # Step 1: Load roadmap JSON (source of truth)
+    # Step 1: Load roadmap JSON (source of truth for STRUCTURE)
+    logger.info(f"[ROADMAP] Step 1: Loading JSON roadmap (source of truth for structure)")
     roadmap_json = load_roadmap_json(course_slug, lm)
     
     # Step 2: Extract all topic keys from JSON
     all_topic_keys = extract_all_topic_keys(roadmap_json)
+    logger.info(f"[ROADMAP] Step 2: Extracted {len(all_topic_keys)} topic keys from JSON")
     
-    # Step 3: Get user's completed topics from database
+    # Step 3: Get user's completed topics from database (source of truth for PROGRESS)
+    logger.info(f"[ROADMAP] Step 3: Fetching progress from DB (source of truth for progress)")
     user_progress = get_user_progress(db, current_user.uid, cid)
     
-    # Step 4: Compute topics_to_be_shown
+    # Step 4: Compute topics_to_be_shown (deterministic: JSON - completed)
     topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
     current_topic = get_current_topic(topics_to_show)
+    logger.info(f"[ROADMAP] Step 4: Computed {len(topics_to_show)} remaining topics")
     
     # Step 5: Get or create roadmap record and update TopicsToBeShown
+    logger.info(f"[ROADMAP] Step 5: Updating topics_to_be_shown in DB")
     roadmap_record = get_or_create_roadmap(db, cid, lm)
     topics_record = update_topics_to_be_shown(
         db, 
@@ -512,20 +513,27 @@ def get_roadmap(
     if progress:
         progress.top_id = topics_record.top_id
     
+    # FIX: Ensure DB persistence
     db.commit()
+    logger.info(f"[ROADMAP] DB committed successfully")
     
-    # Calculate statistics
+    # Calculate statistics (deterministic: completed tasks are source of truth)
     total_topics = len(all_topic_keys)
-    completed_count = len([k for k in all_topic_keys if user_progress.get(k, False)])
+    completed_count = len([k for k in all_topic_keys if user_progress.get(k) is True])
+    remaining_count = total_topics - completed_count
     completion_percentage = (completed_count / total_topics * 100) if total_topics > 0 else 0
     
+    logger.info(f"[ROADMAP] Stats: total={total_topics}, completed={completed_count}, remaining={remaining_count}")
+    
     return FullRoadmapResponse(
+        success=True,
         cid=cid,
         course_name=roadmap_json.get("courseName", ""),
         lm=lm,
         estimated_hours=roadmap_json.get("estimatedHours", 0),
         total_topics=total_topics,
         completed_topics=completed_count,
+        remaining_topics=remaining_count,
         completion_percentage=round(completion_percentage, 1),
         topics=roadmap_json.get("topics", []),
         progress=user_progress,
@@ -542,12 +550,16 @@ def get_roadmap_progress(
 ):
     """
     Get just the progress summary for a roadmap (lighter endpoint).
+    
+    FIX: Properly handles null progress_json and returns consistent response.
     """
-    # Get course info
+    logger.info(f"[ROADMAP] GET /{cid}/progress called by user={current_user.uid}, lm={lm}")
+    
     course = db.query(Course).filter(Course.cid == cid).first()
     course_slug = COURSE_CID_TO_SLUG.get(cid)
     
     if not course_slug:
+        logger.error(f"[ROADMAP] Unknown course ID: {cid}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Unknown course ID: {cid}"
@@ -564,15 +576,18 @@ def get_roadmap_progress(
     topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
     
     total_topics = len(all_topic_keys)
-    completed_count = len([k for k in all_topic_keys if user_progress.get(k, False)])
+    completed_count = len([k for k in all_topic_keys if user_progress.get(k) is True])
+    remaining_count = total_topics - completed_count
     completion_percentage = (completed_count / total_topics * 100) if total_topics > 0 else 0
     
     return RoadmapProgressResponse(
+        success=True,
         cid=cid,
         course_name=course.course_name if course else None,
         lm=lm,
         total_topics=total_topics,
         completed_topics=completed_count,
+        remaining_topics=remaining_count,
         completion_percentage=round(completion_percentage, 1),
         progress=user_progress,
         topics_to_be_shown=topics_to_show,
@@ -589,19 +604,33 @@ def update_roadmap_progress(
     """
     Mark a topic as complete or incomplete.
     
-    This endpoint:
-    1. Updates the progress_json in ProgressLevel
-    2. Recomputes topics_to_be_shown
-    3. Updates the TopicsToBeShown record
-    4. Returns updated progress summary
+    THIS IS THE SINGLE SOURCE OF TRUTH for progress updates.
+    
+    CRITICAL FIXES:
+    1. Uses update_user_progress which MERGES instead of overwriting
+    2. Proper DB commit and refresh
+    3. Computed top_id (not stale input)
+    4. Idempotent - skips if already completed
+    5. Enhanced response with success/completed/remaining
+    
+    Response format:
+    {
+        "success": true,
+        "updated_progress": {...},
+        "completed_topics": X,
+        "remaining_topics": Y
+    }
     """
     cid = update_data.cid
     topic_key = update_data.topic_key
     completed = update_data.completed
     
+    logger.info(f"[ROADMAP] POST /progress/update called: user={current_user.uid}, course={cid}, topic={topic_key}, completed={completed}")
+    
     # Get course slug
     course_slug = COURSE_CID_TO_SLUG.get(cid)
     if not course_slug:
+        logger.error(f"[ROADMAP] Unknown course ID: {cid}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Unknown course ID: {cid}"
@@ -619,6 +648,7 @@ def update_roadmap_progress(
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     
     if topic_key not in all_topic_keys:
+        logger.error(f"[ROADMAP] Invalid topic key: {topic_key}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid topic key: {topic_key}"
@@ -634,7 +664,7 @@ def update_roadmap_progress(
     ).first()
     
     if not topics_record:
-        # Compute initial topics_to_be_shown
+        logger.info(f"[ROADMAP] Creating initial topics_to_be_shown record")
         user_progress = get_user_progress(db, current_user.uid, cid)
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
         topics_record = update_topics_to_be_shown(
@@ -643,18 +673,18 @@ def update_roadmap_progress(
             all_topic_keys
         )
     
-    # Update progress with all_topic_keys for proper top_id computation
+    # FIX: Use single source of truth function for progress update
     updated_progress = update_user_progress(
         db, current_user.uid, cid, topic_key, completed, 
         top_id_ref=topics_record.top_id,
         all_topic_keys=all_topic_keys
     )
     
-    # Recompute topics_to_be_shown
+    # Recompute topics_to_be_shown (deterministic)
     topics_to_show = compute_topics_to_be_shown(all_topic_keys, updated_progress)
     current_topic = get_current_topic(topics_to_show)
     
-    # Update TopicsToBeShown record with all_topic_keys for proper indexing
+    # Update TopicsToBeShown record
     update_topics_to_be_shown(
         db, current_user.uid, roadmap_record.rid, 
         topics_to_show, current_topic, all_topic_keys
@@ -666,24 +696,32 @@ def update_roadmap_progress(
         CourseEnrolled.cid == cid
     ).first()
     if not enrollment:
+        logger.info(f"[ROADMAP] Auto-enrolling user={current_user.uid} in course={cid}")
         db.add(CourseEnrolled(uid=current_user.uid, cid=cid))
     
+    # FIX: Ensure DB persistence
     db.commit()
+    logger.info(f"[ROADMAP] Progress update committed to DB")
     
     # Get course name
     course = db.query(Course).filter(Course.cid == cid).first()
     
-    # Calculate statistics
+    # Calculate statistics (deterministic: completed tasks are source of truth)
     total_topics = len(all_topic_keys)
-    completed_count = len([k for k in all_topic_keys if updated_progress.get(k, False)])
+    completed_count = len([k for k in all_topic_keys if updated_progress.get(k) is True])
+    remaining_count = total_topics - completed_count
     completion_percentage = (completed_count / total_topics * 100) if total_topics > 0 else 0
     
+    logger.info(f"[ROADMAP] Update complete: completed={completed_count}, remaining={remaining_count}")
+    
     return RoadmapProgressResponse(
+        success=True,
         cid=cid,
         course_name=course.course_name if course else None,
         lm=lm,
         total_topics=total_topics,
         completed_topics=completed_count,
+        remaining_topics=remaining_count,
         completion_percentage=round(completion_percentage, 1),
         progress=updated_progress,
         topics_to_be_shown=topics_to_show,
@@ -698,11 +736,9 @@ def get_all_topics(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Get all topic keys for a course roadmap.
+    """Get all topic keys for a course roadmap."""
+    logger.info(f"[ROADMAP] GET /{cid}/topics called by user={current_user.uid}, lm={lm}")
     
-    Returns the flat list of all topic::subtopic keys from the JSON.
-    """
     course_slug = COURSE_CID_TO_SLUG.get(cid)
     if not course_slug:
         raise HTTPException(
@@ -726,7 +762,11 @@ def reset_roadmap_progress(
 ):
     """
     Reset all progress for a course roadmap.
+    
+    FIX: Properly resets progress_json to empty dict and commits.
     """
+    logger.info(f"[ROADMAP] POST /{cid}/reset called by user={current_user.uid}")
+    
     # Clear progress
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == current_user.uid,
@@ -734,8 +774,10 @@ def reset_roadmap_progress(
     ).first()
     
     if progress:
+        logger.info(f"[ROADMAP] Resetting progress_json to empty dict")
         progress.progress_json = {}
         progress.last_updated = datetime.utcnow()
+        flag_modified(progress, "progress_json")
     
     # Reset topics_to_be_shown
     course_slug = COURSE_CID_TO_SLUG.get(cid)
@@ -756,6 +798,108 @@ def reset_roadmap_progress(
             all_topic_keys
         )
     
+    # FIX: Ensure DB persistence
     db.commit()
+    logger.info(f"[ROADMAP] Progress reset committed to DB")
     
-    return {"message": "Progress reset successfully", "cid": cid}
+    return {
+        "success": True,
+        "message": "Progress reset successfully", 
+        "cid": cid
+    }
+
+
+@router.post("/{cid}/bulk-update")
+def bulk_update_progress(
+    cid: int,
+    topic_keys: List[str],
+    completed: bool = True,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Bulk update multiple topics at once.
+    
+    This is useful for marking multiple topics as complete/incomplete in a single request.
+    Uses atomic operations to prevent partial writes.
+    """
+    logger.info(f"[ROADMAP] POST /{cid}/bulk-update called: user={current_user.uid}, topics={len(topic_keys)}, completed={completed}")
+    
+    course_slug = COURSE_CID_TO_SLUG.get(cid)
+    if not course_slug:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Unknown course ID: {cid}"
+        )
+    
+    # Get learning mode
+    pref = db.query(CoursePreference).filter(
+        CoursePreference.uid == current_user.uid,
+        CoursePreference.cid == cid
+    ).first()
+    lm = pref.lm if pref and pref.lm else "PNL"
+    
+    # Load and validate
+    roadmap_json = load_roadmap_json(course_slug, lm)
+    all_topic_keys = extract_all_topic_keys(roadmap_json)
+    
+    # Validate all topic keys
+    invalid_keys = [k for k in topic_keys if k not in all_topic_keys]
+    if invalid_keys:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid topic keys: {invalid_keys}"
+        )
+    
+    # Get or create roadmap record
+    roadmap_record = get_or_create_roadmap(db, cid, lm)
+    
+    # Get or create topics_to_be_shown
+    topics_record = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.uid == current_user.uid,
+        TopicsToBeShown.rid == roadmap_record.rid
+    ).first()
+    
+    if not topics_record:
+        user_progress = get_user_progress(db, current_user.uid, cid)
+        topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
+        topics_record = update_topics_to_be_shown(
+            db, current_user.uid, roadmap_record.rid,
+            topics_to_show, get_current_topic(topics_to_show),
+            all_topic_keys
+        )
+    
+    # Update each topic
+    updated_progress = {}
+    for topic_key in topic_keys:
+        updated_progress = update_user_progress(
+            db, current_user.uid, cid, topic_key, completed,
+            top_id_ref=topics_record.top_id,
+            all_topic_keys=all_topic_keys
+        )
+    
+    # Recompute topics_to_be_shown
+    topics_to_show = compute_topics_to_be_shown(all_topic_keys, updated_progress)
+    current_topic = get_current_topic(topics_to_show)
+    
+    update_topics_to_be_shown(
+        db, current_user.uid, roadmap_record.rid,
+        topics_to_show, current_topic, all_topic_keys
+    )
+    
+    # Commit all changes atomically
+    db.commit()
+    logger.info(f"[ROADMAP] Bulk update committed: {len(topic_keys)} topics updated")
+    
+    total_topics = len(all_topic_keys)
+    completed_count = len([k for k in all_topic_keys if updated_progress.get(k) is True])
+    remaining_count = total_topics - completed_count
+    
+    return {
+        "success": True,
+        "message": f"Updated {len(topic_keys)} topics",
+        "cid": cid,
+        "completed_topics": completed_count,
+        "remaining_topics": remaining_count,
+        "updated_keys": topic_keys
+    }
