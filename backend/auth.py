@@ -114,8 +114,11 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
 @router.post("/register", response_model=Token)
 def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
+    # Normalize email
+    normalized_email = user_data.email.lower().strip()
+    
     # Check if email exists
-    if db.query(User).filter(User.email == user_data.email).first():
+    if db.query(User).filter(User.email == normalized_email).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -125,7 +128,7 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     
     new_user = User(
         name=user_data.name,
-        email=user_data.email,
+        email=normalized_email,
         password_hash=hashed_password,
         acc_status="free"
     )
@@ -145,8 +148,10 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-
-    user = db.query(User).filter(User.email == data.email).first()
+    # Normalize email
+    normalized_email = data.email.lower().strip()
+    
+    user = db.query(User).filter(User.email == normalized_email).first()
 
     if not user:
         raise HTTPException(
@@ -154,7 +159,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
             detail="Incorrect email or password"
         )
 
-    # FIX HERE
+    # Use proper password verification
     if not verify_password(data.password, user.password_hash):
         raise HTTPException(
             status_code=400,
