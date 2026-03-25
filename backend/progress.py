@@ -145,8 +145,15 @@ def get_or_create_progress(
     
     Ensures progress_json is never null (fixes old user schema issue).
     LOGGING: Logs FETCHING/CREATING PROGRESS with user_id and course_id
+    CRITICAL: Validates cid type to prevent ID mismatch bugs
     """
-    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid}")
+    # CRITICAL FIX: Validate cid is an integer to prevent type mismatches
+    if not isinstance(cid, int):
+        logger.error(f"[PROGRESS] CRITICAL: cid is not an integer! type={type(cid)}, value={cid}")
+        cid = int(cid)  # Force conversion
+    
+    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid} (type={type(cid).__name__})")
+    logger.info(f"[PROGRESS] DB QUERY: ProgressLevel.uid=={uid} AND ProgressLevel.cid=={cid}")
     
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
@@ -163,11 +170,17 @@ def get_or_create_progress(
         )
         db.add(progress)
         db.flush()
-        logger.info(f"[PROGRESS] Created progress_id={progress.progress_id}")
+        logger.info(f"[PROGRESS] Created progress_id={progress.progress_id}, progress.cid={progress.cid}")
+        # CRITICAL: Verify the created record has correct cid
+        if progress.cid != cid:
+            logger.error(f"[PROGRESS] CRITICAL BUG: Created progress.cid={progress.cid} does NOT match requested cid={cid}!")
     else:
         # FIX: Ensure existing records have non-null progress_json
         ensure_progress_json_not_null(progress)
-        logger.info(f"[PROGRESS] Found existing progress_id={progress.progress_id} with {len(progress.progress_json or {})} entries")
+        # CRITICAL: Verify the found record matches requested cid
+        if progress.cid != cid:
+            logger.error(f"[PROGRESS] CRITICAL BUG: Found progress.cid={progress.cid} does NOT match requested cid={cid}!")
+        logger.info(f"[PROGRESS] Found existing progress_id={progress.progress_id}, progress.cid={progress.cid} with {len(progress.progress_json or {})} entries")
     
     return progress
 
@@ -187,6 +200,7 @@ def update_progress_atomic(
     2. Properly commits and refreshes
     3. Handles null progress_json
     4. Marks JSONB as modified for SQLAlchemy
+    5. Validates cid type to prevent ID mismatch bugs
     
     Args:
         db: Database session
@@ -198,7 +212,12 @@ def update_progress_atomic(
     Returns:
         Updated ProgressLevel record
     """
-    logger.info(f"[PROGRESS] Updating progress for user={uid}, course={cid}")
+    # CRITICAL FIX: Validate cid is an integer to prevent type mismatches
+    if not isinstance(cid, int):
+        logger.error(f"[PROGRESS] CRITICAL: cid is not an integer in update_progress_atomic! type={type(cid)}, value={cid}")
+        cid = int(cid)  # Force conversion
+    
+    logger.info(f"[PROGRESS] Updating progress for user={uid}, course={cid} (type={type(cid).__name__})")
     logger.info(f"[PROGRESS] New data to merge: {new_progress_data}")
     
     # Get or create progress record
@@ -227,6 +246,11 @@ def update_progress_atomic(
     
     logger.info(f"[PROGRESS] SAVING PROGRESS user_id={uid} course_id={cid} entries={len(merged_data)}")
     logger.info(f"[PROGRESS] Successfully updated and committed progress_id={progress.progress_id}")
+    
+    # CRITICAL: Verify the committed record has correct cid
+    if progress.cid != cid:
+        logger.error(f"[PROGRESS] CRITICAL BUG AFTER COMMIT: progress.cid={progress.cid} does NOT match requested cid={cid}!")
+    logger.info(f"[PROGRESS] Verified after commit: progress.cid={progress.cid}, progress.uid={progress.uid}")
     
     return progress
 
