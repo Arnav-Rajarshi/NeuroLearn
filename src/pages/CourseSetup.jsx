@@ -67,22 +67,30 @@ function CourseSetup() {
 
       // Fetch topics - try roadmap API first, then local JSON as fallback
       try {
+        console.log('[v0] Fetching roadmap for cid:', cid)
         const roadmapData = await getRoadmap(cid, 'PNL')
+        console.log('[v0] Roadmap response:', roadmapData)
         
         if (roadmapData?.topics && Array.isArray(roadmapData.topics)) {
           const topicNames = roadmapData.topics.map(t => t.name || t.topic_name)
+          console.log('[v0] Fetched topics:', topicNames)
           setTopics(topicNames.filter(Boolean))
         } else {
+          console.log('[v0] No topics array in roadmap, throwing error')
           throw new Error('No topics in roadmap response')
         }
       } catch (roadmapError) {
+        console.log('[v0] Roadmap API failed:', roadmapError.message)
         // Fallback to local JSON file
         try {
+          console.log('[v0] Trying local JSON fallback for cid:', cid)
           const data = await loadCourseData(cid, 'pnl')
+          console.log('[v0] Local JSON data:', data)
           const topicNames = getTopicNames(data)
+          console.log('[v0] Topics from local JSON:', topicNames)
           setTopics(topicNames)
         } catch (jsonError) {
-          console.error('[v0] Failed to load topics from JSON:', jsonError)
+          console.log('[v0] JSON fallback also failed:', jsonError.message)
           setTopicsError('Unable to load topics. You can still continue without selecting known topics.')
           setTopics([])
         }
@@ -135,7 +143,10 @@ function CourseSetup() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-        <div className="animate-pulse text-[var(--color-muted)]">Loading...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <p className="text-[var(--color-muted)] text-sm">Loading course...</p>
+        </div>
       </div>
     )
   }

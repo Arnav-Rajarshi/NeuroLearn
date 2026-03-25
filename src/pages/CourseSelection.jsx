@@ -67,7 +67,6 @@ function CourseSelection() {
       setCourseData(dataMap)
       setProgress(progressMap)
     } catch (error) {
-      console.error('[v0] Failed to load courses:', error)
       setLoadError('Failed to load courses. Please check your connection and try again.')
     } finally {
       setLoading(false)
@@ -80,7 +79,6 @@ function CourseSelection() {
 
   const handleCourseClick = async (course) => {
     if (!course?.cid) {
-      console.error('[v0] Invalid course - no cid:', course)
       return
     }
     
@@ -138,7 +136,6 @@ function CourseSelection() {
               alert('Payment successful! You are now a premium member.')
             }
           } catch (error) {
-            console.error('Payment verification failed:', error)
             alert('Payment verification failed. Please contact support.')
           }
         },
@@ -154,7 +151,6 @@ function CourseSelection() {
       const razorpay = new window.Razorpay(options)
       razorpay.open()
     } catch (error) {
-      console.error('Failed to create order:', error)
       alert('Failed to initiate payment. Please try again.')
     } finally {
       setPaymentLoading(false)
@@ -268,7 +264,7 @@ function CourseSelection() {
         )}
 
         {/* Load Error State */}
-        {loadError && !loading && (
+        {loadError && !loading ? (
           <div className="dashboard-card max-w-md mx-auto text-center py-12">
             <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-400" />
@@ -287,154 +283,154 @@ function CourseSelection() {
               Try Again
             </button>
           </div>
-        )}
-
-        {/* Hero Section */}
-        {!loadError && (
-        <div className="mb-10 animate-fade-in-up">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-[var(--color-accent)]" />
-            <span className="text-sm font-medium text-[var(--color-accent)]">Your Learning Journey</span>
-          </div>
-          <h2 className="font-heading text-3xl font-bold text-[var(--color-foreground)] mb-2">
-            Choose Your Course
-          </h2>
-          <p className="text-[var(--color-muted)] max-w-2xl">
-            Select a course to begin your personalized learning roadmap. Track your progress and master new skills at your own pace.
-          </p>
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="dashboard-card animate-pulse">
-                <div className="w-12 h-12 rounded-xl bg-[var(--color-surface-raised)] mb-4" />
-                <div className="h-5 bg-[var(--color-surface-raised)] rounded w-3/4 mb-2" />
-                <div className="h-4 bg-[var(--color-surface-raised)] rounded w-full mb-4" />
-                <div className="h-1.5 bg-[var(--color-surface-raised)] rounded" />
-              </div>
-            ))}
-          </div>
         ) : (
           <>
-            {/* Free Courses */}
-            <section className="mb-10">
-              <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
-                Free Courses
-              </h3>
+            {/* Hero Section */}
+            <div className="mb-10 animate-fade-in-up">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-[var(--color-accent)]" />
+                <span className="text-sm font-medium text-[var(--color-accent)]">Your Learning Journey</span>
+              </div>
+              <h2 className="font-heading text-3xl font-bold text-[var(--color-foreground)] mb-2">
+                Choose Your Course
+              </h2>
+              <p className="text-[var(--color-muted)] max-w-2xl">
+                Select a course to begin your personalized learning roadmap. Track your progress and master new skills at your own pace.
+              </p>
+            </div>
+
+            {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {freeCourses.map((course, index) => (
-                  <div 
-                    key={course.cid} 
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <CourseCard
-                      course={course}
-                      progress={getProgressForCourse(course.cid)}
-                      isLocked={false}
-                      onClick={handleCourseClick}
-                    />
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="dashboard-card animate-pulse">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--color-surface-raised)] mb-4" />
+                    <div className="h-5 bg-[var(--color-surface-raised)] rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-[var(--color-surface-raised)] rounded w-full mb-4" />
+                    <div className="h-1.5 bg-[var(--color-surface-raised)] rounded" />
                   </div>
                 ))}
               </div>
-            </section>
-
-            {/* Premium Courses */}
-            <section className="mb-10">
-              <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
-                <Crown className="w-4 h-4 text-[var(--color-warning)]" />
-                Premium Courses
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {premiumCourses.map((course, index) => (
-                  <div 
-                    key={course.cid}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${(freeCourses.length + index) * 0.1}s` }}
-                  >
-                    <CourseCard
-                      course={course}
-                      progress={{ completedTopics: 0, totalTopics: 0 }}
-                      isLocked={!premium}
-                      onClick={handleCourseClick}
-                      onUpgrade={handleUpgrade}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* AI Goal Input */}
-            <section className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-              <div className={`dashboard-card relative overflow-hidden ${!premium ? 'opacity-80' : ''}`}>
-                {/* Premium Lock Overlay */}
-                {!premium && (
-                  <div className="absolute inset-0 bg-[var(--color-background)]/60 backdrop-blur-sm z-10 flex items-center justify-center">
-                    <div className="text-center">
-                      <Lock className="w-8 h-8 text-[var(--color-warning)] mx-auto mb-2" />
-                      <p className="text-sm font-medium text-[var(--color-foreground)]">Premium Feature</p>
-                      <button
-                        onClick={handleUpgrade}
-                        className="mt-2 px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+            ) : (
+              <>
+                {/* Free Courses */}
+                <section className="mb-10">
+                  <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
+                    Free Courses
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {freeCourses.map((course, index) => (
+                      <div 
+                        key={course.cid} 
+                        className="animate-fade-in-up"
+                        style={{ animationDelay: `${index * 0.1}s` }}
                       >
-                        Upgrade to Unlock
+                        <CourseCard
+                          course={course}
+                          progress={getProgressForCourse(course.cid)}
+                          isLocked={false}
+                          onClick={handleCourseClick}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Premium Courses */}
+                <section className="mb-10">
+                  <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-[var(--color-warning)]" />
+                    Premium Courses
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {premiumCourses.map((course, index) => (
+                      <div 
+                        key={course.cid}
+                        className="animate-fade-in-up"
+                        style={{ animationDelay: `${(freeCourses.length + index) * 0.1}s` }}
+                      >
+                        <CourseCard
+                          course={course}
+                          progress={{ completedTopics: 0, totalTopics: 0 }}
+                          isLocked={!premium}
+                          onClick={handleCourseClick}
+                          onUpgrade={handleUpgrade}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* AI Goal Input */}
+                <section className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                  <div className={`dashboard-card relative overflow-hidden ${!premium ? 'opacity-80' : ''}`}>
+                    {/* Premium Lock Overlay */}
+                    {!premium && (
+                      <div className="absolute inset-0 bg-[var(--color-background)]/60 backdrop-blur-sm z-10 flex items-center justify-center">
+                        <div className="text-center">
+                          <Lock className="w-8 h-8 text-[var(--color-warning)] mx-auto mb-2" />
+                          <p className="text-sm font-medium text-[var(--color-foreground)]">Premium Feature</p>
+                          <button
+                            onClick={handleUpgrade}
+                            className="mt-2 px-4 py-1.5 text-xs font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+                          >
+                            Upgrade to Unlock
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-primary)] flex items-center justify-center">
+                        <Wand2 className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)]">
+                          Describe Your Learning Goal
+                        </h3>
+                        <p className="text-xs text-[var(--color-muted)]">AI-powered personalized roadmap generation</p>
+                      </div>
+                    </div>
+
+                    <textarea
+                      value={learningGoal}
+                      onChange={(e) => setLearningGoal(e.target.value)}
+                      placeholder="Type your learning goal here... (e.g., 'I want to become a backend developer in 6 months')"
+                      className="w-full h-32 px-4 py-3 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
+                      disabled={!premium}
+                    />
+
+                    <div className="flex items-center justify-between mt-4">
+                      <p className="text-xs text-[var(--color-muted)]">
+                        Our AI will create a personalized roadmap based on your goals
+                      </p>
+                      <button
+                        onClick={handleGenerateRoadmap}
+                        disabled={!premium || !learningGoal.trim()}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                          premium && learningGoal.trim()
+                            ? 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white hover:opacity-90'
+                            : 'bg-[var(--color-surface-raised)] text-[var(--color-muted)] cursor-not-allowed'
+                        }`}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Generate Roadmap
                       </button>
                     </div>
-                  </div>
-                )}
 
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-primary)] flex items-center justify-center">
-                    <Wand2 className="w-5 h-5 text-white" />
+                    {/* Coming Soon Message */}
+                    {showGoalMessage && (
+                      <div className="mt-4 p-3 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 animate-fade-in-up">
+                        <p className="text-sm text-[var(--color-primary)] text-center font-medium">
+                          AI roadmap generation coming soon.
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="font-heading text-lg font-semibold text-[var(--color-foreground)]">
-                      Describe Your Learning Goal
-                    </h3>
-                    <p className="text-xs text-[var(--color-muted)]">AI-powered personalized roadmap generation</p>
-                  </div>
-                </div>
-
-                <textarea
-                  value={learningGoal}
-                  onChange={(e) => setLearningGoal(e.target.value)}
-                  placeholder="Type your learning goal here... (e.g., 'I want to become a backend developer in 6 months')"
-                  className="w-full h-32 px-4 py-3 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:border-[var(--color-primary)] transition-all"
-                  disabled={!premium}
-                />
-
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-xs text-[var(--color-muted)]">
-                    Our AI will create a personalized roadmap based on your goals
-                  </p>
-                  <button
-                    onClick={handleGenerateRoadmap}
-                    disabled={!premium || !learningGoal.trim()}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                      premium && learningGoal.trim()
-                        ? 'bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white hover:opacity-90'
-                        : 'bg-[var(--color-surface-raised)] text-[var(--color-muted)] cursor-not-allowed'
-                    }`}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Generate Roadmap
-                  </button>
-                </div>
-
-                {/* Coming Soon Message */}
-                {showGoalMessage && (
-                  <div className="mt-4 p-3 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 animate-fade-in-up">
-                    <p className="text-sm text-[var(--color-primary)] text-center font-medium">
-                      AI roadmap generation coming soon.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </section>
+                </section>
+              </>
+            )}
           </>
-        )}
         )}
       </main>
     </div>

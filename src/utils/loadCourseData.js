@@ -9,7 +9,9 @@ import { fetchBackendCourses, getCourseById as getCourseByIdFromApi } from './ap
  */
 export async function getAllCourses() {
   try {
+    console.log('[v0] getAllCourses: fetching from backend...')
     const courses = await fetchBackendCourses()
+    console.log('[v0] getAllCourses: received', courses?.length || 0, 'courses')
     // Transform backend courses to include expected properties
     return courses.map(course => ({
       cid: course.cid,
@@ -103,12 +105,15 @@ function getShortName(courseName) {
  * @returns {Promise<object>} - Course roadmap data
  */
 export async function loadCourseData(cid, roadmapType = 'pnl') {
+  console.log('[v0] loadCourseData called with cid:', cid, 'type:', roadmapType)
   const course = await getCourseById(cid)
   if (!course) {
+    console.log('[v0] loadCourseData: course not found for cid:', cid)
     throw new Error(`Course not found for cid: ${cid}`)
   }
 
   const fileName = roadmapType === 'practice' ? course.practiceFile : course.pnlFile
+  console.log('[v0] loadCourseData: loading file:', fileName)
   if (!fileName) {
     throw new Error(`No data file available for course cid: ${cid}`)
   }
@@ -118,13 +123,14 @@ export async function loadCourseData(cid, roadmapType = 'pnl') {
     const response = await fetch(`/data/courses/${fileName}`)
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error("Failed to load course data:", errorData)
+      console.log('[v0] loadCourseData: fetch failed:', response.status, errorData)
       throw new Error(`Failed to load course data: ${fileName}`)
     }
     const data = await response.json()
+    console.log('[v0] loadCourseData: loaded data with', data?.topics?.length || 0, 'topics')
     return data
   } catch (error) {
-    console.error(`Failed to load course data: ${fileName}`, error)
+    console.log('[v0] loadCourseData: error:', error.message)
     throw new Error(`Failed to load course data for cid ${cid}`)
   }
 }
