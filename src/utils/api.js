@@ -1,5 +1,5 @@
 // API utility for communicating with FastAPI backend
-// CID resolution is now handled by getBackendCid() which fetches from the backend
+// CID validation is handled by validateCid() - frontend must ONLY use backend-provided cid values
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -176,15 +176,14 @@ export async function getUserProgress(userId) {
   return await fetchApi(`/progress/${userId}`)
 }
 
-export async function getCourseProgress(courseIdOrSlug) {
+export async function getCourseProgress(cid) {
   try {
-    const cid = await getBackendCid(courseIdOrSlug)
-    if (!cid) {
-      console.error("[v0] Invalid CID - cannot fetch course progress for:", courseIdOrSlug)
+    const validCid = await validateCid(cid)
+    if (!validCid) {
+      console.error("[v0] Invalid CID - cannot fetch course progress for:", cid)
       return { completed: 0, progress_json: {} }
     }
-    console.log("[v0] Fetching course progress for CID:", cid)
-    const data = await fetchApi(`/progress/course/${cid}`)
+    const data = await fetchApi(`/progress/course/${validCid}`)
     // Calculate completed count from progress_json
     const progressJson = data.progress_json || {}
     let completed = 0
@@ -202,15 +201,14 @@ export async function getCourseProgress(courseIdOrSlug) {
   }
 }
 
-export async function updateCourseProgress(courseIdOrSlug, topic, subtopic) {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot update course progress for:", courseIdOrSlug)
-    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+export async function updateCourseProgress(cid, topic, subtopic) {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot update course progress for:", cid)
+    throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log("[v0] Updating course progress for CID:", cid)
   // First get current progress
-  const current = await getCourseProgress(cid)
+  const current = await getCourseProgress(validCid)
   const progressJson = current.progress_json || {}
   
   // Add subtopic to topic array if not already present
@@ -224,7 +222,7 @@ export async function updateCourseProgress(courseIdOrSlug, topic, subtopic) {
   return await fetchApi('/progress/update', {
     method: 'POST',
     body: JSON.stringify({
-      cid,
+      cid: validCid,
       progress_json: progressJson
     }),
   })
@@ -232,31 +230,28 @@ export async function updateCourseProgress(courseIdOrSlug, topic, subtopic) {
 
 // ============ COURSE PREFERENCES API ============
 
-export async function getCoursePreferences(courseIdOrSlug) {
+export async function getCoursePreferences(cid) {
   try {
-    const cid = await getBackendCid(courseIdOrSlug)
-    if (!cid) {
-      console.error("[v0] Invalid CID - cannot fetch course preferences for:", courseIdOrSlug)
+    const validCid = await validateCid(cid)
+    if (!validCid) {
+      console.error("[v0] Invalid CID - cannot fetch course preferences for:", cid)
       return null
     }
-    console.log("[v0] Fetching course preferences for CID:", cid)
-    return await fetchApi(`/courses/preferences/${cid}`)
+    return await fetchApi(`/courses/preferences/${validCid}`)
   } catch (error) {
     return null
   }
 }
 
 export async function saveCoursePreferences(data) {
-  // Convert slug to cid if needed
-  const cid = await getBackendCid(data.cid)
-  if (!cid) {
+  const validCid = await validateCid(data.cid)
+  if (!validCid) {
     console.error("[v0] Invalid CID - cannot save course preferences for:", data.cid)
     throw new Error(`Invalid course ID: ${data.cid}`)
   }
-  console.log("[v0] Saving course preferences for CID:", cid)
   const payload = {
     ...data,
-    cid,
+    cid: validCid,
   }
   return await fetchApi('/courses/preferences', {
     method: 'POST',
@@ -268,14 +263,13 @@ export async function getEnrolledCourses() {
   return await fetchApi('/courses/enrolled')
 }
 
-export async function enrollInCourse(courseIdOrSlug) {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot enroll in course:", courseIdOrSlug)
-    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+export async function enrollInCourse(cid) {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot enroll in course:", cid)
+    throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log("[v0] Enrolling in course CID:", cid)
-  return await fetchApi(`/courses/enroll/${cid}`, {
+  return await fetchApi(`/courses/enroll/${validCid}`, {
     method: 'POST',
   })
 }
@@ -315,63 +309,54 @@ export async function fetchBackendCourses() {
 }
 
 /**
- * Get the real cid for a course slug or name from the backend
- * @param {string} courseIdOrSlug - Course slug (e.g., "python") or name (e.g., "Python Programming")
- * @returns {Promise<number|null>} - The database cid or null if not found
+ * Validate and return a CID from the backend courses
+ * IMPORTANT: Frontend should ONLY use backend-provided cid values
+ * @param {number|string} cid - The course cid (must be a number or numeric string)
+ * @returns {Promise<number|null>} - The validated cid or null if not found
  */
-export async function getBackendCid(courseIdOrSlug) {
-  if (!courseIdOrSlug) {
-    console.error("[v0] Invalid CID: courseIdOrSlug is empty or null")
+export async function validateCid(cid) {
+  if (!cid && cid !== 0) {
+    console.error("[v0] Invalid CID: cid is empty or null")
     return null
   }
   
-  // If it's already a number, validate it exists in backend
-  if (typeof courseIdOrSlug === 'number') {
-    const courses = await fetchBackendCourses()
-    const found = courses.find(c => c.cid === courseIdOrSlug)
-    if (found) {
-      console.log("[v0] Selected CID:", found.cid)
-      return found.cid
-    }
-    console.error("[v0] Invalid CID: numeric cid not found in backend:", courseIdOrSlug)
+  // Parse to number if it's a string
+  const numericCid = typeof cid === 'number' ? cid : parseInt(cid, 10)
+  
+  if (isNaN(numericCid)) {
+    console.error("[v0] Invalid CID: cid must be a number, got:", cid)
     return null
   }
   
-  // If it's a numeric string, parse and validate
-  const numericValue = parseInt(courseIdOrSlug, 10)
-  if (!isNaN(numericValue)) {
-    const courses = await fetchBackendCourses()
-    const found = courses.find(c => c.cid === numericValue)
-    if (found) {
-      console.log("[v0] Selected CID:", found.cid)
-      return found.cid
-    }
-    console.error("[v0] Invalid CID: numeric string cid not found in backend:", courseIdOrSlug)
-    return null
-  }
-  
-  // Look up the slug in the backend courses
+  // Validate it exists in backend
   const courses = await fetchBackendCourses()
-  
-  // Try to find by slug pattern (lowercase, underscore-separated)
-  const slug = courseIdOrSlug.toLowerCase().replace(/\s+/g, '_')
-  
-  // Match by slug-like course name conversion
-  const found = courses.find(c => {
-    const courseSlug = c.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '').replace(/-/g, '_')
-    return courseSlug === slug || 
-           c.course_name.toLowerCase() === courseIdOrSlug.toLowerCase() ||
-           courseSlug.includes(slug) ||
-           slug.includes(courseSlug.split('_')[0])
-  })
+  const found = courses.find(c => c.cid === numericCid)
   
   if (found) {
-    console.log("[v0] Selected CID:", found.cid, "for course:", courseIdOrSlug)
     return found.cid
   }
   
-  console.error("[v0] Invalid CID: course slug not found in backend:", courseIdOrSlug)
+  console.error("[v0] Invalid CID: cid not found in backend:", numericCid)
   return null
+}
+
+/**
+ * Get course by cid from backend
+ * @param {number} cid - The course cid
+ * @returns {Promise<object|null>} - The course object or null if not found
+ */
+export async function getCourseById(cid) {
+  if (!cid && cid !== 0) {
+    return null
+  }
+  
+  const numericCid = typeof cid === 'number' ? cid : parseInt(cid, 10)
+  if (isNaN(numericCid)) {
+    return null
+  }
+  
+  const courses = await fetchBackendCourses()
+  return courses.find(c => c.cid === numericCid) || null
 }
 
 // ============ ROADMAP API ============
@@ -379,28 +364,27 @@ export async function getBackendCid(courseIdOrSlug) {
 
 /**
  * Get full roadmap with structure and user progress
- * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {number} cid - Course cid (must be from backend)
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
-export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot fetch roadmap for:", courseIdOrSlug)
-    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+export async function getRoadmap(cid, lm = 'PNL') {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap for:", cid)
+    throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log("[v0] Fetching roadmap for CID:", cid)
-  return await fetchApi(`/roadmap/${cid}?lm=${lm}`)
+  return await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
 }
 
 /**
  * Get roadmap progress summary (lighter than full roadmap)
- * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {number} cid - Course cid (must be from backend)
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
-export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot fetch roadmap progress for:", courseIdOrSlug)
+export async function getRoadmapProgress(cid, lm = 'PNL') {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap progress for:", cid)
     return {
       cid: null,
       total_topics: 0,
@@ -411,12 +395,11 @@ export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
       current_topic: null
     }
   }
-  console.log("[v0] Fetching roadmap progress for CID:", cid)
   try {
-    return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
+    return await fetchApi(`/roadmap/${validCid}/progress?lm=${lm}`)
   } catch (error) {
     return {
-      cid,
+      cid: validCid,
       total_topics: 0,
       completed_topics: 0,
       completion_percentage: 0,
@@ -429,21 +412,20 @@ export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
 
 /**
  * Mark a topic as complete or incomplete
- * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {number} cid - Course cid (must be from backend)
  * @param {string} topicKey - Topic key in format "TopicName::SubtopicName"
  * @param {boolean} completed - Whether the topic is completed
  */
-export async function updateRoadmapProgress(courseIdOrSlug, topicKey, completed = true) {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot update roadmap progress for:", courseIdOrSlug)
-    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+export async function updateRoadmapProgress(cid, topicKey, completed = true) {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot update roadmap progress for:", cid)
+    throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log("[v0] Updating roadmap progress for CID:", cid, "topic:", topicKey)
   return await fetchApi('/roadmap/progress/update', {
     method: 'POST',
     body: JSON.stringify({
-      cid,
+      cid: validCid,
       topic_key: topicKey,
       completed
     }),
@@ -452,31 +434,29 @@ export async function updateRoadmapProgress(courseIdOrSlug, topicKey, completed 
 
 /**
  * Get all topic keys for a course roadmap
- * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {number} cid - Course cid (must be from backend)
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
-export async function getRoadmapTopics(courseIdOrSlug, lm = 'PNL') {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot fetch roadmap topics for:", courseIdOrSlug)
+export async function getRoadmapTopics(cid, lm = 'PNL') {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap topics for:", cid)
     return []
   }
-  console.log("[v0] Fetching roadmap topics for CID:", cid)
-  return await fetchApi(`/roadmap/${cid}/topics?lm=${lm}`)
+  return await fetchApi(`/roadmap/${validCid}/topics?lm=${lm}`)
 }
 
 /**
  * Reset all progress for a course
- * @param {string|number} courseIdOrSlug - Course slug or cid
+ * @param {number} cid - Course cid (must be from backend)
  */
-export async function resetRoadmapProgress(courseIdOrSlug) {
-  const cid = await getBackendCid(courseIdOrSlug)
-  if (!cid) {
-    console.error("[v0] Invalid CID - cannot reset roadmap progress for:", courseIdOrSlug)
-    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+export async function resetRoadmapProgress(cid) {
+  const validCid = await validateCid(cid)
+  if (!validCid) {
+    console.error("[v0] Invalid CID - cannot reset roadmap progress for:", cid)
+    throw new Error(`Invalid course ID: ${cid}`)
   }
-  console.log("[v0] Resetting roadmap progress for CID:", cid)
-  return await fetchApi(`/roadmap/${cid}/reset`, {
+  return await fetchApi(`/roadmap/${validCid}/reset`, {
     method: 'POST',
   })
 }

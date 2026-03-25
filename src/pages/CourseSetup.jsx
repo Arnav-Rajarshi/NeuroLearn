@@ -15,8 +15,11 @@ import { getCourseById, loadCourseData, getTopicNames } from '../utils/loadCours
 import { saveCoursePreferences } from '../utils/api.js'
 
 function CourseSetup() {
-  const { course: courseId } = useParams()
+  const { course: courseIdParam } = useParams()
   const navigate = useNavigate()
+  
+  // Parse cid from URL - must be a number
+  const cid = parseInt(courseIdParam, 10)
   
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -32,16 +35,24 @@ function CourseSetup() {
 
   useEffect(() => {
     async function loadData() {
+      // Validate cid
+      if (!cid || isNaN(cid)) {
+        console.error('[v0] Invalid course cid:', courseIdParam)
+        navigate('/roadmap-engine/courses')
+        return
+      }
+      
       setLoading(true)
-      const courseInfo = getCourseById(courseId)
+      const courseInfo = await getCourseById(cid)
       if (!courseInfo) {
+        console.error('[v0] Course not found for cid:', cid)
         navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
 
       try {
-        const data = await loadCourseData(courseId, 'pnl')
+        const data = await loadCourseData(cid, 'pnl')
         setTopics(getTopicNames(data))
       } catch (error) {
         console.error('Failed to load course data', error)
@@ -49,7 +60,7 @@ function CourseSetup() {
       setLoading(false)
     }
     loadData()
-  }, [courseId, navigate])
+  }, [cid, courseIdParam, navigate])
 
   const handleTopicToggle = (topicName) => {
     setKnownTopics(prev => 
@@ -61,12 +72,14 @@ function CourseSetup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!cid) return
+    
     setSaving(true)
     
     try {
-      // Save preferences to backend API
+      // Save preferences to backend API using cid
       await saveCoursePreferences({
-        cid: courseId,
+        cid: cid,
         lm: roadmapType,
         goal_date: goalDeadline || null,
         hrs_per_week: weeklyHours,
@@ -74,13 +87,13 @@ function CourseSetup() {
       })
 
       // Navigate to roadmap with known topics in state
-      navigate(`/roadmap-engine/roadmap/${courseId}`, {
+      navigate(`/roadmap-engine/roadmap/${cid}`, {
         state: { knownTopics }
       })
-        } catch (error) {
+    } catch (error) {
       console.error('Failed to save preferences:', error)
       // Still navigate even if save fails - preferences can be saved later
-      navigate(`/roadmap-engine/roadmap/${courseId}`, {
+      navigate(`/roadmap-engine/roadmap/${cid}`, {
         state: { knownTopics }
       })
     } finally {

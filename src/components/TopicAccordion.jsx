@@ -12,7 +12,7 @@ const XP_VALUES = {
 
 function TopicAccordion({ 
   topic, 
-  courseId, 
+  cid, 
   completedSubtopics = [], 
   roadmapType = 'PNL',
   onTopicComplete
@@ -30,13 +30,14 @@ function TopicAccordion({
   const handleMarkSubtopicComplete = async (e, subtopicName) => {
     e.stopPropagation()
     if (localCompletedSubtopics.includes(subtopicName)) return
+    if (!cid) return // Validate cid exists
     
     try {
       // Create topic key in format "TopicName::SubtopicName"
       const topicKey = `${topic.name}::${subtopicName}`
       
-      // Update progress in backend using the new roadmap pipeline
-      await updateRoadmapProgress(courseId, topicKey, true)
+      // Update progress in backend using cid
+      await updateRoadmapProgress(cid, topicKey, true)
       
       // Update local state
       setLocalCompletedSubtopics(prev => [...prev, subtopicName])
@@ -51,10 +52,12 @@ function TopicAccordion({
   }
 
   const handleSubtopicClick = (subtopic) => {
+    if (!cid) return // Validate cid exists
+    
     // Navigate to the topic detail page with the subtopic
     const topicSlug = encodeURIComponent(topic.name)
-    navigate(`/roadmap-engine/topic/${courseId}/${topicSlug}`, {
-      state: { subtopic, topic, roadmapType }
+    navigate(`/roadmap-engine/topic/${cid}/${topicSlug}`, {
+      state: { subtopic, topic, roadmapType, cid }
     })
   }
 

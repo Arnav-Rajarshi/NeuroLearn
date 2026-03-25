@@ -17,9 +17,12 @@ import { getCourseById } from '../utils/loadCourseData.js'
 import { getRoadmap, getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
 
 function RoadmapPage() {
-  const { course: courseId } = useParams()
+  const { course: courseIdParam } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Parse cid from URL - must be a number
+  const cid = parseInt(courseIdParam, 10)
   
   // Get known topics from navigation state
   const knownTopics = location.state?.knownTopics || []
@@ -34,20 +37,28 @@ function RoadmapPage() {
 
   useEffect(() => {
     async function loadData() {
+      // Validate cid
+      if (!cid || isNaN(cid)) {
+        console.error('[v0] Invalid course cid:', courseIdParam)
+        navigate('/roadmap-engine/courses')
+        return
+      }
+      
       setLoading(true)
       
-      const courseInfo = getCourseById(courseId)
+      const courseInfo = await getCourseById(cid)
       if (!courseInfo) {
+        console.error('[v0] Course not found for cid:', cid)
         navigate('/roadmap-engine/courses')
         return
       }
       setCourse(courseInfo)
 
-      // Load preferences from backend API
-      const prefs = await getCoursePreferences(courseId)
+      // Load preferences from backend API using cid
+      const prefs = await getCoursePreferences(cid)
       if (!prefs || !prefs.lm) {
         // Redirect to setup if no settings
-        navigate(`/roadmap-engine/setup/${courseId}`)
+        navigate(`/roadmap-engine/setup/${cid}`)
         return
       }
       
@@ -59,9 +70,8 @@ function RoadmapPage() {
       })
 
       try {
-        // Load full roadmap with progress from backend
-        // This uses the new roadmap pipeline: JSON is source of truth
-        const roadmap = await getRoadmap(courseId, roadmapType)
+        // Load full roadmap with progress from backend using cid
+        const roadmap = await getRoadmap(cid, roadmapType)
         
         setRoadmapData({
           courseName: roadmap.course_name,
@@ -83,7 +93,7 @@ function RoadmapPage() {
       setLoading(false)
     }
     loadData()
-  }, [courseId, navigate])
+  }, [cid, courseIdParam, navigate])
 
   // Check if a subtopic is completed using the topic_key format
   const isSubtopicCompleted = (topicName, subtopicName) => {
@@ -107,10 +117,12 @@ function RoadmapPage() {
   }
 
   const handleTopicComplete = async () => {
-    // Refresh progress from backend using the new roadmap pipeline
+    // Refresh progress from backend using cid
+    if (!cid) return
+    
     try {
       const roadmapType = settings?.roadmapType || 'PNL'
-      const updatedProgress = await getRoadmapProgress(courseId, roadmapType)
+      const updatedProgress = await getRoadmapProgress(cid, roadmapType)
       
       setProgress(updatedProgress.progress || {})
       setTopicsToBeShown(updatedProgress.topics_to_be_shown || [])
@@ -205,7 +217,7 @@ function RoadmapPage() {
               </div>
               
               <button
-                onClick={() => navigate(`/roadmap-engine/setup/${courseId}`)}
+                onClick={() => navigate(`/roadmap-engine/setup/${cid}`)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
                 aria-label="Settings"
               >
@@ -293,7 +305,7 @@ function RoadmapPage() {
               >
                 <TopicAccordion
                   topic={topic}
-                  courseId={courseId}
+                  cid={cid}
                   completedSubtopics={completedInTopic}
                   roadmapType={settings?.roadmapType}
                   onTopicComplete={handleTopicComplete}
