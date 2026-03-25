@@ -58,7 +58,9 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 import os
-import logging
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from database import get_db
 from models import (
@@ -66,10 +68,6 @@ from models import (
     ProgressLevel, CoursePreference, CourseEnrolled
 )
 from auth import get_current_user
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 router = APIRouter(prefix="/roadmap", tags=["Roadmap"])
 
@@ -224,7 +222,14 @@ def compute_topics_to_be_shown(
     
     FIX: Only considers topics where completed_keys[key] is True.
     """
-    return [key for key in all_topic_keys if completed_keys.get(key) is not True]
+    remaining = [key for key in all_topic_keys if completed_keys.get(key) is not True]
+    
+    # DEBUG: Log computation details
+    if len(all_topic_keys) > 0:
+        pct = ((len(all_topic_keys) - len(remaining)) / len(all_topic_keys)) * 100
+        logger.debug(f"[ROADMAP] compute_topics_to_be_shown: total={len(all_topic_keys)}, remaining={len(remaining)}, completed={pct:.1f}%")
+    
+    return remaining
 
 
 def get_current_topic(topics_to_be_shown: List[str]) -> Optional[str]:
@@ -245,6 +250,8 @@ def get_stored_topics_to_be_shown(
     
     LOGGING: Logs "FETCHING STORED ROADMAP" when data exists.
     """
+    logger.debug_entering_function("get_stored_topics_to_be_shown", uid=uid, rid=rid)
+    
     topics_record = db.query(TopicsToBeShown).filter(
         TopicsToBeShown.uid == uid,
         TopicsToBeShown.rid == rid
@@ -252,9 +259,18 @@ def get_stored_topics_to_be_shown(
     
     if topics_record and topics_record.topics_json:
         logger.info(f"[ROADMAP] FETCHING STORED ROADMAP - Found existing topics_to_be_shown for user={uid}, rid={rid}")
-        return topics_record.topics_json
+        logger.debug_data_source(source="DB", data_type="topics_to_be_shown", user_id=uid, is_null=False)
+        
+        # DEBUG: Log key stats about stored topics
+        topics_json = topics_record.topics_json
+        remaining = topics_json.get("topics_to_be_shown", [])
+        current = topics_json.get("current_topic")
+        logger.debug(f"[ROADMAP] Stored data: remaining={len(remaining)}, current={current}")
+        
+        return topics_json
     
     logger.info(f"[ROADMAP] No stored topics_to_be_shown found for user={uid}, rid={rid} - will generate")
+    logger.debug_data_source(source="DB", data_type="topics_to_be_shown", user_id=uid, is_null=True)
     return None
 
 
@@ -293,6 +309,7 @@ def get_user_progress(
     Returns:
         Dict mapping topic_key -> True (only completed topics are stored)
     """
+    logger.debug_entering_function("get_user_progress", uid=uid, cid=cid)
     logger.info(f"[PROGRESS] Fetching progress from DB for user={uid}, course={cid}")
     
     progress = db.query(ProgressLevel).filter(
@@ -303,13 +320,21 @@ def get_user_progress(
     # FIX: Handle null progress_json for old users
     if not progress:
         logger.info(f"[PROGRESS] No progress record found for user={uid}, course={cid}")
+        logger.debug_data_source(source="DB", data_type="progress", user_id=uid, is_null=True)
         return {}
     
     if progress.progress_json is None:
         logger.info(f"[PROGRESS] progress_json is NULL for user={uid}, course={cid}, returning empty dict")
+        logger.debug_null_value_detected(
+            field_name="progress_json",
+            user_id=uid,
+            course_id=cid,
+            action_taken="returning empty dict (old user compatibility)"
+        )
         return {}
     
     logger.info(f"[PROGRESS] Found progress with {len(progress.progress_json)} entries")
+    logger.debug_data_source(source="DB", data_type="progress", user_id=uid, is_null=False)
     return dict(progress.progress_json)
 
 
@@ -386,6 +411,10 @@ def update_user_progress(
     Returns:
         Updated progress dictionary (complete snapshot)
     """
+    logger.debug_entering_function(
+        "update_user_progress",
+        uid=uid, cid=cid, topic_key=topic_key, completed=completed
+    )
     logger.info(f"[PROGRESS] update_user_progress called: user={uid}, course={cid}, topic={topic_key}, completed={completed}")
     
     # STEP 1: Get or create progress record with FOR UPDATE lock pattern
@@ -410,10 +439,19 @@ def update_user_progress(
     # Handle null progress_json for old users safely
     if progress.progress_json is None:
         logger.info(f"[PROGRESS] Fixing null progress_json for old user={uid}, course={cid}")
+        logger.debug_null_value_detected(
+            field_name="progress_json",
+            user_id=uid,
+            course_id=cid,
+            action_taken="initializing to empty dict for old user"
+        )
         progress.progress_json = {}
     
     current_progress = dict(progress.progress_json)
     logger.info(f"[PROGRESS] Current progress has {len(current_progress)} completed entries")
+    
+    # DEBUG: Log current state before modification
+    logger.debug(f"[PROGRESS] Existing progress keys: {list(current_progress.keys())[:5]}...")
     
     # STEP 3: FIX - IDEMPOTENT check - Skip if already in desired state
     current_state = current_progress.get(topic_key)
@@ -449,6 +487,13 @@ def update_user_progress(
     db.flush()
     logger.info(f"[PROGRESS] Flushed progress update for user={uid}, course={cid}, entries={len(current_progress)}")
     
+    # DEBUG: Log final state after modification
+    logger.debug_progress_after_update(
+        user_id=uid,
+        updated_progress=current_progress,
+        topic_key=topic_key
+    )
+    
     return current_progress
 
 
@@ -465,6 +510,10 @@ def update_topics_to_be_shown(
     
     FIX: Properly marks JSONB as modified and commits.
     """
+    logger.debug_entering_function(
+        "update_topics_to_be_shown",
+        uid=uid, rid=rid, topics_count=len(topics_list)
+    )
     logger.info(f"[ROADMAP] Updating topics_to_be_shown for user={uid}, roadmap={rid}, remaining={len(topics_list)}")
     
     topics_record = db.query(TopicsToBeShown).filter(
@@ -525,6 +574,13 @@ def get_roadmap(
     
     LOGGING: Logs "FETCHING STORED ROADMAP" vs "GENERATING NEW ROADMAP"
     """
+    # ============ DEBUG LOGGING: ROADMAP FETCH START ============
+    logger.debug_roadmap_fetch(
+        user_id=current_user.uid,
+        course_id=cid,
+        learning_mode=lm,
+        source="GET /{cid}"
+    )
     logger.info(f"[ROADMAP] GET /{cid} called by user={current_user.uid}, lm={lm}")
     
     # Get course slug from cid
@@ -543,6 +599,7 @@ def get_roadmap(
     
     # Step 1: Load roadmap JSON (source of truth for STRUCTURE only)
     logger.info(f"[ROADMAP] Step 1: Loading JSON roadmap (source of truth for STRUCTURE)")
+    logger.debug_data_source(source="JSON_FILE", data_type="roadmap_structure", user_id=current_user.uid)
     roadmap_json = load_roadmap_json(course_slug, lm)
     
     # Step 2: Extract all topic keys from JSON (for structure reference)
@@ -562,11 +619,33 @@ def get_roadmap(
     
     # Step 5: Get user's progress from DB (SINGLE SOURCE OF TRUTH for completion)
     logger.info(f"[ROADMAP] Step 3: Fetching progress from DB (source of truth for PROGRESS)")
+    logger.debug_data_source(source="DB", data_type="progress", user_id=current_user.uid)
     user_progress = get_user_progress(db, current_user.uid, cid)
+    
+    # ============ DEBUG LOGGING: DB DATA STATE ============
+    logger.debug_roadmap_stored_data(
+        user_id=current_user.uid,
+        topics_json=existing_topics_record.topics_json if existing_topics_record else None,
+        progress_json=user_progress
+    )
     
     if existing_topics_record and existing_topics_record.topics_json:
         # ============ EXISTING USER - USE STORED DATA ============
         logger.info(f"[ROADMAP] FETCHING STORED ROADMAP - Using topics_to_be_shown from DB (NO recomputation)")
+        
+        # DEBUG: Log that we're using stored data, NOT recomputing
+        logger.debug_roadmap_computation(
+            action="SKIPPED",
+            user_id=current_user.uid,
+            topics_count=len(existing_topics_record.topics_json.get("remaining", [])),
+            reason="Existing user - using stored topics_to_be_shown"
+        )
+        logger.debug_topics_read(
+            user_id=current_user.uid,
+            roadmap_id=roadmap_record.rid,
+            topics_json=existing_topics_record.topics_json,
+            source="DB"
+        )
         
         # FIX: Use stored topics_to_be_shown directly from DB
         stored_topics_json = existing_topics_record.topics_json
@@ -574,18 +653,44 @@ def get_roadmap(
         current_topic = stored_topics_json.get("current")
         
         logger.info(f"[ROADMAP] Loaded {len(topics_to_show)} remaining topics from stored DB record")
+        data_source = "stored"  # Track data source for response logging
         
     else:
         # ============ NEW USER - GENERATE AND STORE ============
+        # DEBUG: This is a CRITICAL log - roadmap generation should be RARE
+        logger.debug_roadmap_generation(
+            user_id=current_user.uid,
+            course_id=cid,
+            reason="No existing topics_to_be_shown record found - first time user"
+        )
+        logger.debug_roadmap_computation(
+            action="ABOUT_TO_COMPUTE",
+            user_id=current_user.uid,
+            reason="New user - no stored topics_to_be_shown"
+        )
+        
         logger.info(f"[ROADMAP] GENERATING NEW ROADMAP - First time user, computing topics_to_be_shown")
         
         # Compute topics_to_be_shown ONLY for new users (deterministic: JSON - completed)
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
         current_topic = get_current_topic(topics_to_show)
         
+        # DEBUG: Log after computation
+        logger.debug_roadmap_computation(
+            action="COMPUTED",
+            user_id=current_user.uid,
+            topics_count=len(topics_to_show)
+        )
+        
         logger.info(f"[ROADMAP] Computed {len(topics_to_show)} remaining topics for new user")
         
         # Store in DB for future fetches (so we don't recompute again)
+        logger.debug_topics_update(
+            user_id=current_user.uid,
+            roadmap_id=roadmap_record.rid,
+            new_topics=topics_to_show,
+            is_new_record=True
+        )
         update_topics_to_be_shown(
             db, 
             current_user.uid, 
@@ -604,6 +709,12 @@ def get_roadmap(
         # Create progress record if it doesn't exist (for new users)
         if not progress:
             logger.info(f"[ROADMAP] Creating initial progress record for new user")
+            logger.debug_null_value_detected(
+                field_name="progress_record",
+                user_id=current_user.uid,
+                course_id=cid,
+                action_taken="creating new progress record with empty progress_json"
+            )
             progress = ProgressLevel(
                 uid=current_user.uid,
                 cid=cid,
@@ -615,7 +726,13 @@ def get_roadmap(
         
         # FIX: Ensure DB persistence for new user data
         db.commit()
+        logger.debug_progress_db_commit(
+            user_id=current_user.uid,
+            course_id=cid,
+            operation="new_user_roadmap_generation"
+        )
         logger.info(f"[ROADMAP] New user data committed to DB")
+        data_source = "computed"  # Track data source for response logging
     
     # Calculate statistics (deterministic: completed tasks are source of truth)
     total_topics = len(all_topic_keys)
@@ -624,6 +741,14 @@ def get_roadmap(
     completion_percentage = (completed_count / total_topics * 100) if total_topics > 0 else 0
     
     logger.info(f"[ROADMAP] Stats: total={total_topics}, completed={completed_count}, remaining={remaining_count}")
+    
+    # ============ DEBUG LOGGING: FINAL RESPONSE ============
+    logger.debug_roadmap_response(
+        user_id=current_user.uid,
+        topics_count=len(topics_to_show),
+        completed_count=completed_count,
+        source=data_source
+    )
     
     return FullRoadmapResponse(
         success=True,
@@ -760,6 +885,14 @@ def update_roadmap_progress(
     topic_key = update_data.topic_key
     completed = update_data.completed
     
+    # ============ DEBUG LOGGING: PROGRESS UPDATE START ============
+    logger.debug_entering_function(
+        "update_roadmap_progress",
+        user_id=current_user.uid,
+        course_id=cid,
+        topic_key=topic_key,
+        completed=completed
+    )
     logger.info(f"[ROADMAP] POST /progress/update called: user={current_user.uid}, course={cid}, topic={topic_key}, completed={completed}")
     
     try:
@@ -801,6 +934,11 @@ def update_roadmap_progress(
         
         if not topics_record:
             logger.info(f"[ROADMAP] Creating initial topics_to_be_shown record")
+            logger.debug_fallback_logic(
+                reason="No existing topics_to_be_shown record",
+                fallback_action="Creating initial record for progress update",
+                user_id=current_user.uid
+            )
             user_progress = get_user_progress(db, current_user.uid, cid)
             topics_to_show = compute_topics_to_be_shown(all_topic_keys, user_progress)
             topics_record = update_topics_to_be_shown(
@@ -808,6 +946,16 @@ def update_roadmap_progress(
                 topics_to_show, get_current_topic(topics_to_show),
                 all_topic_keys
             )
+        
+        # DEBUG: Log existing progress before update
+        existing_progress = get_user_progress(db, current_user.uid, cid)
+        logger.debug_progress_update(
+            user_id=current_user.uid,
+            course_id=cid,
+            topic_key=topic_key,
+            completed=completed,
+            existing_progress=existing_progress
+        )
         
         # STEP 6: Use single source of truth function for progress update
         # This handles merge logic, null handling, JSONB flagging, etc.
@@ -817,11 +965,26 @@ def update_roadmap_progress(
             all_topic_keys=all_topic_keys
         )
         
+        # DEBUG: Log progress after update
+        logger.debug_progress_after_update(
+            user_id=current_user.uid,
+            updated_progress=updated_progress,
+            topic_key=topic_key
+        )
+        
         # STEP 7: Recompute topics_to_be_shown (deterministic: JSON - completed)
+        # NOTE: This is valid recomputation AFTER a progress update (not on reload)
+        logger.debug(f"[ROADMAP] Recomputing topics_to_be_shown after progress update (valid recomputation)")
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, updated_progress)
         current_topic = get_current_topic(topics_to_show)
         
         # STEP 8: Update TopicsToBeShown record
+        logger.debug_topics_update(
+            user_id=current_user.uid,
+            roadmap_id=roadmap_record.rid,
+            new_topics=topics_to_show,
+            is_new_record=False
+        )
         update_topics_to_be_shown(
             db, current_user.uid, roadmap_record.rid, 
             topics_to_show, current_topic, all_topic_keys
@@ -838,6 +1001,11 @@ def update_roadmap_progress(
         
         # STEP 10: FIX - ATOMIC COMMIT - Ensure DB persistence
         db.commit()
+        logger.debug_progress_db_commit(
+            user_id=current_user.uid,
+            course_id=cid,
+            operation="progress_update"
+        )
         logger.info(f"[ROADMAP] Progress update committed to DB successfully")
         
     except HTTPException:
@@ -862,6 +1030,10 @@ def update_roadmap_progress(
     completion_percentage = (completed_count / total_topics * 100) if total_topics > 0 else 0
     
     logger.info(f"[ROADMAP] Update complete: completed={completed_count}, remaining={remaining_count}, percentage={round(completion_percentage, 1)}%")
+    
+    # DEBUG: Log response data for frontend debugging
+    logger.debug(f"[ROADMAP] Returning response: total_topics={total_topics}, completed={completed_count}")
+    logger.debug(f"[ROADMAP] Progress keys count: {len(updated_progress)}, sample: {list(updated_progress.keys())[:3]}")
     
     return RoadmapProgressResponse(
         success=True,

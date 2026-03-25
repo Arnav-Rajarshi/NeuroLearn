@@ -110,20 +110,28 @@ function RoadmapPage() {
     // Refresh progress from backend using the new roadmap pipeline
     try {
       const roadmapType = settings?.roadmapType || 'PNL'
+      console.log('[v0] Refreshing progress from backend for course:', courseId, 'mode:', roadmapType)
+      
       const updatedProgress = await getRoadmapProgress(courseId, roadmapType)
+      console.log('[v0] Received updated progress:', updatedProgress)
       
       setProgress(updatedProgress.progress || {})
       setTopicsToBeShown(updatedProgress.topics_to_be_shown || [])
       setTotalXP(updatedProgress.completed_topics * 10)
       
-      // Update roadmapData with new completion stats
+      // FIX: Update roadmapData with new completion stats from backend
       setRoadmapData(prev => ({
         ...prev,
+        totalTopics: updatedProgress.total_topics,
         completedTopics: updatedProgress.completed_topics,
         completionPercentage: updatedProgress.completion_percentage
       }))
+      
+      console.log('[v0] Progress updated - total:', updatedProgress.total_topics, 
+                  'completed:', updatedProgress.completed_topics, 
+                  'percent:', updatedProgress.completion_percentage)
     } catch (error) {
-      console.error('Failed to refresh progress', error)
+      console.error('[v0] Failed to refresh progress', error)
     }
   }
 
@@ -132,14 +140,14 @@ function RoadmapPage() {
     topic => !knownTopics.includes(topic.name)
   ) || []
 
-  // Calculate total subtopics from filtered topics only
-  const totalSubtopics = filteredTopics.reduce((total, topic) => {
-    return total + (topic.subtopics ? topic.subtopics.length : 0)
-  }, 0)
+  // FIX: Use backend-calculated values for consistency
+  // The backend is the single source of truth for progress
+  const totalSubtopics = roadmapData?.totalTopics || 0
+  const completedSubtopics = roadmapData?.completedTopics || 0
+  const overallProgress = roadmapData?.completionPercentage || 0
   
-  // Count completed subtopics from progress object
-  const completedSubtopics = Object.values(progress).filter(v => v === true).length
-  const overallProgress = totalSubtopics > 0 ? (completedSubtopics / totalSubtopics) * 100 : 0
+  // DEBUG: Log progress values
+  console.log('[v0] Progress values - total:', totalSubtopics, 'completed:', completedSubtopics, 'percent:', overallProgress)
 
   const goalDeadline = settings?.goalDeadline
   const daysRemaining = goalDeadline 

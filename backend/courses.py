@@ -13,15 +13,14 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date, datetime
-import logging
+
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from database import get_db
 from models import User, Course, CoursePreference, Roadmap, CourseEnrolled, TopicsToBeShown
 from auth import get_current_user
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 

@@ -16,15 +16,14 @@ from sqlalchemy.orm.attributes import flag_modified
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-import logging
+
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from database import get_db
 from models import User, ProgressLevel, Course
 from auth import get_current_user
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 router = APIRouter(prefix="/progress", tags=["Progress"])
 

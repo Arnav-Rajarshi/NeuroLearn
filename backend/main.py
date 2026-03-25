@@ -1,13 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import logging
 
-# Configure logging for the entire application
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from database import init_db
 from auth import router as auth_router
@@ -82,10 +78,11 @@ def health_check():
 @app.on_event("startup")
 def startup():
     init_db()
-    logger.info("=" * 50)
+    logger.info("=" * 60)
     logger.info("NeuroLearn API started successfully")
     logger.info("Database initialized")
-    logger.info("=" * 50)
+    logger.info("Debug logging enabled - check backend/debug.log for detailed logs")
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":
