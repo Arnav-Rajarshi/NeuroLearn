@@ -23,7 +23,7 @@ function getAuthHeaders() {
 
 // Generic fetch wrapper with error handling
 async function fetchApi(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`
+  const url = `${API_BASE_URL}${endpoint}`;
   
   const config = {
     ...options,
@@ -32,49 +32,52 @@ async function fetchApi(endpoint, options = {}) {
       ...getAuthHeaders(),
       ...options.headers,
     },
-  }
+  };
 
   try {
-    const response = await fetch(url, config)
-    
+    const response = await fetch(url, config);
+
+    // ✅ HANDLE 404 GRACEFULLY
+    if (response.status === 404) {
+      console.warn(`[v0] No data found for ${url} (404)`);
+      return null;
+    }
+
+    // ❌ Handle real errors only
     if (!response.ok) {
-      let errorData
+      let errorData;
+
       try {
-        errorData = await response.json()
+        errorData = await response.json();
       } catch {
-        throw new Error(`Request failed with status ${response.status}`)
+        throw new Error(`Request failed with status ${response.status}`);
       }
 
-      // Extract a human-readable error message
-      let message = "API request failed"
+      // Extract readable error message
+      let message = "API request failed";
 
       if (typeof errorData?.detail === "string") {
-        // Simple string detail (e.g., "Invalid credentials")
-        message = errorData.detail
+        message = errorData.detail;
       } else if (Array.isArray(errorData?.detail)) {
-        // FastAPI validation errors: [{loc: [...], msg: "...", type: "..."}]
-        const firstError = errorData.detail[0]
-        if (firstError?.msg) {
-          message = firstError.msg
-        } else {
-          message = "Validation error"
-        }
+        const firstError = errorData.detail[0];
+        message = firstError?.msg || "Validation error";
       } else if (typeof errorData?.detail === "object" && errorData.detail !== null) {
-        // Object detail - extract message field or stringify
-        message = errorData.detail.message || errorData.detail.msg || "Request failed"
+        message = errorData.detail.message || errorData.detail.msg || "Request failed";
       } else if (typeof errorData?.message === "string") {
-        message = errorData.message
+        message = errorData.message;
       } else if (typeof errorData === "string") {
-        message = errorData
+        message = errorData;
       }
 
-      throw new Error(message)
+      throw new Error(message);
     }
-    
-    return await response.json()
+
+    // ✅ SUCCESS
+    return await response.json();
+
   } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error.message)
-    throw error
+    console.error(`API Error [${endpoint}]:`, error.message);
+    throw error;
   }
 }
 
@@ -296,8 +299,10 @@ export async function fetchBackendCourses() {
     try {
       const courses = await fetchApi('/courses/')
       _coursesCache = courses
+      console.log("[v0] Fetched backend courses:", courses)
       return courses
     } catch (error) {
+      console.error("[v0] Failed to fetch backend courses:", error)
       _coursesCachePromise = null
       throw error
     }
@@ -368,6 +373,7 @@ export async function getCourseById(cid) {
 export async function getRoadmap(cid, lm = 'PNL') {
   const validCid = await validateCid(cid)
   if (!validCid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap for:", cid)
     throw new Error(`Invalid course ID: ${cid}`)
   }
   return await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
