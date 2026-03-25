@@ -6,14 +6,14 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal
-import logging
+
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from database import get_db
 from models import User, Payment, Course, CourseEnrolled, ProgressLevel, TopicsToBeShown
 from auth import get_current_admin
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 

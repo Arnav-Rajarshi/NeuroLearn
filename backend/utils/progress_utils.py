@@ -15,12 +15,17 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
-import logging
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# LOGGING: Use centralized debug logger
+from logger import get_logger
+logger = get_logger(__name__)
 
 from models import ProgressLevel, TopicsToBeShown
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 
 def ensure_progress_json_valid(progress_json: Any) -> Dict[str, Any]:

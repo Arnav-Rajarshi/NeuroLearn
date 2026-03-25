@@ -35,8 +35,12 @@ function TopicAccordion({
       // Create topic key in format "TopicName::SubtopicName"
       const topicKey = `${topic.name}::${subtopicName}`
       
+      // DEBUG: Log the progress update
+      console.log('[v0] Marking subtopic complete:', topicKey, 'for course:', courseId)
+      
       // Update progress in backend using the new roadmap pipeline
-      await updateRoadmapProgress(courseId, topicKey, true)
+      const response = await updateRoadmapProgress(courseId, topicKey, true)
+      console.log('[v0] Backend response:', response)
       
       // Update local state
       setLocalCompletedSubtopics(prev => [...prev, subtopicName])
