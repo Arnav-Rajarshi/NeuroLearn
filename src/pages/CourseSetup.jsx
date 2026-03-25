@@ -107,16 +107,12 @@ function CourseSetup() {
         known_topics: knownTopics
       })
 
-      // Navigate to roadmap with known topics in state
-      navigate(`/roadmap-engine/roadmap/${cid}`, {
-        state: { knownTopics }
-      })
+      // Navigate to roadmap - backend will provide filtered topics
+      navigate(`/roadmap-engine/roadmap/${cid}`)
     } catch (error) {
       console.error('Failed to save preferences:', error)
       // Still navigate even if save fails - preferences can be saved later
-      navigate(`/roadmap-engine/roadmap/${cid}`, {
-        state: { knownTopics }
-      })
+      navigate(`/roadmap-engine/roadmap/${cid}`)
     } finally {
       setSaving(false)
     }

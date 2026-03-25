@@ -168,6 +168,23 @@ def compute_topics_to_be_shown(
     return [key for key in all_topic_keys if key not in completed_set]
 
 
+def filter_known_topics(
+    topics_list: List[str],
+    known_topics: Optional[List[str]]
+) -> List[str]:
+    """
+    Filter out known topics from the topics list.
+    
+    Known topics are topics the user already knows, so they should not be shown
+    in the roadmap. This filtering happens BEFORE topics are saved to the database.
+    """
+    if not known_topics:
+        return topics_list
+    
+    known_set = set(known_topics)
+    return [topic for topic in topics_list if topic not in known_set]
+
+
 def get_current_topic(topics_to_be_shown: List[str]) -> Optional[str]:
     """Get the first topic that should be shown to the user."""
     return topics_to_be_shown[0] if topics_to_be_shown else None
@@ -479,6 +496,15 @@ def get_roadmap(
     # Step 2: Extract all topic keys from JSON
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     
+    # Step 2.5: Fetch known topics from course preferences (backend source of truth)
+    known_topics = []
+    pref = db.query(CoursePreference).filter(
+        CoursePreference.uid == uid,
+        CoursePreference.cid == cid
+    ).first()
+    if pref and pref.known_topics:
+        known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
+    
     # Step 3: Get or create progress record
     progress = get_or_create_progress(db, uid, cid)
     
@@ -516,6 +542,9 @@ def get_roadmap(
     if should_recompute:
         # Recompute from JSON file
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, completed_topics)
+        
+        # CRITICAL: Filter out known topics BEFORE saving (backend is authoritative)
+        topics_to_show = filter_known_topics(topics_to_show, known_topics)
         
         # Update stored topics
         progress.topics_to_be_shown_json = topics_to_show
@@ -589,6 +618,15 @@ def get_roadmap_progress(
     roadmap_json = load_roadmap_json(course_slug, lm)
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     
+    # Fetch known topics from course preferences
+    known_topics = []
+    pref = db.query(CoursePreference).filter(
+        CoursePreference.uid == uid,
+        CoursePreference.cid == cid
+    ).first()
+    if pref and pref.known_topics:
+        known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
+    
     # Get or create progress
     progress = get_or_create_progress(db, uid, cid)
     completed_topics = get_user_progress(db, uid, cid)
@@ -597,6 +635,8 @@ def get_roadmap_progress(
     stored_topics = progress.topics_to_be_shown_json
     if not stored_topics or not isinstance(stored_topics, list):
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, completed_topics)
+        # Filter out known topics BEFORE saving
+        topics_to_show = filter_known_topics(topics_to_show, known_topics)
         progress.topics_to_be_shown_json = topics_to_show
         flag_modified(progress, "topics_to_be_shown_json")
         db.commit()
@@ -656,6 +696,11 @@ def update_roadmap_progress(
     ).first()
     lm = pref.lm if pref and pref.lm else "PNL"
     
+    # Get known topics for filtering
+    known_topics = []
+    if pref and pref.known_topics:
+        known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
+    
     # Load roadmap JSON to validate the topic_key exists
     roadmap_json = load_roadmap_json(course_slug, lm)
     all_topic_keys = extract_all_topic_keys(roadmap_json)
@@ -676,6 +721,8 @@ def update_roadmap_progress(
     topics_to_show = progress.topics_to_be_shown_json if progress else []
     if topics_to_show is None:
         topics_to_show = compute_topics_to_be_shown(all_topic_keys, updated_progress)
+        # Filter out known topics BEFORE saving
+        topics_to_show = filter_known_topics(topics_to_show, known_topics)
     
     current_topic = get_current_topic(topics_to_show)
     
