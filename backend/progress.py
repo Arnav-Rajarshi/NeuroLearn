@@ -144,14 +144,17 @@ def get_or_create_progress(
     Get existing progress or create a new record.
     
     Ensures progress_json is never null (fixes old user schema issue).
+    LOGGING: Logs FETCHING/CREATING PROGRESS with user_id and course_id
     """
+    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid}")
+    
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
         ProgressLevel.cid == cid
     ).first()
     
     if not progress:
-        logger.info(f"[PROGRESS] Creating new progress record for user={uid}, course={cid}")
+        logger.info(f"[PROGRESS] CREATING NEW PROGRESS record for user={uid}, course={cid}")
         progress = ProgressLevel(
             uid=uid,
             cid=cid,
@@ -160,9 +163,11 @@ def get_or_create_progress(
         )
         db.add(progress)
         db.flush()
+        logger.info(f"[PROGRESS] Created progress_id={progress.progress_id}")
     else:
         # FIX: Ensure existing records have non-null progress_json
         ensure_progress_json_not_null(progress)
+        logger.info(f"[PROGRESS] Found existing progress_id={progress.progress_id} with {len(progress.progress_json or {})} entries")
     
     return progress
 
@@ -220,6 +225,7 @@ def update_progress_atomic(
     db.commit()
     db.refresh(progress)
     
+    logger.info(f"[PROGRESS] SAVING PROGRESS user_id={uid} course_id={cid} entries={len(merged_data)}")
     logger.info(f"[PROGRESS] Successfully updated and committed progress_id={progress.progress_id}")
     
     return progress

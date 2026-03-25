@@ -262,9 +262,11 @@ def get_stored_topics_to_be_shown(
         logger.debug_data_source(source="DB", data_type="topics_to_be_shown", user_id=uid, is_null=False)
         
         # DEBUG: Log key stats about stored topics
+        # CRITICAL FIX: Use correct keys "remaining" and "current" (not old keys)
         topics_json = topics_record.topics_json
-        remaining = topics_json.get("topics_to_be_shown", [])
-        current = topics_json.get("current_topic")
+        # Support both old and new key names for backward compatibility
+        remaining = topics_json.get("remaining", topics_json.get("topics_to_be_shown", []))
+        current = topics_json.get("current", topics_json.get("current_topic"))
         logger.debug(f"[ROADMAP] Stored data: remaining={len(remaining)}, current={current}")
         
         return topics_json
@@ -281,17 +283,28 @@ def get_or_create_roadmap(
     cid: int, 
     lm: str
 ) -> Roadmap:
-    """Get or create a roadmap record for a course and learning mode."""
+    """
+    Get or create a roadmap record for a course and learning mode.
+    
+    NOTE: The Roadmap table is per-course (cid + lm), NOT per-user.
+    User-specific topics are stored in TopicsToBeShown (uid + rid).
+    """
+    logger.info(f"[ROADMAP] FETCHING ROADMAP cid={cid} lm={lm}")
+    
     roadmap = db.query(Roadmap).filter(
         Roadmap.cid == cid,
         Roadmap.lm == lm
     ).first()
     
     if not roadmap:
-        logger.info(f"[ROADMAP] Creating new roadmap record for cid={cid}, lm={lm}")
+        logger.info(f"[ROADMAP] CREATING ROADMAP cid={cid} lm={lm}")
         roadmap = Roadmap(cid=cid, lm=lm)
         db.add(roadmap)
-        db.flush()
+        db.commit()  # CRITICAL FIX: Commit immediately to ensure rid is available
+        db.refresh(roadmap)
+        logger.info(f"[ROADMAP] Created roadmap rid={roadmap.rid}")
+    else:
+        logger.info(f"[ROADMAP] Found existing roadmap rid={roadmap.rid}")
     
     return roadmap
 
@@ -299,41 +312,74 @@ def get_or_create_roadmap(
 def get_user_progress(
     db: Session, 
     uid: int, 
-    cid: int
+    cid: int,
+    create_if_missing: bool = False
 ) -> Dict[str, bool]:
     """
     Get user's progress for a course as a dictionary.
     
-    FIX: Handles null progress_json for old users.
+    CRITICAL FIXES:
+    1. Handles null progress_json for old users
+    2. Optionally creates a progress record if missing (and commits immediately)
+    3. Logs FETCHING PROGRESS with user_id and course_id
+    
+    Args:
+        db: Database session
+        uid: User ID  
+        cid: Course ID
+        create_if_missing: If True, creates and commits a new progress record if none exists
     
     Returns:
         Dict mapping topic_key -> True (only completed topics are stored)
     """
     logger.debug_entering_function("get_user_progress", uid=uid, cid=cid)
-    logger.info(f"[PROGRESS] Fetching progress from DB for user={uid}, course={cid}")
+    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid}")
     
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
         ProgressLevel.cid == cid
     ).first()
     
-    # FIX: Handle null progress_json for old users
+    # FIX: Handle case where no progress record exists
     if not progress:
         logger.info(f"[PROGRESS] No progress record found for user={uid}, course={cid}")
         logger.debug_data_source(source="DB", data_type="progress", user_id=uid, is_null=True)
+        
+        # CRITICAL FIX: Optionally create the progress record immediately
+        if create_if_missing:
+            logger.info(f"[PROGRESS] CREATING NEW PROGRESS record for user={uid}, course={cid}")
+            progress = ProgressLevel(
+                uid=uid,
+                cid=cid,
+                top_id=None,
+                progress_json={}  # Initialize to empty dict, NEVER None
+            )
+            db.add(progress)
+            db.commit()  # CRITICAL: Commit immediately to persist
+            db.refresh(progress)
+            logger.info(f"[PROGRESS] SAVED PROGRESS user_id={uid} course_id={cid} progress_id={progress.progress_id}")
+            return {}
+        
         return {}
     
+    # FIX: Handle null progress_json for old users
     if progress.progress_json is None:
-        logger.info(f"[PROGRESS] progress_json is NULL for user={uid}, course={cid}, returning empty dict")
+        logger.info(f"[PROGRESS] progress_json is NULL for user={uid}, course={cid}, fixing...")
         logger.debug_null_value_detected(
             field_name="progress_json",
             user_id=uid,
             course_id=cid,
-            action_taken="returning empty dict (old user compatibility)"
+            action_taken="initializing to empty dict and committing"
         )
+        # CRITICAL FIX: Initialize null progress_json and commit
+        progress.progress_json = {}
+        flag_modified(progress, "progress_json")
+        db.commit()
+        db.refresh(progress)
+        logger.info(f"[PROGRESS] Fixed NULL progress_json for user={uid}, course={cid}")
         return {}
     
-    logger.info(f"[PROGRESS] Found progress with {len(progress.progress_json)} entries")
+    logger.info(f"[PROGRESS] Found progress with {len(progress.progress_json)} entries for user={uid}, course={cid}")
     logger.debug_data_source(source="DB", data_type="progress", user_id=uid, is_null=False)
     return dict(progress.progress_json)
 
@@ -485,6 +531,7 @@ def update_user_progress(
     
     # STEP 7: FIX - Flush to ensure changes are staged (commit happens at endpoint level)
     db.flush()
+    logger.info(f"[PROGRESS] SAVING PROGRESS user_id={uid} course_id={cid} entries={len(current_progress)}")
     logger.info(f"[PROGRESS] Flushed progress update for user={uid}, course={cid}, entries={len(current_progress)}")
     
     # DEBUG: Log final state after modification
@@ -618,9 +665,10 @@ def get_roadmap(
     ).first()
     
     # Step 5: Get user's progress from DB (SINGLE SOURCE OF TRUTH for completion)
+    # CRITICAL FIX: Use create_if_missing=True to ensure progress record exists
     logger.info(f"[ROADMAP] Step 3: Fetching progress from DB (source of truth for PROGRESS)")
     logger.debug_data_source(source="DB", data_type="progress", user_id=current_user.uid)
-    user_progress = get_user_progress(db, current_user.uid, cid)
+    user_progress = get_user_progress(db, current_user.uid, cid, create_if_missing=True)
     
     # ============ DEBUG LOGGING: DB DATA STATE ============
     logger.debug_roadmap_stored_data(
@@ -649,8 +697,10 @@ def get_roadmap(
         
         # FIX: Use stored topics_to_be_shown directly from DB
         stored_topics_json = existing_topics_record.topics_json
-        topics_to_show = stored_topics_json.get("remaining", [])
-        current_topic = stored_topics_json.get("current")
+        # CRITICAL FIX: Support both old keys (topics_to_be_shown, current_topic) and 
+        # new keys (remaining, current) for backward compatibility
+        topics_to_show = stored_topics_json.get("remaining", stored_topics_json.get("topics_to_be_shown", []))
+        current_topic = stored_topics_json.get("current", stored_topics_json.get("current_topic"))
         
         logger.info(f"[ROADMAP] Loaded {len(topics_to_show)} remaining topics from stored DB record")
         data_source = "stored"  # Track data source for response logging
@@ -707,8 +757,9 @@ def get_roadmap(
         ).first()
         
         # Create progress record if it doesn't exist (for new users)
+        # NOTE: With create_if_missing=True in get_user_progress, this should rarely execute
         if not progress:
-            logger.info(f"[ROADMAP] Creating initial progress record for new user")
+            logger.info(f"[PROGRESS] CREATING NEW PROGRESS record for user={current_user.uid}, course={cid}")
             logger.debug_null_value_detected(
                 field_name="progress_record",
                 user_id=current_user.uid,
@@ -723,6 +774,7 @@ def get_roadmap(
             )
             db.add(progress)
             db.flush()
+            logger.info(f"[PROGRESS] SAVING PROGRESS user_id={current_user.uid} course_id={cid} progress_id={progress.progress_id}")
         
         # FIX: Ensure DB persistence for new user data
         db.commit()
@@ -803,7 +855,8 @@ def get_roadmap_progress(
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     
     # Get user progress from DB (SINGLE SOURCE OF TRUTH)
-    user_progress = get_user_progress(db, current_user.uid, cid)
+    # CRITICAL FIX: Use create_if_missing=True to ensure progress record exists
+    user_progress = get_user_progress(db, current_user.uid, cid, create_if_missing=True)
     
     # CRITICAL FIX: Use STORED topics_to_be_shown from DB
     roadmap_record = get_or_create_roadmap(db, cid, lm)
@@ -816,8 +869,9 @@ def get_roadmap_progress(
         # USE STORED DATA - NO RECOMPUTATION
         logger.info(f"[ROADMAP] FETCHING STORED PROGRESS - Using topics_to_be_shown from DB")
         stored_topics_json = existing_topics_record.topics_json
-        topics_to_show = stored_topics_json.get("remaining", [])
-        current_topic = stored_topics_json.get("current")
+        # CRITICAL FIX: Support both old keys and new keys for backward compatibility
+        topics_to_show = stored_topics_json.get("remaining", stored_topics_json.get("topics_to_be_shown", []))
+        current_topic = stored_topics_json.get("current", stored_topics_json.get("current_topic"))
     else:
         # NEW USER - compute and store
         logger.info(f"[ROADMAP] GENERATING NEW PROGRESS - First time user")
