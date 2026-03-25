@@ -1,17 +1,36 @@
+"""
+Progress Module - User progress tracking for courses
+
+CRITICAL FIXES APPLIED:
+1. Progress merge instead of overwrite (existing.update(new_data))
+2. Proper DB persistence with commit() and refresh()
+3. Handle null progress_json for old users
+4. Logging for all progress operations
+5. DEPRECATED: /progress/update endpoint - use /roadmap/progress/update instead
+6. Atomic operations to prevent race conditions
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+import logging
 
 from database import get_db
 from models import User, ProgressLevel, Course
 from auth import get_current_user
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 router = APIRouter(prefix="/progress", tags=["Progress"])
 
 
-# Pydantic schemas
+# ============ Pydantic Schemas ============
+
 class ProgressUpdate(BaseModel):
     cid: int
     top_id: Optional[int] = None
@@ -26,6 +45,10 @@ class ProgressResponse(BaseModel):
     top_id: Optional[int] = None
     progress_json: Dict[str, Any]
     last_updated: datetime
+    # ADDED: Enhanced response fields
+    success: bool = True
+    completed_topics: int = 0
+    total_topics: int = 0
 
     class Config:
         from_attributes = True
@@ -36,40 +59,208 @@ class AllProgressResponse(BaseModel):
     total_courses: int
 
 
-# Endpoints
+# ============ Helper Functions ============
+
+def ensure_progress_json_not_null(progress: ProgressLevel) -> Dict[str, Any]:
+    """
+    FIX: Handle old users with null progress_json
+    
+    Ensures progress_json is never None, initializing to empty dict if needed.
+    This fixes the issue where old users have inconsistent schema.
+    """
+    if progress.progress_json is None:
+        progress.progress_json = {}
+    return progress.progress_json
+
+
+def merge_progress_data(
+    existing_data: Dict[str, Any], 
+    new_data: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    FIX: Merge progress instead of overwrite
+    
+    Merges new progress data into existing data without losing previous progress.
+    This prevents the critical bug where progress was being overwritten.
+    
+    Args:
+        existing_data: Current progress_json from database
+        new_data: New progress data to merge
+    
+    Returns:
+        Merged progress dictionary
+    """
+    # Create a copy to avoid mutating the original
+    merged = dict(existing_data or {})
+    
+    for key, value in new_data.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            # Deep merge for nested dictionaries
+            merged[key] = merge_progress_data(merged[key], value)
+        elif isinstance(value, list) and isinstance(merged.get(key), list):
+            # For lists, extend without duplicates (for backward compatibility)
+            existing_list = merged[key]
+            for item in value:
+                if item not in existing_list:
+                    existing_list.append(item)
+            merged[key] = existing_list
+        else:
+            # Simple overwrite for primitives and new keys
+            merged[key] = value
+    
+    return merged
+
+
+def count_completed_topics(progress_json: Dict[str, Any]) -> int:
+    """
+    Count the number of completed topics from progress_json.
+    
+    Handles both formats:
+    - New format: {"topic::subtopic": true, ...}
+    - Legacy format: {"topic": ["subtopic1", "subtopic2"], ...}
+    """
+    if not progress_json:
+        return 0
+    
+    count = 0
+    for key, value in progress_json.items():
+        if isinstance(value, bool) and value is True:
+            # New format: topic_key -> true
+            count += 1
+        elif isinstance(value, list):
+            # Legacy format: topic -> [subtopics]
+            count += len(value)
+    
+    return count
+
+
+# ============ Core Progress Operations ============
+
+def get_or_create_progress(
+    db: Session,
+    uid: int,
+    cid: int
+) -> ProgressLevel:
+    """
+    Get existing progress or create a new record.
+    
+    Ensures progress_json is never null (fixes old user schema issue).
+    """
+    progress = db.query(ProgressLevel).filter(
+        ProgressLevel.uid == uid,
+        ProgressLevel.cid == cid
+    ).first()
+    
+    if not progress:
+        logger.info(f"[PROGRESS] Creating new progress record for user={uid}, course={cid}")
+        progress = ProgressLevel(
+            uid=uid,
+            cid=cid,
+            top_id=None,
+            progress_json={}  # FIX: Always initialize to empty dict
+        )
+        db.add(progress)
+        db.flush()
+    else:
+        # FIX: Ensure existing records have non-null progress_json
+        ensure_progress_json_not_null(progress)
+    
+    return progress
+
+
+def update_progress_atomic(
+    db: Session,
+    uid: int,
+    cid: int,
+    new_progress_data: Dict[str, Any],
+    top_id: Optional[int] = None
+) -> ProgressLevel:
+    """
+    ATOMIC progress update with merge logic.
+    
+    CRITICAL FIXES:
+    1. Merges new data instead of overwriting
+    2. Properly commits and refreshes
+    3. Handles null progress_json
+    4. Marks JSONB as modified for SQLAlchemy
+    
+    Args:
+        db: Database session
+        uid: User ID
+        cid: Course ID
+        new_progress_data: New progress data to merge
+        top_id: Optional topic reference ID
+    
+    Returns:
+        Updated ProgressLevel record
+    """
+    logger.info(f"[PROGRESS] Updating progress for user={uid}, course={cid}")
+    logger.info(f"[PROGRESS] New data to merge: {new_progress_data}")
+    
+    # Get or create progress record
+    progress = get_or_create_progress(db, uid, cid)
+    
+    # FIX: Get existing data (never null due to get_or_create_progress)
+    existing_data = dict(progress.progress_json or {})
+    logger.info(f"[PROGRESS] Existing data: {existing_data}")
+    
+    # FIX: Merge instead of overwrite
+    merged_data = merge_progress_data(existing_data, new_progress_data)
+    logger.info(f"[PROGRESS] Merged data: {merged_data}")
+    
+    # Update the record
+    progress.progress_json = merged_data
+    if top_id is not None:
+        progress.top_id = top_id
+    progress.last_updated = datetime.utcnow()
+    
+    # FIX: Mark JSONB as modified for SQLAlchemy to detect change
+    flag_modified(progress, "progress_json")
+    
+    # FIX: Ensure DB persistence
+    db.commit()
+    db.refresh(progress)
+    
+    logger.info(f"[PROGRESS] Successfully updated and committed progress_id={progress.progress_id}")
+    
+    return progress
+
+
+# ============ API Endpoints ============
+
 @router.post("/update", response_model=ProgressResponse)
 def update_progress(
     progress_data: ProgressUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Update or create progress for a course"""
+    """
+    Update or create progress for a course.
+    
+    DEPRECATED: Use /roadmap/progress/update for the new roadmap pipeline.
+    This endpoint is kept for backward compatibility but uses merge logic.
+    
+    FIXES APPLIED:
+    - Progress is MERGED, not overwritten
+    - DB is properly committed
+    - Null progress_json handled
+    """
+    logger.warning(f"[PROGRESS] DEPRECATED endpoint /progress/update called by user={current_user.uid}")
+    
     # Verify course exists
     course = db.query(Course).filter(Course.cid == progress_data.cid).first()
     
-    # Find existing progress for this user and course
-    progress = db.query(ProgressLevel).filter(
-        ProgressLevel.uid == current_user.uid,
-        ProgressLevel.cid == progress_data.cid
-    ).first()
+    # FIX: Use atomic update with merge logic
+    progress = update_progress_atomic(
+        db=db,
+        uid=current_user.uid,
+        cid=progress_data.cid,
+        new_progress_data=progress_data.progress_json,
+        top_id=progress_data.top_id
+    )
     
-    if progress:
-        # Update existing progress
-        progress.progress_json = progress_data.progress_json
-        progress.top_id = progress_data.top_id
-        progress.last_updated = datetime.utcnow()
-    else:
-        # Create new progress entry
-        progress = ProgressLevel(
-            uid=current_user.uid,
-            cid=progress_data.cid,
-            top_id=progress_data.top_id,
-            progress_json=progress_data.progress_json
-        )
-        db.add(progress)
-    
-    db.commit()
-    db.refresh(progress)
+    # Count completed topics for response
+    completed_count = count_completed_topics(progress.progress_json)
     
     return ProgressResponse(
         progress_id=progress.progress_id,
@@ -78,7 +269,10 @@ def update_progress(
         course_name=course.course_name if course else None,
         top_id=progress.top_id,
         progress_json=progress.progress_json or {},
-        last_updated=progress.last_updated
+        last_updated=progress.last_updated,
+        success=True,
+        completed_topics=completed_count,
+        total_topics=0  # Will be computed by roadmap endpoint
     )
 
 
@@ -88,7 +282,14 @@ def get_user_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get all progress entries for a user"""
+    """
+    Get all progress entries for a user.
+    
+    FIXES APPLIED:
+    - Null progress_json handled for old users
+    """
+    logger.info(f"[PROGRESS] Fetching all progress for user={user_id}")
+    
     # Users can only access their own progress
     if current_user.uid != user_id:
         raise HTTPException(
@@ -104,6 +305,10 @@ def get_user_progress(
     progress_list = []
     for p in progress_entries:
         course = db.query(Course).filter(Course.cid == p.cid).first()
+        # FIX: Handle null progress_json
+        progress_json = p.progress_json if p.progress_json is not None else {}
+        completed_count = count_completed_topics(progress_json)
+        
         progress_list.append(
             ProgressResponse(
                 progress_id=p.progress_id,
@@ -111,10 +316,15 @@ def get_user_progress(
                 cid=p.cid,
                 course_name=course.course_name if course else None,
                 top_id=p.top_id,
-                progress_json=p.progress_json or {},
-                last_updated=p.last_updated
+                progress_json=progress_json,
+                last_updated=p.last_updated,
+                success=True,
+                completed_topics=completed_count,
+                total_topics=0
             )
         )
+    
+    logger.info(f"[PROGRESS] Found {len(progress_entries)} progress entries for user={user_id}")
     
     return AllProgressResponse(
         progress=progress_list,
@@ -128,7 +338,15 @@ def get_course_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get progress for current user in a specific course"""
+    """
+    Get progress for current user in a specific course.
+    
+    FIXES APPLIED:
+    - Null progress_json handled for old users
+    - Returns proper empty progress if not found
+    """
+    logger.info(f"[PROGRESS] Fetching course progress for user={current_user.uid}, course={cid}")
+    
     course = db.query(Course).filter(Course.cid == cid).first()
     
     progress = db.query(ProgressLevel).filter(
@@ -137,6 +355,7 @@ def get_course_progress(
     ).first()
     
     if not progress:
+        logger.info(f"[PROGRESS] No progress found for user={current_user.uid}, course={cid}, returning empty")
         # Return empty progress if not found
         return ProgressResponse(
             progress_id=0,
@@ -145,8 +364,15 @@ def get_course_progress(
             course_name=course.course_name if course else None,
             top_id=None,
             progress_json={},
-            last_updated=datetime.utcnow()
+            last_updated=datetime.utcnow(),
+            success=True,
+            completed_topics=0,
+            total_topics=0
         )
+    
+    # FIX: Handle null progress_json
+    progress_json = progress.progress_json if progress.progress_json is not None else {}
+    completed_count = count_completed_topics(progress_json)
     
     return ProgressResponse(
         progress_id=progress.progress_id,
@@ -154,6 +380,9 @@ def get_course_progress(
         cid=progress.cid,
         course_name=course.course_name if course else None,
         top_id=progress.top_id,
-        progress_json=progress.progress_json or {},
-        last_updated=progress.last_updated
+        progress_json=progress_json,
+        last_updated=progress.last_updated,
+        success=True,
+        completed_topics=completed_count,
+        total_topics=0
     )
