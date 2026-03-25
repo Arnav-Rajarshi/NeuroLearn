@@ -380,8 +380,8 @@ def update_user_progress(
         if topic_key in current_progress:
             current_progress.remove(topic_key)
     
-    # Recompute topics_to_be_shown
-    topics_to_show = filter_known_topics(topics_to_show, known_topics)
+    # Recompute topics_to_be_shown from remaining topics
+    topics_to_show = compute_topics_to_be_shown(all_topic_keys, current_progress)
     
     # Update the record
     progress.progress_json = current_progress
@@ -529,10 +529,7 @@ def get_roadmap(
     # Step 1: Load roadmap JSON (source of truth)
     roadmap_json = load_roadmap_json(course_slug, lm)
     
-    # Step 2: Extract all topic keys from JSON
-    all_topic_keys = extract_all_topic_keys(roadmap_json)
-    
-    # Step 2.5: Fetch known topics from course preferences (backend source of truth)
+    # Step 2: Fetch known topics from course preferences (backend source of truth)
     known_topics = []
     pref = db.query(CoursePreference).filter(
         CoursePreference.uid == uid,
@@ -540,8 +537,14 @@ def get_roadmap(
     ).first()
     if pref and pref.known_topics:
         known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
+    
+    # Step 2.5: Filter roadmap to remove known topics
     roadmap_json = filter_roadmap_json(roadmap_json, known_topics)
-    # Step 3: Get or create progress record
+    
+    # Step 3: Extract all topic keys from FILTERED JSON (ensures consistency)
+    all_topic_keys = extract_all_topic_keys(roadmap_json)
+    
+    # Step 4: Get or create progress record
     progress = get_or_create_progress(db, uid, cid)
     
     
@@ -650,12 +653,7 @@ def get_roadmap_progress(
     if lm not in ["PNL", "PRACTICE"]:
         lm = "PNL"
     
-    # Load roadmap and compute progress
-    roadmap_json = load_roadmap_json(course_slug, lm)
-    roadmap_json = filter_roadmap_json(roadmap_json, known_topics)
-    all_topic_keys = extract_all_topic_keys(roadmap_json)
-    
-    # Fetch known topics from course preferences
+    # Fetch known topics from course preferences FIRST
     known_topics = []
     pref = db.query(CoursePreference).filter(
         CoursePreference.uid == uid,
@@ -663,6 +661,11 @@ def get_roadmap_progress(
     ).first()
     if pref and pref.known_topics:
         known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
+    
+    # Load roadmap and filter to remove known topics
+    roadmap_json = load_roadmap_json(course_slug, lm)
+    roadmap_json = filter_roadmap_json(roadmap_json, known_topics)
+    all_topic_keys = extract_all_topic_keys(roadmap_json)
     
     # Get or create progress
     progress = get_or_create_progress(db, uid, cid)
@@ -740,8 +743,9 @@ def update_roadmap_progress(
     if pref and pref.known_topics:
         known_topics = pref.known_topics if isinstance(pref.known_topics, list) else []
     
-    # Load roadmap JSON to validate the topic_key exists
+    # Load roadmap JSON and filter to remove known topics
     roadmap_json = load_roadmap_json(course_slug, lm)
+    roadmap_json = filter_roadmap_json(roadmap_json, known_topics)
     all_topic_keys = extract_all_topic_keys(roadmap_json)
     
     if topic_key not in all_topic_keys:
