@@ -1,5 +1,6 @@
 // Course data utilities - fetches all course data from backend API
 // NO HARDCODED COURSE DATA - backend is the single source of truth
+// NO LOCAL JSON FILES - all data comes from backend API
 
 import { fetchBackendCourses, getCourseById as getCourseByIdFromApi } from './api.js'
 
@@ -9,9 +10,7 @@ import { fetchBackendCourses, getCourseById as getCourseByIdFromApi } from './ap
  */
 export async function getAllCourses() {
   try {
-    console.log('[v0] getAllCourses: fetching from backend...')
     const courses = await fetchBackendCourses()
-    console.log('[v0] getAllCourses: received', courses?.length || 0, 'courses')
     // Transform backend courses to include expected properties
     return courses.map(course => ({
       cid: course.cid,
@@ -20,9 +19,6 @@ export async function getAllCourses() {
       shortName: getShortName(course.course_name),
       description: course.description || `Master ${course.course_name}`,
       free: !course.is_premium,
-      // File names are derived from course name for local JSON files
-      pnlFile: `${course.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '')}_PNL.json`,
-      practiceFile: `${course.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '')}_PRACTICE.json`,
     }))
   } catch (error) {
     console.error('Failed to fetch courses from backend:', error)
@@ -37,13 +33,11 @@ export async function getAllCourses() {
  */
 export async function getCourseById(cid) {
   if (!cid && cid !== 0) {
-    console.error('[v0] getCourseById: cid is required')
     return null
   }
   
   const numericCid = typeof cid === 'number' ? cid : parseInt(cid, 10)
   if (isNaN(numericCid)) {
-    console.error('[v0] getCourseById: cid must be a number, got:', cid)
     return null
   }
   
@@ -58,8 +52,6 @@ export async function getCourseById(cid) {
       shortName: getShortName(course.course_name),
       description: course.description || `Master ${course.course_name}`,
       free: !course.is_premium,
-      pnlFile: `${course.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '')}_PNL.json`,
-      practiceFile: `${course.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '')}_PRACTICE.json`,
     }
   } catch (error) {
     console.error('Failed to fetch course by cid:', cid, error)
@@ -98,61 +90,28 @@ function getShortName(courseName) {
   return shortNames[courseName] || courseName.split(' ')[0]
 }
 
-/**
- * Load course roadmap data from local JSON file
- * @param {number} cid - Course cid from backend
- * @param {string} roadmapType - 'pnl' or 'practice'
- * @returns {Promise<object>} - Course roadmap data
- */
-export async function loadCourseData(cid, roadmapType = 'pnl') {
-  console.log('[v0] loadCourseData called with cid:', cid, 'type:', roadmapType)
-  const course = await getCourseById(cid)
-  if (!course) {
-    console.log('[v0] loadCourseData: course not found for cid:', cid)
-    throw new Error(`Course not found for cid: ${cid}`)
-  }
+// NOTE: loadCourseData function has been REMOVED
+// All roadmap data should be fetched from the backend API using getRoadmap(cid)
+// Do NOT use local JSON files
 
-  const fileName = roadmapType === 'practice' ? course.practiceFile : course.pnlFile
-  console.log('[v0] loadCourseData: loading file:', fileName)
-  if (!fileName) {
-    throw new Error(`No data file available for course cid: ${cid}`)
-  }
-
-  try {
-    // Fetch JSON files from public/data/courses folder
-    const response = await fetch(`/data/courses/${fileName}`)
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.log('[v0] loadCourseData: fetch failed:', response.status, errorData)
-      throw new Error(`Failed to load course data: ${fileName}`)
-    }
-    const data = await response.json()
-    console.log('[v0] loadCourseData: loaded data with', data?.topics?.length || 0, 'topics')
-    return data
-  } catch (error) {
-    console.log('[v0] loadCourseData: error:', error.message)
-    throw new Error(`Failed to load course data for cid ${cid}`)
-  }
+// Extract all topic names from roadmap data (from backend API response)
+export function getTopicNames(roadmapData) {
+  if (!roadmapData || !roadmapData.topics) return []
+  return roadmapData.topics.map(topic => topic.name || topic.topic_name).filter(Boolean)
 }
 
-// Extract all topic names from course data
-export function getTopicNames(courseData) {
-  if (!courseData || !courseData.topics) return []
-  return courseData.topics.map(topic => topic.name)
-}
-
-// Get total subtopics count
-export function getTotalSubtopics(courseData) {
-  if (!courseData || !courseData.topics) return 0
-  return courseData.topics.reduce((total, topic) => {
+// Get total subtopics count from roadmap data
+export function getTotalSubtopics(roadmapData) {
+  if (!roadmapData || !roadmapData.topics) return 0
+  return roadmapData.topics.reduce((total, topic) => {
     return total + (topic.subtopics ? topic.subtopics.length : 0)
   }, 0)
 }
 
-// Get total practice questions count
-export function getTotalPracticeQuestions(courseData) {
-  if (!courseData || !courseData.topics) return 0
-  return courseData.topics.reduce((total, topic) => {
+// Get total practice questions count from roadmap data
+export function getTotalPracticeQuestions(roadmapData) {
+  if (!roadmapData || !roadmapData.topics) return 0
+  return roadmapData.topics.reduce((total, topic) => {
     return total + (topic.subtopics || []).reduce((subTotal, subtopic) => {
       const practiceCount = subtopic.practice?.length || subtopic.questions?.length || 0
       return subTotal + practiceCount
