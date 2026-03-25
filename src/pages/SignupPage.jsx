@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { GraduationCap, UserPlus, Eye, EyeOff, Mail, User } from 'lucide-react'
+import { GraduationCap, UserPlus, Eye, EyeOff, Mail, User, AlertCircle, RefreshCw } from 'lucide-react'
 import { signupUser } from '../utils/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// Retry configuration
+const MAX_RETRIES = 2
+const RETRY_DELAY = 1500
+
 function SignupPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, loading: authLoading } = useAuth()
   
   const [formData, setFormData] = useState({
     name: '',
@@ -17,6 +21,14 @@ function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isNetworkError, setIsNetworkError] = useState(false)
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/roadmap-engine/courses')
+    }
+  }, [authLoading, isAuthenticated, navigate])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -39,6 +51,30 @@ function SignupPage() {
     return true
   }
 
+  const attemptSignup = async (retries = 0) => {
+    try {
+      const data = await signupUser(formData.name, formData.email, formData.password)
+      login(data.user, data.access_token)
+      setIsNetworkError(false)
+      navigate('/roadmap-engine/courses')
+      return true
+    } catch (err) {
+      
+      // Check if it's a network error
+      const isNetwork = err.message?.includes('Failed to fetch') || 
+                       err.message?.includes('NetworkError') ||
+                       err.message?.includes('Network request failed')
+      
+      if (isNetwork && retries < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
+        return attemptSignup(retries + 1)
+      }
+      
+      setIsNetworkError(isNetwork)
+      throw err
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -46,16 +82,36 @@ function SignupPage() {
     
     setLoading(true)
     setError('')
+    setIsNetworkError(false)
 
     try {
-      const data = await signupUser(formData.name, formData.email, formData.password)
-      login(data.user, data.access_token)
-      navigate('/roadmap-engine/courses')
+      await attemptSignup()
     } catch (err) {
-      setError(err.message || 'Signup failed. Please try again.')
+      if (isNetworkError) {
+        setError('Unable to connect to server. Please check your connection and try again.')
+      } else {
+        setError(err.message || 'Signup failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRetry = () => {
+    setError('')
+    handleSubmit({ preventDefault: () => {} })
+  }
+  
+  // Show loading if checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <p className="text-[var(--color-muted)] text-sm">Checking authentication...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -162,8 +218,24 @@ function SignupPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 rounded-lg bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/20">
-                <p className="text-sm text-[var(--color-danger)]">{error}</p>
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-400">{error}</p>
+                    {isNetworkError && (
+                      <button
+                        type="button"
+                        onClick={handleRetry}
+                        disabled={loading}
+                        className="mt-2 flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        Try again
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 

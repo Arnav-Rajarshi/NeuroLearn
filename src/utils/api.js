@@ -296,10 +296,8 @@ export async function fetchBackendCourses() {
     try {
       const courses = await fetchApi('/courses/')
       _coursesCache = courses
-      console.log("[v0] Fetched backend courses:", courses)
       return courses
     } catch (error) {
-      console.error("[v0] Failed to fetch backend courses:", error)
       _coursesCachePromise = null
       throw error
     }
@@ -368,12 +366,16 @@ export async function getCourseById(cid) {
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
 export async function getRoadmap(cid, lm = 'PNL') {
+  console.log('[v0] getRoadmap called with cid:', cid, 'lm:', lm)
   const validCid = await validateCid(cid)
   if (!validCid) {
     console.error("[v0] Invalid CID - cannot fetch roadmap for:", cid)
     throw new Error(`Invalid course ID: ${cid}`)
   }
-  return await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
+  console.log('[v0] Fetching roadmap from API for validCid:', validCid)
+  const result = await fetchApi(`/roadmap/${validCid}?lm=${lm}`)
+  console.log('[v0] Roadmap API response:', result)
+  return result
 }
 
 /**

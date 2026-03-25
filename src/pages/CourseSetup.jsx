@@ -12,7 +12,7 @@ import {
   Rocket
 } from 'lucide-react'
 import { getCourseById, loadCourseData, getTopicNames } from '../utils/loadCourseData.js'
-import { saveCoursePreferences } from '../utils/api.js'
+import { saveCoursePreferences, getRoadmap } from '../utils/api.js'
 
 function CourseSetup() {
   const { course: courseIdParam } = useParams()
@@ -23,8 +23,10 @@ function CourseSetup() {
   
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [topicsLoading, setTopicsLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [topics, setTopics] = useState([])
+  const [topicsError, setTopicsError] = useState(null)
   
   // Form state
   const [roadmapType, setRoadmapType] = useState('PNL')
@@ -43,21 +45,58 @@ function CourseSetup() {
       }
       
       setLoading(true)
-      const courseInfo = await getCourseById(cid)
-      if (!courseInfo) {
-        console.error('[v0] Course not found for cid:', cid)
+      setTopicsLoading(true)
+      setTopicsError(null)
+      
+      try {
+        const courseInfo = await getCourseById(cid)
+        
+        if (!courseInfo) {
+          console.error('[v0] Course not found for cid:', cid)
+          navigate('/roadmap-engine/courses')
+          return
+        }
+        setCourse(courseInfo)
+      } catch (error) {
+        console.error('[v0] Failed to fetch course:', error)
         navigate('/roadmap-engine/courses')
         return
+      } finally {
+        setLoading(false)
       }
-      setCourse(courseInfo)
 
+      // Fetch topics - try roadmap API first, then local JSON as fallback
       try {
-        const data = await loadCourseData(cid, 'pnl')
-        setTopics(getTopicNames(data))
-      } catch (error) {
-        console.error('Failed to load course data', error)
+        console.log('[v0] Fetching roadmap for cid:', cid)
+        const roadmapData = await getRoadmap(cid, 'PNL')
+        console.log('[v0] Roadmap response:', roadmapData)
+        
+        if (roadmapData?.topics && Array.isArray(roadmapData.topics)) {
+          const topicNames = roadmapData.topics.map(t => t.name || t.topic_name)
+          console.log('[v0] Fetched topics:', topicNames)
+          setTopics(topicNames.filter(Boolean))
+        } else {
+          console.log('[v0] No topics array in roadmap, throwing error')
+          throw new Error('No topics in roadmap response')
+        }
+      } catch (roadmapError) {
+        console.log('[v0] Roadmap API failed:', roadmapError.message)
+        // Fallback to local JSON file
+        try {
+          console.log('[v0] Trying local JSON fallback for cid:', cid)
+          const data = await loadCourseData(cid, 'pnl')
+          console.log('[v0] Local JSON data:', data)
+          const topicNames = getTopicNames(data)
+          console.log('[v0] Topics from local JSON:', topicNames)
+          setTopics(topicNames)
+        } catch (jsonError) {
+          console.log('[v0] JSON fallback also failed:', jsonError.message)
+          setTopicsError('Unable to load topics. You can still continue without selecting known topics.')
+          setTopics([])
+        }
+      } finally {
+        setTopicsLoading(false)
       }
-      setLoading(false)
     }
     loadData()
   }, [cid, courseIdParam, navigate])
@@ -104,7 +143,10 @@ function CourseSetup() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-        <div className="animate-pulse text-[var(--color-muted)]">Loading...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
+          <p className="text-[var(--color-muted)] text-sm">Loading course...</p>
+        </div>
       </div>
     )
   }
@@ -224,25 +266,36 @@ function CourseSetup() {
 
                 {isTopicDropdownOpen && (
                   <div className="absolute z-10 w-full mt-2 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl max-h-60 overflow-y-auto">
-                    {topics.map((topic) => (
-                      <button
-                        key={topic}
-                        type="button"
-                        onClick={() => handleTopicToggle(topic)}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-[var(--color-surface-raised)] transition-colors"
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                          knownTopics.includes(topic)
-                            ? 'border-[var(--color-success)] bg-[var(--color-success)]'
-                            : 'border-[var(--color-border)]'
-                        }`}>
-                          {knownTopics.includes(topic) && (
-                            <Check className="w-3 h-3 text-white" />
-                          )}
-                        </div>
-                        <span className="text-sm text-[var(--color-foreground)]">{topic}</span>
-                      </button>
-                    ))}
+                    {topicsLoading ? (
+                      <div className="px-4 py-3 text-sm text-[var(--color-muted)] flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-[var(--color-muted)]/30 border-t-[var(--color-muted)] rounded-full animate-spin" />
+                        Loading topics...
+                      </div>
+                    ) : topics.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-[var(--color-muted)]">
+                        {topicsError || 'No topics available'}
+                      </div>
+                    ) : (
+                      topics.map((topic) => (
+                        <button
+                          key={topic}
+                          type="button"
+                          onClick={() => handleTopicToggle(topic)}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-[var(--color-surface-raised)] transition-colors"
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                            knownTopics.includes(topic)
+                              ? 'border-[var(--color-success)] bg-[var(--color-success)]'
+                              : 'border-[var(--color-border)]'
+                          }`}>
+                            {knownTopics.includes(topic) && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <span className="text-sm text-[var(--color-foreground)]">{topic}</span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
