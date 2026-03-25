@@ -115,7 +115,7 @@ class CoursePreference(Base):
     goal_date = Column(Date, nullable=True)
     hrs_per_week = Column(Integer, nullable=True)
     top_id = Column(Integer, ForeignKey("topics_to_be_shown.top_id"), nullable=True)
-    # known_topics = Column(JSON, nullable=True)
+    known_topics = Column(JSONB, nullable=True)  # Store known topics for backend filtering
 
     # Relationships
     user = relationship("User", back_populates="preferences")

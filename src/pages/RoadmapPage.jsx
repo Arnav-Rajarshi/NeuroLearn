@@ -24,9 +24,6 @@ function RoadmapPage() {
   // Parse cid from URL - must be a number
   const cid = parseInt(courseIdParam, 10)
   
-  // Get known topics from navigation state
-  const knownTopics = location.state?.knownTopics || []
-  
   const [course, setCourse] = useState(null)
   const [roadmapData, setRoadmapData] = useState(null)
   const [settings, setSettings] = useState(null)
@@ -149,10 +146,9 @@ function RoadmapPage() {
     }
   }
 
-  // Filter out known topics from the roadmap
-  const filteredTopics = roadmapData?.topics?.filter(
-    topic => !knownTopics.includes(topic.name)
-  ) || []
+  // Backend now handles filtering known topics, so topics_to_be_shown already
+  // excludes known topics. Display all topics from the roadmap as-is.
+  const filteredTopics = roadmapData?.topics || []
 
   // Calculate total subtopics from filtered topics only
   const totalSubtopics = filteredTopics.reduce((total, topic) => {

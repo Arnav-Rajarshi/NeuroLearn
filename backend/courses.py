@@ -17,6 +17,7 @@ class CoursePreferenceCreate(BaseModel):
     lm: str  # 'PNL' or 'PRACTICE'
     goal_date: Optional[date] = None
     hrs_per_week: Optional[int] = None
+    known_topics: Optional[List[str]] = None  # Known topics selected by user
 
 
 class CoursePreferenceResponse(BaseModel):
@@ -26,6 +27,7 @@ class CoursePreferenceResponse(BaseModel):
     lm: Optional[str]
     goal_date: Optional[date]
     hrs_per_week: Optional[int]
+    known_topics: Optional[List[str]] = None  # Known topics selected by user
 
     class Config:
         from_attributes = True
@@ -116,6 +118,7 @@ def save_course_preferences(
         pref.lm = pref_data.lm
         pref.goal_date = pref_data.goal_date
         pref.hrs_per_week = pref_data.hrs_per_week
+        pref.known_topics = pref_data.known_topics
         pref.top_id = top_id
 
     else:
@@ -127,6 +130,7 @@ def save_course_preferences(
             lm=pref_data.lm,
             goal_date=pref_data.goal_date,
             hrs_per_week=pref_data.hrs_per_week,
+            known_topics=pref_data.known_topics,
             top_id=top_id
         )
         db.add(pref)
