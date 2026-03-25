@@ -83,14 +83,28 @@ class TopicsToBeShown(Base):
 
 
 class ProgressLevel(Base):
-    """progress_level table"""
+    """
+    progress_level table
+    
+    Stores user progress for each course as a JSONB dictionary.
+    
+    CRITICAL: progress_json should NEVER be NULL.
+    - Default is empty dict {}
+    - Old users with NULL values are handled at application level
+    - Always use merge logic when updating (never overwrite)
+    
+    Progress format: {"topic::subtopic": true, ...}
+    Only completed topics are stored with value True.
+    """
     __tablename__ = "progress_level"
 
     progress_id = Column(Integer, primary_key=True, index=True)
     uid = Column(Integer, ForeignKey("users.uid"), nullable=False)
     cid = Column(Integer, ForeignKey("courses.cid"), nullable=False)
     top_id = Column(Integer, ForeignKey("topics_to_be_shown.top_id"), nullable=True)
-    progress_json = Column(JSONB, nullable=True)
+    # FIX: Added default={} to prevent null values for new records
+    # Old users with null values are handled at application level
+    progress_json = Column(JSONB, nullable=True, default=dict)
     last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships

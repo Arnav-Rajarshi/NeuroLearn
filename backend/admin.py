@@ -1,14 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import func
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal
+import logging
 
 from database import get_db
-from models import User, Payment, Course, CourseEnrolled, ProgressLevel
+from models import User, Payment, Course, CourseEnrolled, ProgressLevel, TopicsToBeShown
 from auth import get_current_admin
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -198,3 +203,159 @@ def get_course_stats(
         ))
     
     return result
+
+
+# ============ Database Migration Endpoints ============
+
+@router.post("/migrate/fix-null-progress")
+def fix_null_progress_json(
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    FIX: Migration endpoint to fix NULL progress_json for old users.
+    
+    This endpoint:
+    1. Finds all ProgressLevel records with NULL progress_json
+    2. Sets them to empty dict {}
+    3. Commits the changes
+    
+    CRITICAL: Run this ONCE after deploying the progress fixes.
+    """
+    logger.info(f"[ADMIN] Migration: fix-null-progress called by admin={current_admin.uid}")
+    
+    try:
+        # Find all records with NULL progress_json
+        null_progress_records = db.query(ProgressLevel).filter(
+            ProgressLevel.progress_json.is_(None)
+        ).all()
+        
+        count = len(null_progress_records)
+        logger.info(f"[ADMIN] Found {count} records with NULL progress_json")
+        
+        if count == 0:
+            return {
+                "success": True,
+                "message": "No records to fix. Database is already consistent.",
+                "fixed_count": 0
+            }
+        
+        # Fix each record
+        for progress in null_progress_records:
+            progress.progress_json = {}
+            flag_modified(progress, "progress_json")
+        
+        # Commit all changes
+        db.commit()
+        logger.info(f"[ADMIN] Successfully fixed {count} ProgressLevel records")
+        
+        return {
+            "success": True,
+            "message": f"Fixed {count} records with NULL progress_json",
+            "fixed_count": count
+        }
+        
+    except Exception as e:
+        logger.error(f"[ADMIN] Migration failed: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Migration failed: {str(e)}"
+        )
+
+
+@router.post("/migrate/fix-null-topics")
+def fix_null_topics_json(
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    FIX: Migration endpoint to fix NULL topics_json for old users.
+    
+    This endpoint:
+    1. Finds all TopicsToBeShown records with NULL topics_json
+    2. Sets them to a default structure
+    3. Commits the changes
+    """
+    logger.info(f"[ADMIN] Migration: fix-null-topics called by admin={current_admin.uid}")
+    
+    try:
+        # Find all records with NULL topics_json
+        null_topics_records = db.query(TopicsToBeShown).filter(
+            TopicsToBeShown.topics_json.is_(None)
+        ).all()
+        
+        count = len(null_topics_records)
+        logger.info(f"[ADMIN] Found {count} records with NULL topics_json")
+        
+        if count == 0:
+            return {
+                "success": True,
+                "message": "No records to fix. Database is already consistent.",
+                "fixed_count": 0
+            }
+        
+        # Fix each record
+        for topics in null_topics_records:
+            topics.topics_json = {
+                "remaining": [],
+                "current": None,
+                "current_index": None,
+                "total_remaining": 0,
+                "is_complete": False
+            }
+            flag_modified(topics, "topics_json")
+        
+        # Commit all changes
+        db.commit()
+        logger.info(f"[ADMIN] Successfully fixed {count} TopicsToBeShown records")
+        
+        return {
+            "success": True,
+            "message": f"Fixed {count} records with NULL topics_json",
+            "fixed_count": count
+        }
+        
+    except Exception as e:
+        logger.error(f"[ADMIN] Migration failed: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Migration failed: {str(e)}"
+        )
+
+
+@router.get("/health/database")
+def check_database_health(
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    Check database health and consistency.
+    
+    Returns:
+        - null_progress_count: Number of ProgressLevel records with NULL progress_json
+        - null_topics_count: Number of TopicsToBeShown records with NULL topics_json
+        - is_consistent: True if no NULL JSONB values found
+    """
+    logger.info(f"[ADMIN] Database health check called by admin={current_admin.uid}")
+    
+    # Check ProgressLevel
+    null_progress_count = db.query(ProgressLevel).filter(
+        ProgressLevel.progress_json.is_(None)
+    ).count()
+    
+    # Check TopicsToBeShown
+    null_topics_count = db.query(TopicsToBeShown).filter(
+        TopicsToBeShown.topics_json.is_(None)
+    ).count()
+    
+    is_consistent = null_progress_count == 0 and null_topics_count == 0
+    
+    return {
+        "success": True,
+        "null_progress_count": null_progress_count,
+        "null_topics_count": null_topics_count,
+        "is_consistent": is_consistent,
+        "message": "Database is consistent" if is_consistent else "Database has inconsistencies - run migrations"
+    }
