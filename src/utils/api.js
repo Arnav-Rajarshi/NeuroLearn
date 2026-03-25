@@ -240,6 +240,112 @@ export async function enrollInCourse(courseIdOrSlug) {
   })
 }
 
+// ============ COURSES API ============
+
+// Cache for backend courses data
+let _coursesCache = null
+let _coursesCachePromise = null
+
+/**
+ * Fetch all courses from the backend
+ * Returns courses with their real database cid values
+ */
+export async function fetchBackendCourses() {
+  // Return cached data if available
+  if (_coursesCache) {
+    return _coursesCache
+  }
+  
+  // If a fetch is already in progress, wait for it
+  if (_coursesCachePromise) {
+    return _coursesCachePromise
+  }
+  
+  // Start new fetch
+  _coursesCachePromise = (async () => {
+    try {
+      const courses = await fetchApi('/courses/')
+      _coursesCache = courses
+      console.log("[v0] Fetched backend courses:", courses)
+      return courses
+    } catch (error) {
+      console.error("[v0] Failed to fetch backend courses:", error)
+      _coursesCachePromise = null
+      throw error
+    }
+  })()
+  
+  return _coursesCachePromise
+}
+
+/**
+ * Get the real cid for a course slug or name from the backend
+ * @param {string} courseIdOrSlug - Course slug (e.g., "python") or name (e.g., "Python Programming")
+ * @returns {Promise<number|null>} - The database cid or null if not found
+ */
+export async function getBackendCid(courseIdOrSlug) {
+  if (!courseIdOrSlug) {
+    console.error("[v0] Invalid CID: courseIdOrSlug is empty or null")
+    return null
+  }
+  
+  // If it's already a number, validate it exists in backend
+  if (typeof courseIdOrSlug === 'number') {
+    const courses = await fetchBackendCourses()
+    const found = courses.find(c => c.cid === courseIdOrSlug)
+    if (found) {
+      console.log("[v0] Selected CID:", found.cid)
+      return found.cid
+    }
+    console.error("[v0] Invalid CID: numeric cid not found in backend:", courseIdOrSlug)
+    return null
+  }
+  
+  // If it's a numeric string, parse and validate
+  const numericValue = parseInt(courseIdOrSlug, 10)
+  if (!isNaN(numericValue)) {
+    const courses = await fetchBackendCourses()
+    const found = courses.find(c => c.cid === numericValue)
+    if (found) {
+      console.log("[v0] Selected CID:", found.cid)
+      return found.cid
+    }
+    console.error("[v0] Invalid CID: numeric string cid not found in backend:", courseIdOrSlug)
+    return null
+  }
+  
+  // Look up the slug in the backend courses
+  const courses = await fetchBackendCourses()
+  
+  // Try to find by slug pattern (lowercase, underscore-separated)
+  const slug = courseIdOrSlug.toLowerCase().replace(/\s+/g, '_')
+  
+  // Match by slug-like course name conversion
+  const found = courses.find(c => {
+    const courseSlug = c.course_name.toLowerCase().replace(/\s+/g, '_').replace(/&/g, '').replace(/-/g, '_')
+    return courseSlug === slug || 
+           c.course_name.toLowerCase() === courseIdOrSlug.toLowerCase() ||
+           courseSlug.includes(slug) ||
+           slug.includes(courseSlug.split('_')[0])
+  })
+  
+  if (found) {
+    console.log("[v0] Selected CID:", found.cid, "for course:", courseIdOrSlug)
+    return found.cid
+  }
+  
+  console.error("[v0] Invalid CID: course slug not found in backend:", courseIdOrSlug)
+  return null
+}
+
+/**
+ * Clear the courses cache (useful after login/logout)
+ */
+export function clearCoursesCache() {
+  _coursesCache = null
+  _coursesCachePromise = null
+}
+
 // ============ ROADMAP API ============
 // New roadmap pipeline: JSON is source of truth, DB stores only user progress
 
@@ -249,9 +355,13 @@ export async function enrollInCourse(courseIdOrSlug) {
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
 export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
-  const cid = getCid(courseIdOrSlug)
+  const cid = await getBackendCid(courseIdOrSlug)
+  if (!cid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap for:", courseIdOrSlug)
+    throw new Error(`Invalid course ID: ${courseIdOrSlug}`)
+  }
+  console.log("[v0] Fetching roadmap for CID:", cid)
   return await fetchApi(`/roadmap/${cid}?lm=${lm}`)
-  
 }
 
 /**
@@ -260,9 +370,22 @@ export async function getRoadmap(courseIdOrSlug, lm = 'PNL') {
  * @param {string} lm - Learning mode: 'PNL' or 'PRACTICE'
  */
 export async function getRoadmapProgress(courseIdOrSlug, lm = 'PNL') {
-  const cid = getCid(courseIdOrSlug)
+  const cid = await getBackendCid(courseIdOrSlug)
+  if (!cid) {
+    console.error("[v0] Invalid CID - cannot fetch roadmap progress for:", courseIdOrSlug)
+    return {
+      cid: null,
+      total_topics: 0,
+      completed_topics: 0,
+      completion_percentage: 0,
+      progress: {},
+      topics_to_be_shown: [],
+      current_topic: null
+    }
+  }
+  console.log("[v0] Fetching roadmap progress for CID:", cid)
   try {
-      return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
+    return await fetchApi(`/roadmap/${cid}/progress?lm=${lm}`)
   } catch (error) {
     return {
       cid,
