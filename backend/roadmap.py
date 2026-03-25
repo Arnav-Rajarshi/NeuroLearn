@@ -322,6 +322,7 @@ def get_user_progress(
     1. Handles null progress_json for old users
     2. Optionally creates a progress record if missing (and commits immediately)
     3. Logs FETCHING PROGRESS with user_id and course_id
+    4. STRICT CID LOGGING: Logs the exact cid value being queried
     
     Args:
         db: Database session
@@ -332,8 +333,15 @@ def get_user_progress(
     Returns:
         Dict mapping topic_key -> True (only completed topics are stored)
     """
+    # CRITICAL FIX: Validate cid is an integer to prevent type mismatches
+    if not isinstance(cid, int):
+        logger.error(f"[PROGRESS] CRITICAL: cid is not an integer! type={type(cid)}, value={cid}")
+        cid = int(cid)  # Force conversion
+    
     logger.debug_entering_function("get_user_progress", uid=uid, cid=cid)
-    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid}")
+    # CRITICAL: Log EXACT values being used for DB query
+    logger.info(f"[PROGRESS] FETCHING PROGRESS user_id={uid} course_id={cid} (type={type(cid).__name__})")
+    logger.info(f"[PROGRESS] DB QUERY: ProgressLevel.uid=={uid} AND ProgressLevel.cid=={cid}")
     
     progress = db.query(ProgressLevel).filter(
         ProgressLevel.uid == uid,
@@ -357,7 +365,11 @@ def get_user_progress(
             db.add(progress)
             db.commit()  # CRITICAL: Commit immediately to persist
             db.refresh(progress)
+            # CRITICAL: Verify the saved record has correct cid
             logger.info(f"[PROGRESS] SAVED PROGRESS user_id={uid} course_id={cid} progress_id={progress.progress_id}")
+            logger.info(f"[PROGRESS] Verified saved: progress.cid={progress.cid}, progress.uid={progress.uid}")
+            if progress.cid != cid:
+                logger.error(f"[PROGRESS] CRITICAL BUG: Saved progress.cid={progress.cid} does NOT match requested cid={cid}!")
             return {}
         
         return {}
@@ -379,7 +391,13 @@ def get_user_progress(
         logger.info(f"[PROGRESS] Fixed NULL progress_json for user={uid}, course={cid}")
         return {}
     
+    # CRITICAL: Verify the found progress record matches the requested cid
+    if progress.cid != cid:
+        logger.error(f"[PROGRESS] CRITICAL BUG: Found progress.cid={progress.cid} does NOT match requested cid={cid}!")
+        logger.error(f"[PROGRESS] This indicates a database query or data corruption issue!")
+    
     logger.info(f"[PROGRESS] Found progress with {len(progress.progress_json)} entries for user={uid}, course={cid}")
+    logger.info(f"[PROGRESS] Verified: progress.cid={progress.cid}, progress.uid={progress.uid}, progress_id={progress.progress_id}")
     logger.debug_data_source(source="DB", data_type="progress", user_id=uid, is_null=False)
     return dict(progress.progress_json)
 
@@ -457,11 +475,18 @@ def update_user_progress(
     Returns:
         Updated progress dictionary (complete snapshot)
     """
+    # CRITICAL FIX: Validate cid is an integer to prevent type mismatches
+    if not isinstance(cid, int):
+        logger.error(f"[PROGRESS] CRITICAL: cid is not an integer in update_user_progress! type={type(cid)}, value={cid}")
+        cid = int(cid)  # Force conversion
+    
     logger.debug_entering_function(
         "update_user_progress",
         uid=uid, cid=cid, topic_key=topic_key, completed=completed
     )
-    logger.info(f"[PROGRESS] update_user_progress called: user={uid}, course={cid}, topic={topic_key}, completed={completed}")
+    # CRITICAL: Log EXACT values being used
+    logger.info(f"[PROGRESS] update_user_progress called: user={uid}, course={cid} (type={type(cid).__name__}), topic={topic_key}, completed={completed}")
+    logger.info(f"[PROGRESS] DB QUERY FOR UPDATE: ProgressLevel.uid=={uid} AND ProgressLevel.cid=={cid}")
     
     # STEP 1: Get or create progress record with FOR UPDATE lock pattern
     progress = db.query(ProgressLevel).filter(
@@ -479,7 +504,15 @@ def update_user_progress(
         )
         db.add(progress)
         db.flush()
-        logger.info(f"[PROGRESS] Created progress_id={progress.progress_id}")
+        logger.info(f"[PROGRESS] Created progress_id={progress.progress_id}, progress.cid={progress.cid}")
+        # CRITICAL: Verify the created record has correct cid
+        if progress.cid != cid:
+            logger.error(f"[PROGRESS] CRITICAL BUG: Created progress.cid={progress.cid} does NOT match requested cid={cid}!")
+    else:
+        # CRITICAL: Verify the found record matches requested cid
+        if progress.cid != cid:
+            logger.error(f"[PROGRESS] CRITICAL BUG: Found progress.cid={progress.cid} does NOT match requested cid={cid}!")
+        logger.info(f"[PROGRESS] Found existing progress_id={progress.progress_id}, progress.cid={progress.cid}")
     
     # STEP 2: FIX - Load existing progress (NEVER overwrite entirely)
     # Handle null progress_json for old users safely
@@ -935,11 +968,20 @@ def update_roadmap_progress(
         "progress": {...}  // This is the updated_progress
     }
     """
+    # CRITICAL FIX: Extract cid and validate type immediately
     cid = update_data.cid
     topic_key = update_data.topic_key
     completed = update_data.completed
     
+    # CRITICAL: Validate cid type to prevent ID mismatch bugs
+    if not isinstance(cid, int):
+        logger.error(f"[ROADMAP] CRITICAL: cid from request is not int! type={type(cid)}, value={cid}")
+        cid = int(cid)
+    
     # ============ DEBUG LOGGING: PROGRESS UPDATE START ============
+    # CRITICAL: Log the EXACT cid value at API entry point
+    logger.info(f"[ROADMAP] ========== PROGRESS UPDATE START ==========")
+    logger.info(f"[ROADMAP] API ENTRY: cid={cid} (type={type(cid).__name__}), uid={current_user.uid}")
     logger.debug_entering_function(
         "update_roadmap_progress",
         user_id=current_user.uid,
@@ -1062,6 +1104,16 @@ def update_roadmap_progress(
         )
         logger.info(f"[ROADMAP] Progress update committed to DB successfully")
         
+        # CRITICAL: Verify the commit by re-fetching and logging
+        verification_progress = db.query(ProgressLevel).filter(
+            ProgressLevel.uid == current_user.uid,
+            ProgressLevel.cid == cid
+        ).first()
+        if verification_progress:
+            logger.info(f"[ROADMAP] VERIFIED COMMIT: progress_id={verification_progress.progress_id}, cid={verification_progress.cid}, entries={len(verification_progress.progress_json or {})}")
+        else:
+            logger.error(f"[ROADMAP] CRITICAL: Progress NOT FOUND after commit for user={current_user.uid}, cid={cid}!")
+        
     except HTTPException:
         # Re-raise HTTP exceptions as-is
         raise
@@ -1088,6 +1140,10 @@ def update_roadmap_progress(
     # DEBUG: Log response data for frontend debugging
     logger.debug(f"[ROADMAP] Returning response: total_topics={total_topics}, completed={completed_count}")
     logger.debug(f"[ROADMAP] Progress keys count: {len(updated_progress)}, sample: {list(updated_progress.keys())[:3]}")
+    
+    # CRITICAL: Log summary with all key values for debugging
+    logger.info(f"[ROADMAP] ========== PROGRESS UPDATE END ==========")
+    logger.info(f"[ROADMAP] SUMMARY: uid={current_user.uid}, cid={cid}, topic={topic_key}, completed={completed_count}/{total_topics}")
     
     return RoadmapProgressResponse(
         success=True,
