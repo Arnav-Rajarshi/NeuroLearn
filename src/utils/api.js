@@ -1,7 +1,7 @@
 // API utility for communicating with FastAPI backend
 // CID validation is handled by validateCid() - frontend must ONLY use backend-provided cid values
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://neurolearn-wi5m.onrender.com/'
+const API_BASE_URL = 'https://neurolearn-wi5m.onrender.com/'
 
 // Cache for backend courses data (declared early for use in logout)
 let _coursesCache = null
