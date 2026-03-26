@@ -27,11 +27,9 @@ app.add_middleware(
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-    "https://neurolearn.vercel.app",
-    "*"  # Allow all origins in development
+    "https://neurolearn.vercel.app"
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
