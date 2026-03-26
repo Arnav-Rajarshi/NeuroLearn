@@ -3,7 +3,7 @@
  * Communicates with the backend AI Learning endpoints.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://neurolearn-wi5m.onrender.com/'
 
 // Helper function to get auth headers
 function getAuthHeaders() {
