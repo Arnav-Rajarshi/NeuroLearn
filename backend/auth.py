@@ -57,7 +57,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str):
-    password = hashlib.sha256(password.encode()).hexdigest()
     return pwd_context.hash(password)
 
 
