@@ -10,6 +10,9 @@ from courses import router as courses_router
 from roadmap import router as roadmap_router
 from routes.ai_learning import router as ai_learning_router
 
+import os
+import uvicorn
+
 # Initialize FastAPI app
 app = FastAPI(
     title="NeuroLearn API",
@@ -19,7 +22,9 @@ app = FastAPI(
 
 # CORS configuration
 origins = [
-    "https://neurolearn-wi5m.onrender.com"
+    "https://neurolearn-production.up.railway.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(
@@ -70,8 +75,3 @@ def health_check():
 def startup():
     init_db()
     print("NeuroLearn API started successfully")
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
