@@ -23,6 +23,7 @@ app = FastAPI(
 # CORS configuration
 origins = [
     "https://neurolearn-production.up.railway.app",
+    "https://neurolearn-wi5m.onrender.com",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
