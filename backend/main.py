@@ -74,7 +74,7 @@ def health_check():
 # Initialize database on startup
 @app.on_event("startup")
 def startup():
-    init_db()
+    #init_db()
     print("NeuroLearn API started successfully")
 
 
