@@ -8,3 +8,4 @@ python-jose[cryptography]
 pydantic
 groq
 psycopg2-binary
+pydantic[email]
