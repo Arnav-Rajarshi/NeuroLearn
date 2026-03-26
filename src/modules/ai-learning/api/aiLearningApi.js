@@ -3,7 +3,7 @@
  * Communicates with the backend AI Learning endpoints.
  */
 
-const API_BASE_URL ='https://neurolearn-production.up.railway.app'
+const API_BASE_URL ='https://neurolearn-wi5m.onrender.com'
 
 // Helper function to get auth headers
 function getAuthHeaders() {
