@@ -19,10 +19,7 @@ app = FastAPI(
 
 # CORS configuration
 origins = [
-
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://neurolearn-wi5m.onrender.com"  
+    "https://neurolearn-wi5m.onrender.com"
 ]
 
 app.add_middleware(
