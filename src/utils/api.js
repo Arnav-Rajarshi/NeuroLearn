@@ -148,7 +148,9 @@ export function isAuthenticated() {
 // ============ PREMIUM/PAYMENTS API ============
 
 export async function createRazorpayOrder() {
-  return await fetchApi('/payments/create-order')
+  return await fetchApi('/payments/create-order', {
+    method: 'POST'   // ✅ ADD THIS
+  })
 }
 
 export async function verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature) {
