@@ -374,3 +374,5 @@ function RoadmapPage() {
     </div>
   )
 }
+
+export default RoadmapPage
