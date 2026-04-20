@@ -5,10 +5,12 @@ import CourseCard from '../components/CourseCard.jsx'
 import { getAllCourses } from '../utils/loadCourseData.js'
 import { getRoadmapProgress, getCoursePreferences, createRazorpayOrder, verifyPayment } from '../utils/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTransition } from '../transition/TransitionContext.jsx'
 
 function CourseSelection() {
   const navigate = useNavigate()
   const { user, premium, logout, updatePremiumStatus, authError } = useAuth()
+  const { triggerTransition } = useTransition()
   
   const [courses, setCourses] = useState([])
   const [progress, setProgress] = useState({})
@@ -195,7 +197,7 @@ function CourseSelection() {
               
               {/* Performance Dashboard Link */}
               <button
-                onClick={() => navigate('/roadmap-engine/dashboard')}
+                onClick={() => triggerTransition(() => navigate('/roadmap-engine/dashboard'))}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)] hover:bg-[var(--color-border)] transition-colors"
               >
                 <BarChart3 className="w-4 h-4 text-[var(--color-accent)]" />
