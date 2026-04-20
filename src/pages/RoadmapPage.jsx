@@ -84,6 +84,7 @@ function NeuralNetworkLoader({ isComplete }) {
   )
 }
 
+
 // ─── Typewriter ───────────────────────────────────────────────────────────────
 function TypewriterText() {
   const phrases = [
