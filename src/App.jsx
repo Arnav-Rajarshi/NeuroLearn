@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import TransitionLayer from './transition/TransitionLayer.jsx'
 
 // Auth Pages
 import LoginPage from './pages/LoginPage.jsx'
@@ -22,6 +23,7 @@ import AILearningPage from './modules/ai-learning/AILearningPage.jsx'
 function App() {
   return (
     <AuthProvider>
+      <TransitionLayer />
       <div className="min-h-screen bg-[var(--color-background)]">
         <Routes>
           {/* Public Routes */}

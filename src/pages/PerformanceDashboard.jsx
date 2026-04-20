@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import StudyStreak from '../../Performance_Dashboard/src/components/StudyStreak'
 import ProgressOverview from '../../Performance_Dashboard/src/components/ProgressOverview'
 import GoalPrediction from '../../Performance_Dashboard/src/components/GoalPrediction'
@@ -7,6 +8,7 @@ import { mockData } from '../../Performance_Dashboard/src/data/mockData'
 import { ArrowLeft, BarChart3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getAllCourses } from '../utils/loadCourseData.js'
+import { useTransition } from '../transition/TransitionContext.jsx'
 import { getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
 
 /**
@@ -15,6 +17,7 @@ import { getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
  */
 export default function PerformanceDashboard() {
   const navigate = useNavigate()
+  const { signalDataReady } = useTransition()
   const [realData, setRealData] = useState(null)
   const [dataLoading, setDataLoading] = useState(true)
   
@@ -45,6 +48,7 @@ export default function PerformanceDashboard() {
         console.error('Failed to load dashboard data', err)
       } finally {
         setDataLoading(false)
+        signalDataReady()
       }
     }
     fetchRealData()
@@ -60,7 +64,12 @@ export default function PerformanceDashboard() {
   const courses = realData?.courses || []
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] p-4 sm:p-6 lg:p-8">
+    <motion.div
+      className="min-h-screen bg-[var(--color-background)] p-4 sm:p-6 lg:p-8"
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+    >
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with navigation */}
         <header className="animate-fade-in-up">
@@ -118,6 +127,7 @@ export default function PerformanceDashboard() {
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
-}
+} 
+
