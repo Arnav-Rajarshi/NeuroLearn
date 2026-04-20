@@ -16,7 +16,7 @@ import { getAverageDailyStudyTime } from '../utils/metrics'
  * @param {Array} props.studyHistory - Array of { day, hours } objects
  * @param {number} props.todaysHours - Today's study time in hours
  */
-export default function VelocityChart({ studyHistory = [], todaysHours = 0 }) {
+export default function VelocityChart({ studyHistory , todaysHours  }) {
   const avgDailyHours = getAverageDailyStudyTime(studyHistory)
 
   // Custom tooltip component

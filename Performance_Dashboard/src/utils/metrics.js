@@ -35,7 +35,7 @@ export function getLearningSpeed(completedTopics, totalStudyTimeHours) {
  * @returns {number} Average hours per day
  */
 export function getAverageDailyStudyTime(studyHistory) {
-  if (!studyHistory || studyHistory.length === 0) return 0
+  if (!studyHistory || studyHistory.length === 0) return null
   const totalHours = studyHistory.reduce((sum, day) => sum + day.hours, 0)
   return totalHours / studyHistory.length
 }
@@ -166,6 +166,7 @@ export function formatDate(dateStr) {
  * @returns {string} Motivational message
  */
 export function getStreakMessage(streakDays) {
+  if (streakDays == null) return "Loading..."
   if (streakDays === 0) return "Start your learning journey today!"
   if (streakDays < 3) return "Great start! Keep the momentum going."
   if (streakDays < 7) return "You're building consistency. Keep going."

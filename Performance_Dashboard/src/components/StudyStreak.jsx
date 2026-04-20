@@ -7,7 +7,7 @@ import { getStreakMessage } from '../utils/metrics'
  * @param {number} props.currentStreak - Current streak in days
  * @param {number} props.longestStreak - Longest streak achieved
  */
-export default function StudyStreak({ currentStreak = 0, longestStreak = 0 }) {
+export default function StudyStreak({ currentStreak, longestStreak }) {
   const message = getStreakMessage(currentStreak)
   const isOnFire = currentStreak >= 7
 
