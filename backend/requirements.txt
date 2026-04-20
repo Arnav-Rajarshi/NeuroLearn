@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+sqlalchemy
+passlib[bcrypt]
+python-dotenv
+razorpay
+python-jose[cryptography]
+pydantic
+groq
+psycopg2-binary
+pydantic[email]
+bcrypt==4.0.1
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary  
+python-dotenv

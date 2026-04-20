@@ -1,0 +1,164 @@
+{
+  "courseName": "Cloud Computing",
+  "totalTopics": 6,
+  "estimatedHours": 200,
+  "topics": [
+    {
+      "name": "Cloud Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Cloud",
+          "learningResources": [
+            {"type": "youtube", "title": "AWS Cloud Practitioner - freeCodeCamp", "url": "https://www.youtube.com/watch?v=SOTamWNgDKc"},
+            {"type": "youtube", "title": "Cloud Computing Explained", "url": "https://www.youtube.com/watch?v=M988_fsOSWo"}
+          ],
+          "practice": [
+            {"title": "Cloud Concepts Quiz", "platform": "AWS", "url": "https://aws.amazon.com/training/digital/aws-cloud-practitioner-essentials/"}
+          ]
+        },
+        {
+          "name": "Cloud Service Models",
+          "learningResources": [
+            {"type": "youtube", "title": "IaaS vs PaaS vs SaaS", "url": "https://www.youtube.com/watch?v=36zducUX16w"}
+          ],
+          "practice": [
+            {"title": "Service Models Lab", "platform": "AWS", "url": "https://aws.amazon.com/training/digital/aws-cloud-practitioner-essentials/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AWS Services",
+      "subtopics": [
+        {
+          "name": "EC2 and Computing",
+          "learningResources": [
+            {"type": "youtube", "title": "EC2 Complete Tutorial", "url": "https://www.youtube.com/watch?v=Nw6n1oT8d0Q"}
+          ],
+          "practice": [
+            {"title": "EC2 Lab", "platform": "AWS", "url": "https://aws.amazon.com/ec2/getting-started/"}
+          ]
+        },
+        {
+          "name": "S3 Storage",
+          "learningResources": [
+            {"type": "youtube", "title": "S3 Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=mDRoyPFJvlU"}
+          ],
+          "practice": [
+            {"title": "S3 Lab", "platform": "AWS", "url": "https://aws.amazon.com/s3/getting-started/"}
+          ]
+        },
+        {
+          "name": "Lambda and Serverless",
+          "learningResources": [
+            {"type": "youtube", "title": "AWS Lambda - freeCodeCamp", "url": "https://www.youtube.com/watch?v=eOBq__h4OJ4"}
+          ],
+          "practice": [
+            {"title": "Lambda Functions", "platform": "AWS", "url": "https://aws.amazon.com/lambda/getting-started/"}
+          ]
+        },
+        {
+          "name": "RDS Databases",
+          "learningResources": [
+            {"type": "youtube", "title": "RDS Tutorial", "url": "https://www.youtube.com/watch?v=GvMzOoSoDA4"}
+          ],
+          "practice": [
+            {"title": "RDS Lab", "platform": "AWS", "url": "https://aws.amazon.com/rds/getting-started/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Networking",
+      "subtopics": [
+        {
+          "name": "VPC and Subnets",
+          "learningResources": [
+            {"type": "youtube", "title": "VPC Explained - ByteByteGo", "url": "https://www.youtube.com/watch?v=g2JOHLHh4rI"}
+          ],
+          "practice": [
+            {"title": "VPC Lab", "platform": "AWS", "url": "https://aws.amazon.com/vpc/getting-started/"}
+          ]
+        },
+        {
+          "name": "Load Balancing",
+          "learningResources": [
+            {"type": "youtube", "title": "ELB Tutorial", "url": "https://www.youtube.com/watch?v=qpHLRc4Qt1E"}
+          ],
+          "practice": [
+            {"title": "Load Balancer Lab", "platform": "AWS", "url": "https://aws.amazon.com/elasticloadbalancing/getting-started/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security",
+      "subtopics": [
+        {
+          "name": "IAM",
+          "learningResources": [
+            {"type": "youtube", "title": "IAM Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=y8cbKJAo3B4"}
+          ],
+          "practice": [
+            {"title": "IAM Lab", "platform": "AWS", "url": "https://aws.amazon.com/iam/getting-started/"}
+          ]
+        },
+        {
+          "name": "Security Groups",
+          "learningResources": [
+            {"type": "youtube", "title": "Security Groups Explained", "url": "https://www.youtube.com/watch?v=Duy7w4z3RDc"}
+          ],
+          "practice": [
+            {"title": "Security Lab", "platform": "AWS", "url": "https://aws.amazon.com/security/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure as Code",
+      "subtopics": [
+        {
+          "name": "Terraform",
+          "learningResources": [
+            {"type": "youtube", "title": "Terraform Course - freeCodeCamp", "url": "https://www.youtube.com/watch?v=SLB_c_ayRMo"}
+          ],
+          "practice": [
+            {"title": "Terraform Lab", "platform": "Terraform", "url": "https://developer.hashicorp.com/terraform/tutorials"}
+          ]
+        },
+        {
+          "name": "CloudFormation",
+          "learningResources": [
+            {"type": "youtube", "title": "CloudFormation Tutorial", "url": "https://www.youtube.com/watch?v=t97jZch4lMY"}
+          ],
+          "practice": [
+            {"title": "CloudFormation Lab", "platform": "AWS", "url": "https://aws.amazon.com/cloudformation/getting-started/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monitoring",
+      "subtopics": [
+        {
+          "name": "CloudWatch",
+          "learningResources": [
+            {"type": "youtube", "title": "CloudWatch Tutorial", "url": "https://www.youtube.com/watch?v=k7wuIrHU4UY"}
+          ],
+          "practice": [
+            {"title": "Monitoring Lab", "platform": "AWS", "url": "https://aws.amazon.com/cloudwatch/getting-started/"}
+          ]
+        },
+        {
+          "name": "Logging and Tracing",
+          "learningResources": [
+            {"type": "youtube", "title": "AWS X-Ray", "url": "https://www.youtube.com/watch?v=5lIdNrrO_o8"}
+          ],
+          "practice": [
+            {"title": "Logging Lab", "platform": "AWS", "url": "https://aws.amazon.com/xray/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

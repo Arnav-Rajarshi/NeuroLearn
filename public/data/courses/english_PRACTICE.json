@@ -1,0 +1,180 @@
+{
+"courseName":"English Practice",
+"estimatedQuestions":160,
+"totalTopics":8,
+
+"topics":[
+
+{
+"name":"Grammar",
+"subtopics":[
+
+{
+"name":"Parts of Speech",
+"questions":[
+{"title":"Identify Nouns in Sentences","difficulty":"Easy","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Identify Verbs","difficulty":"Easy","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Adjective vs Adverb Exercise","difficulty":"Easy","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Pronoun Replacement Exercise","difficulty":"Easy","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Parts of Speech Quiz","difficulty":"Medium","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Sentence Classification","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Complex Sentence Analysis","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Identify Errors in Paragraph","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+},
+
+{
+"name":"Articles and Determiners",
+"questions":[
+{"title":"Fill in A / An / The","difficulty":"Easy","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Article Usage Quiz","difficulty":"Easy","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Determiner Matching Exercise","difficulty":"Medium","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Correct Article Errors","difficulty":"Medium","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Rewrite Sentence with Correct Article","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Paragraph Editing Exercise","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+
+]
+},
+
+{
+"name":"Verb Tenses",
+"subtopics":[
+
+{
+"name":"Present Tense",
+"questions":[
+{"title":"Present Simple Exercise","difficulty":"Easy","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Present Continuous Quiz","difficulty":"Easy","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Present Perfect Practice","difficulty":"Medium","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Correct Verb Form","difficulty":"Medium","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Mixed Present Tense Drill","difficulty":"Medium","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Rewrite Paragraph in Present Tense","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+},
+
+{
+"name":"Past and Future Tenses",
+"questions":[
+{"title":"Past Simple Quiz","difficulty":"Easy","platform":"PerfectEnglishGrammar","url":"https://www.perfect-english-grammar.com"},
+{"title":"Past Continuous Exercise","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Past Perfect Exercise","difficulty":"Medium","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Future Tense Fill in the Blanks","difficulty":"Easy","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Mixed Tense Paragraph Editing","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Verb Transformation Exercise","difficulty":"Medium","platform":"KhanAcademy","url":"https://www.khanacademy.org"}
+]
+}
+
+]
+},
+
+{
+"name":"Vocabulary",
+"subtopics":[
+
+{
+"name":"Synonyms and Antonyms",
+"questions":[
+{"title":"Synonym Matching Quiz","difficulty":"Easy","platform":"Vocabulary.com","url":"https://www.vocabulary.com"},
+{"title":"Antonym Identification","difficulty":"Easy","platform":"Vocabulary.com","url":"https://www.vocabulary.com"},
+{"title":"Word Replacement Exercise","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Context Vocabulary Quiz","difficulty":"Medium","platform":"KhanAcademy","url":"https://www.khanacademy.org"},
+{"title":"Advanced Vocabulary Drill","difficulty":"Hard","platform":"Vocabulary.com","url":"https://www.vocabulary.com"},
+{"title":"Academic Vocabulary Test","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+},
+
+{
+"name":"Phrasal Verbs",
+"questions":[
+{"title":"Phrasal Verb Matching","difficulty":"Easy","platform":"EnglishPage","url":"https://www.englishpage.com"},
+{"title":"Choose Correct Phrasal Verb","difficulty":"Easy","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Sentence Completion","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Rewrite Sentence Using Phrasal Verb","difficulty":"Medium","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Paragraph Using Phrasal Verbs","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Conversation Using Phrasal Verbs","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+
+]
+},
+
+{
+"name":"Reading Comprehension",
+"subtopics":[
+
+{
+"name":"Short Passages",
+"questions":[
+{"title":"Reading Passage Quiz 1","difficulty":"Easy","platform":"ReadTheory","url":"https://www.readtheory.org"},
+{"title":"Reading Passage Quiz 2","difficulty":"Easy","platform":"ReadTheory","url":"https://www.readtheory.org"},
+{"title":"Reading Passage Quiz 3","difficulty":"Medium","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Reading Passage Quiz 4","difficulty":"Medium","platform":"BreakingNewsEnglish","url":"https://breakingnewsenglish.com"},
+{"title":"Reading Passage Quiz 5","difficulty":"Hard","platform":"BreakingNewsEnglish","url":"https://breakingnewsenglish.com"},
+{"title":"Critical Reading Passage","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+
+]
+},
+
+{
+"name":"Listening",
+"subtopics":[
+
+{
+"name":"Listening Comprehension",
+"questions":[
+{"title":"BBC Listening Quiz 1","difficulty":"Easy","platform":"BBC","url":"https://www.bbc.co.uk/learningenglish"},
+{"title":"BBC Listening Quiz 2","difficulty":"Easy","platform":"BBC","url":"https://www.bbc.co.uk/learningenglish"},
+{"title":"ELLLO Listening Exercise","difficulty":"Medium","platform":"ELLLO","url":"https://elllo.org"},
+{"title":"Conversation Listening Quiz","difficulty":"Medium","platform":"ELLLO","url":"https://elllo.org"},
+{"title":"Lecture Listening Exercise","difficulty":"Hard","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Note-taking Listening Test","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+
+]
+},
+
+{
+"name":"Writing",
+"subtopics":[
+
+{
+"name":"Sentence and Paragraph Writing",
+"questions":[
+{"title":"Correct Sentence Errors","difficulty":"Easy","platform":"BritishCouncil","url":"https://learnenglish.britishcouncil.org"},
+{"title":"Sentence Rewriting","difficulty":"Medium","platform":"EnglishGrammar","url":"https://www.englishgrammar.org"},
+{"title":"Paragraph Writing Exercise","difficulty":"Medium","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Essay Outline Task","difficulty":"Medium","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Essay Writing Task","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"},
+{"title":"Academic Writing Exercise","difficulty":"Hard","platform":"SelfPractice","url":"https://owl.purdue.edu"}
+]
+}
+
+]
+},
+
+{
+"name":"Speaking",
+"subtopics":[
+
+{
+"name":"Pronunciation and Fluency",
+"questions":[
+{"title":"Pronunciation Drill","difficulty":"Easy","platform":"YouGlish","url":"https://youglish.com"},
+{"title":"Shadowing Exercise","difficulty":"Medium","platform":"YouGlish","url":"https://youglish.com"},
+{"title":"Record 1-minute speech","difficulty":"Medium","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Conversation Practice","difficulty":"Medium","platform":"Tandem","url":"https://www.tandem.net"},
+{"title":"Debate Practice","difficulty":"Hard","platform":"SelfPractice","url":"https://youglish.com"},
+{"title":"Presentation Exercise","difficulty":"Hard","platform":"SelfPractice","url":"https://youglish.com"}
+]
+}
+
+]
+}
+
+]
+}

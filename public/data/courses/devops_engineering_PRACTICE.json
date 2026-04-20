@@ -1,0 +1,62 @@
+{
+  "courseName": "DevOps Engineering",
+  "courseId": "devops_engineering",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "CI/CD Pipelines",
+      "subtopics": [
+        {
+          "name": "Continuous Integration",
+          "practice": [
+            {"title": "CI Fundamentals", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/what-is-ci-cd/"},
+            {"title": "GitHub Actions", "platform": "GitHub", "difficulty": "Medium", "url": "https://docs.github.com/en/actions/learn-github-actions"},
+            {"title": "Jenkins Pipeline", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.jenkins.io/doc/book/pipeline/getting-started/"}
+          ]
+        },
+        {
+          "name": "Continuous Deployment",
+          "practice": [
+            {"title": "CD Strategies", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/continuous-delivery-vs-continuous-deployment/"},
+            {"title": "Blue-Green Deployment", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.redhat.com/en/topics/devops/what-is-blue-green-deployment"},
+            {"title": "Canary Releases", "platform": "Self Study", "difficulty": "Hard", "url": "https://martinfowler.com/bliki/CanaryRelease.html"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Containerization",
+      "subtopics": [
+        {
+          "name": "Docker",
+          "practice": [
+            {"title": "Docker Basics", "platform": "Docker", "difficulty": "Easy", "url": "https://docs.docker.com/get-started/"},
+            {"title": "Dockerfile Writing", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/docker-concept-of-dockerfile/"},
+            {"title": "Multi-stage Builds", "platform": "Docker", "difficulty": "Hard", "url": "https://docs.docker.com/build/building/multi-stage/"}
+          ]
+        },
+        {
+          "name": "Kubernetes",
+          "practice": [
+            {"title": "K8s Basics", "platform": "Kubernetes", "difficulty": "Medium", "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"},
+            {"title": "Pods and Services", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/kubernetes-pods/"},
+            {"title": "Helm Charts", "platform": "Self Study", "difficulty": "Hard", "url": "https://helm.sh/docs/intro/quickstart/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure as Code",
+      "subtopics": [
+        {
+          "name": "Terraform",
+          "practice": [
+            {"title": "Terraform Basics", "platform": "HashiCorp", "difficulty": "Easy", "url": "https://developer.hashicorp.com/terraform/tutorials/aws-get-started"},
+            {"title": "State Management", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/terraform-state-file/"},
+            {"title": "Terraform Modules", "platform": "HashiCorp", "difficulty": "Hard", "url": "https://developer.hashicorp.com/terraform/language/modules"}
+          ]
+        }
+      ]
+    }
+  ]
+}

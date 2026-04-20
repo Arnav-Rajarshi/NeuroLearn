@@ -1,0 +1,54 @@
+{
+  "courseName": "Backend Engineering",
+  "courseId": "backend_engineering",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "API Development",
+      "subtopics": [
+        {
+          "name": "RESTful APIs",
+          "practice": [
+            {"title": "Design REST API", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/rest-api-introduction/"},
+            {"title": "CRUD Operations", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/skills-verification/rest_api_intermediate"},
+            {"title": "API Versioning", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/versioning-in-rest-api/"}
+          ]
+        },
+        {
+          "name": "GraphQL",
+          "practice": [
+            {"title": "GraphQL Basics", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.howtographql.com/basics/0-introduction/"},
+            {"title": "Queries and Mutations", "platform": "Self Study", "difficulty": "Medium", "url": "https://graphql.org/learn/queries/"},
+            {"title": "GraphQL Schema Design", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.apollographql.com/docs/apollo-server/schema/schema/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "subtopics": [
+        {
+          "name": "JWT and OAuth",
+          "practice": [
+            {"title": "JWT Implementation", "platform": "Self Study", "difficulty": "Medium", "url": "https://jwt.io/introduction"},
+            {"title": "OAuth2 Flow", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/workflow-of-oauth-2-0/"},
+            {"title": "Session Management", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/session-management-in-node-js/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Message Queues",
+      "subtopics": [
+        {
+          "name": "Queue Systems",
+          "practice": [
+            {"title": "Implement Queue", "platform": "LeetCode", "difficulty": "Easy", "url": "https://leetcode.com/problems/implement-queue-using-stacks/"},
+            {"title": "Priority Queue", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/kth-largest-element-in-a-stream/"},
+            {"title": "Message Broker Design", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/message-queues-system-design/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

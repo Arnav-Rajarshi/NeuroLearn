@@ -1,0 +1,62 @@
+{
+  "courseName": "React Advanced",
+  "courseId": "react_advanced",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Advanced Hooks",
+      "subtopics": [
+        {
+          "name": "useReducer and useContext",
+          "practice": [
+            {"title": "useReducer Basics", "platform": "CodeSandbox", "difficulty": "Easy", "url": "https://react.dev/reference/react/useReducer"},
+            {"title": "Context API", "platform": "CodeSandbox", "difficulty": "Medium", "url": "https://react.dev/learn/passing-data-deeply-with-context"},
+            {"title": "Complex State Management", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/reactjs-usereducer-hook/"}
+          ]
+        },
+        {
+          "name": "Custom Hooks",
+          "practice": [
+            {"title": "Create useLocalStorage", "platform": "CodeSandbox", "difficulty": "Easy", "url": "https://usehooks.com/useLocalStorage"},
+            {"title": "useFetch Hook", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/create-a-custom-usefetch-hook-in-react/"},
+            {"title": "useDebounce Hook", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/debounce/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance Optimization",
+      "subtopics": [
+        {
+          "name": "Memoization",
+          "practice": [
+            {"title": "useMemo Practice", "platform": "CodeSandbox", "difficulty": "Easy", "url": "https://react.dev/reference/react/useMemo"},
+            {"title": "useCallback Usage", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/react-js-usecallback-hook/"},
+            {"title": "React.memo", "platform": "Self Study", "difficulty": "Medium", "url": "https://react.dev/reference/react/memo"}
+          ]
+        },
+        {
+          "name": "Code Splitting",
+          "practice": [
+            {"title": "Lazy Loading", "platform": "Self Study", "difficulty": "Medium", "url": "https://react.dev/reference/react/lazy"},
+            {"title": "Route-based Splitting", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/code-splitting-in-react/"},
+            {"title": "Dynamic Imports", "platform": "Self Study", "difficulty": "Hard", "url": "https://webpack.js.org/guides/code-splitting/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "State Management",
+      "subtopics": [
+        {
+          "name": "Redux Toolkit",
+          "practice": [
+            {"title": "Redux Basics", "platform": "Self Study", "difficulty": "Medium", "url": "https://redux-toolkit.js.org/tutorials/quick-start"},
+            {"title": "Async Thunks", "platform": "Self Study", "difficulty": "Medium", "url": "https://redux-toolkit.js.org/api/createAsyncThunk"},
+            {"title": "RTK Query", "platform": "Self Study", "difficulty": "Hard", "url": "https://redux-toolkit.js.org/rtk-query/overview"}
+          ]
+        }
+      ]
+    }
+  ]
+}

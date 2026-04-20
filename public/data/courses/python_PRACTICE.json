@@ -1,0 +1,156 @@
+{
+"courseName":"Python Practice",
+"estimatedQuestions":150,
+"totalTopics":10,
+
+"topics":[
+
+{
+"name":"Python Basics",
+"subtopics":[
+
+{
+"name":"Variables and Output",
+"questions":[
+
+{"title":"Solve Me First","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/solve-me-first/problem"},
+{"title":"Python If-Else","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/py-if-else/problem"},
+{"title":"Arithmetic Operators","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-arithmetic-operators/problem"},
+{"title":"Division","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-division/problem"},
+{"title":"Loops","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-loops/problem"},
+{"title":"Print Function","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-print/problem"}
+
+]
+},
+
+{
+"name":"Input Handling",
+"questions":[
+
+{"title":"Simple Array Sum","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/simple-array-sum/problem"},
+{"title":"Compare the Triplets","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/compare-the-triplets/problem"},
+{"title":"Diagonal Difference","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/diagonal-difference/problem"},
+{"title":"Plus Minus","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/plus-minus/problem"},
+{"title":"Staircase","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/staircase/problem"},
+{"title":"Mini Max Sum","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/mini-max-sum/problem"}
+
+]
+}
+
+]
+},
+
+{
+"name":"Lists and Tuples",
+"subtopics":[
+
+{
+"name":"List Operations",
+"questions":[
+
+{"title":"Python Lists","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-lists/problem"},
+{"title":"Find the Runner-Up Score","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/find-second-maximum-number-in-a-list/problem"},
+{"title":"Nested Lists","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/nested-list/problem"},
+{"title":"List Comprehensions","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/list-comprehensions/problem"},
+{"title":"Tuples","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-tuples/problem"},
+{"title":"Mutations","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-mutations/problem"}
+
+]
+},
+
+{
+"name":"Advanced List Problems",
+"questions":[
+
+{"title":"Top K Frequent Elements","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/top-k-frequent-elements/"},
+{"title":"Group Anagrams","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/group-anagrams/"},
+{"title":"Product of Array Except Self","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/product-of-array-except-self/"},
+{"title":"Longest Consecutive Sequence","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/longest-consecutive-sequence/"},
+{"title":"Rotate Array","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/rotate-array/"},
+{"title":"Move Zeroes","platform":"LeetCode","difficulty":"Easy","url":"https://leetcode.com/problems/move-zeroes/"}
+
+]
+}
+
+]
+},
+
+{
+"name":"Strings",
+"subtopics":[
+
+{
+"name":"Basic String Manipulation",
+"questions":[
+
+{"title":"String Split and Join","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-string-split-and-join/problem"},
+{"title":"String Formatting","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/python-string-formatting/problem"},
+{"title":"Capitalize","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/capitalize/problem"},
+{"title":"Find a String","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/find-a-string/problem"},
+{"title":"String Validators","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/string-validators/problem"},
+{"title":"Swap Case","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/swap-case/problem"}
+
+]
+},
+
+{
+"name":"Advanced String Problems",
+"questions":[
+
+{"title":"Longest Substring Without Repeating Characters","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/longest-substring-without-repeating-characters/"},
+{"title":"Valid Anagram","platform":"LeetCode","difficulty":"Easy","url":"https://leetcode.com/problems/valid-anagram/"},
+{"title":"Group Anagrams","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/group-anagrams/"},
+{"title":"Minimum Window Substring","platform":"LeetCode","difficulty":"Hard","url":"https://leetcode.com/problems/minimum-window-substring/"},
+{"title":"Longest Palindromic Substring","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/longest-palindromic-substring/"},
+{"title":"Encode and Decode Strings","platform":"LeetCode","difficulty":"Medium","url":"https://leetcode.com/problems/encode-and-decode-strings/"}
+
+]
+}
+
+]
+},
+
+{
+"name":"Functions",
+"subtopics":[
+
+{
+"name":"Functional Programming",
+"questions":[
+
+{"title":"Map and Lambda Expression","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/map-and-lambda-expression/problem"},
+{"title":"Reduce Function","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/reduce-function/problem"},
+{"title":"Decorators","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/decorators-2-name-directory/problem"},
+{"title":"Closure","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/closures/problem"},
+{"title":"Default Arguments","platform":"HackerRank","difficulty":"Easy","url":"https://www.hackerrank.com/challenges/default-arguments/problem"},
+{"title":"Validating Email Addresses","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/validate-list-of-email-address-with-filter/problem"}
+
+]
+}
+
+]
+},
+
+{
+"name":"Object Oriented Programming",
+"subtopics":[
+
+{
+"name":"Classes and Objects",
+"questions":[
+
+{"title":"Class 2 Find the Torsional Angle","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/class-2-find-the-torsional-angle/problem"},
+{"title":"Inheritance","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/inheritance/problem"},
+{"title":"Polymorphism","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/polymorphism/problem"},
+{"title":"Operator Overloading","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/operator-overloading/problem"},
+{"title":"Abstract Classes","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/abstract-classes/problem"},
+{"title":"Method Resolution Order","platform":"HackerRank","difficulty":"Medium","url":"https://www.hackerrank.com/challenges/mro/problem"}
+
+]
+}
+
+]
+}
+
+]
+}
