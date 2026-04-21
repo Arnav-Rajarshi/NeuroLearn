@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+
+  /* Dark Academic Palette — from NeuroLearn template */
+  --color-background: oklch(0.15 0.02 260);
+  --color-surface: oklch(0.20 0.02 260);
+  --color-surface-raised: oklch(0.24 0.025 260);
+  --color-border: oklch(0.30 0.02 260);
+
+  --color-primary: oklch(0.65 0.2 260);
+  --color-accent: oklch(0.65 0.18 160);
+
+  --color-foreground: oklch(0.95 0.01 250);
+  --color-muted: oklch(0.60 0.02 260);
+
+  --color-success: oklch(0.60 0.2 145);
+  --color-warning: oklch(0.70 0.15 50);
+  --color-danger: oklch(0.637 0.237 25.331);
+
+  /* Radius */
+  --radius-card: 1rem;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    line-height: 1.2;
+  }
+}
+
+/* Keyframes */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 18px 0px oklch(0.65 0.2 260 / 0.25),
+                0 0 40px 0px oklch(0.65 0.18 160 / 0.1);
+  }
+  50% {
+    box-shadow: 0 0 32px 6px oklch(0.65 0.2 260 / 0.45),
+                0 0 60px 10px oklch(0.65 0.18 160 / 0.2);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Utilities */
+@utility glow-streak {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.55s ease-out both;
+}
+
+/* Component classes */
+@layer components {
+  .dashboard-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px oklch(0.65 0.2 260 / 0.2);
+  }
+
+  .card-heading {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-foreground);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-surface-raised);
+    border-radius: 0.75rem;
+    padding: 0.4rem 0.85rem;
+  }
+
+  .progress-bar-track {
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--color-surface-raised);
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    transform-origin: left;
+    animation: bar-grow 0.8s ease-out both;
+  }
+}

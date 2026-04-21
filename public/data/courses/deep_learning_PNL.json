@@ -1,0 +1,165 @@
+{
+  "courseName": "Deep Learning",
+  "totalTopics": 6,
+  "estimatedHours": 220,
+  "topics": [
+    {
+      "name": "Neural Network Fundamentals",
+      "subtopics": [
+        {
+          "name": "Introduction to Neural Networks",
+          "learningResources": [
+            {"type": "youtube", "title": "But what is a Neural Network - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=aircAruvnKk"},
+            {"type": "youtube", "title": "Neural Networks Explained - StatQuest", "url": "https://www.youtube.com/watch?v=CqOfi41LfDw"}
+          ],
+          "practice": [
+            {"title": "Intro to Deep Learning", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "Gradient Descent and Backpropagation",
+          "learningResources": [
+            {"type": "youtube", "title": "Gradient Descent - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=IHZwWFHWa-w"},
+            {"type": "youtube", "title": "Backpropagation - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=Ilg3gGewQ5U"}
+          ],
+          "practice": [
+            {"title": "Neural Network from Scratch", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "Activation Functions",
+          "learningResources": [
+            {"type": "youtube", "title": "Activation Functions - deeplizard", "url": "https://www.youtube.com/watch?v=m0pIlLfpXWE"}
+          ],
+          "practice": [
+            {"title": "Activation Functions Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Convolutional Neural Networks",
+      "subtopics": [
+        {
+          "name": "CNN Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "CNN Explained - deeplizard", "url": "https://www.youtube.com/watch?v=YRhxdVk_sIs"}
+          ],
+          "practice": [
+            {"title": "Digit Recognizer", "platform": "Kaggle", "url": "https://www.kaggle.com/c/digit-recognizer"}
+          ]
+        },
+        {
+          "name": "Image Classification",
+          "learningResources": [
+            {"type": "youtube", "title": "Image Classification - Sentdex", "url": "https://www.youtube.com/watch?v=wQ8BIBpya2k"}
+          ],
+          "practice": [
+            {"title": "Dogs vs Cats", "platform": "Kaggle", "url": "https://www.kaggle.com/c/dogs-vs-cats"}
+          ]
+        },
+        {
+          "name": "Transfer Learning",
+          "learningResources": [
+            {"type": "youtube", "title": "Transfer Learning - deeplizard", "url": "https://www.youtube.com/watch?v=BqqfQnyjmgg"}
+          ],
+          "practice": [
+            {"title": "Transfer Learning Tutorial", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/computer-vision"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Recurrent Neural Networks",
+      "subtopics": [
+        {
+          "name": "RNN Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "RNN Explained - StatQuest", "url": "https://www.youtube.com/watch?v=AsNTP8Kwu80"}
+          ],
+          "practice": [
+            {"title": "Sequence Prediction", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "LSTM and GRU",
+          "learningResources": [
+            {"type": "youtube", "title": "LSTM Explained - StatQuest", "url": "https://www.youtube.com/watch?v=YCzL96nL7j0"}
+          ],
+          "practice": [
+            {"title": "Text Generation", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transformers and Attention",
+      "subtopics": [
+        {
+          "name": "Attention Mechanism",
+          "learningResources": [
+            {"type": "youtube", "title": "Attention Mechanism - StatQuest", "url": "https://www.youtube.com/watch?v=PSs6nxngL6k"}
+          ],
+          "practice": [
+            {"title": "NLP with Transformers", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "Transformer Architecture",
+          "learningResources": [
+            {"type": "youtube", "title": "Transformers - 3Blue1Brown", "url": "https://www.youtube.com/watch?v=wjZofJX0v4M"}
+          ],
+          "practice": [
+            {"title": "Transformer Tutorial", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Generative Models",
+      "subtopics": [
+        {
+          "name": "Autoencoders",
+          "learningResources": [
+            {"type": "youtube", "title": "Autoencoders - Arxiv Insights", "url": "https://www.youtube.com/watch?v=9zKuYvjFFS8"}
+          ],
+          "practice": [
+            {"title": "Autoencoder Project", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "GANs",
+          "learningResources": [
+            {"type": "youtube", "title": "GANs - Computerphile", "url": "https://www.youtube.com/watch?v=Sw9r8CL98N0"}
+          ],
+          "practice": [
+            {"title": "GAN Tutorial", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deep Learning Frameworks",
+      "subtopics": [
+        {
+          "name": "PyTorch Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "PyTorch Tutorial - freeCodeCamp", "url": "https://www.youtube.com/watch?v=V_xro1bcAuA"}
+          ],
+          "practice": [
+            {"title": "PyTorch Lab", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        },
+        {
+          "name": "TensorFlow and Keras",
+          "learningResources": [
+            {"type": "youtube", "title": "TensorFlow 2.0 - freeCodeCamp", "url": "https://www.youtube.com/watch?v=tPYj3fFJGjk"}
+          ],
+          "practice": [
+            {"title": "Keras Tutorial", "platform": "Kaggle", "url": "https://www.kaggle.com/learn/intro-to-deep-learning"}
+          ]
+        }
+      ]
+    }
+  ]
+}

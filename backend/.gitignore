@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Environment
+.env
+
+# Database
+*.db
+
+# Build folders
+dist/
+build/
+
+# Your merged folder
+merged/

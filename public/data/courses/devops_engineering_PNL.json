@@ -1,0 +1,173 @@
+{
+  "courseName": "DevOps Engineering",
+  "totalTopics": 6,
+  "estimatedHours": 180,
+  "topics": [
+    {
+      "name": "DevOps Fundamentals",
+      "subtopics": [
+        {
+          "name": "What is DevOps",
+          "learningResources": [
+            {"type": "youtube", "title": "DevOps Explained - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=0yWAtQ6wYNM"},
+            {"type": "youtube", "title": "DevOps Roadmap - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=9pZ2xmsSDdo"}
+          ],
+          "practice": [
+            {"title": "DevOps Quiz", "platform": "Self Study", "url": "https://www.javatpoint.com/devops-mcq"}
+          ]
+        },
+        {
+          "name": "Linux Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Linux for Beginners - freeCodeCamp", "url": "https://www.youtube.com/watch?v=sWbUDq4S6Y8"}
+          ],
+          "practice": [
+            {"title": "Linux Practice", "platform": "HackerRank", "url": "https://www.hackerrank.com/domains/shell"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Version Control",
+      "subtopics": [
+        {
+          "name": "Git Fundamentals",
+          "learningResources": [
+            {"type": "youtube", "title": "Git and GitHub - freeCodeCamp", "url": "https://www.youtube.com/watch?v=RGOj5yH7evk"}
+          ],
+          "practice": [
+            {"title": "Git Practice", "platform": "GitHub", "url": "https://learngitbranching.js.org/"}
+          ]
+        },
+        {
+          "name": "Git Branching Strategies",
+          "learningResources": [
+            {"type": "youtube", "title": "Git Flow - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=1SXpE08hvGs"}
+          ],
+          "practice": [
+            {"title": "Branching Lab", "platform": "GitHub", "url": "https://learngitbranching.js.org/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Containerization",
+      "subtopics": [
+        {
+          "name": "Docker Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Docker Tutorial - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=3c-iBn73dDE"}
+          ],
+          "practice": [
+            {"title": "Docker Labs", "platform": "Docker", "url": "https://www.docker.com/play-with-docker/"}
+          ]
+        },
+        {
+          "name": "Docker Compose",
+          "learningResources": [
+            {"type": "youtube", "title": "Docker Compose - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=MVIcrmeV_6c"}
+          ],
+          "practice": [
+            {"title": "Compose Lab", "platform": "Docker", "url": "https://www.docker.com/play-with-docker/"}
+          ]
+        },
+        {
+          "name": "Container Security",
+          "learningResources": [
+            {"type": "youtube", "title": "Container Security - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=RqQ1UOrkjMs"}
+          ],
+          "practice": [
+            {"title": "Security Lab", "platform": "Docker", "url": "https://www.docker.com/play-with-docker/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Kubernetes",
+      "subtopics": [
+        {
+          "name": "Kubernetes Basics",
+          "learningResources": [
+            {"type": "youtube", "title": "Kubernetes Tutorial - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=X48VuDVv0do"}
+          ],
+          "practice": [
+            {"title": "K8s Lab", "platform": "Kubernetes", "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"}
+          ]
+        },
+        {
+          "name": "Kubernetes Deployments",
+          "learningResources": [
+            {"type": "youtube", "title": "K8s Deployments - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=EQNO_kM96Mo"}
+          ],
+          "practice": [
+            {"title": "Deployment Lab", "platform": "Kubernetes", "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"}
+          ]
+        },
+        {
+          "name": "Helm Charts",
+          "learningResources": [
+            {"type": "youtube", "title": "Helm Tutorial - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=-ykwb1d0DXU"}
+          ],
+          "practice": [
+            {"title": "Helm Lab", "platform": "Helm", "url": "https://helm.sh/docs/intro/quickstart/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CI/CD",
+      "subtopics": [
+        {
+          "name": "CI/CD Concepts",
+          "learningResources": [
+            {"type": "youtube", "title": "CI/CD Pipeline - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=scEDHsr3APg"}
+          ],
+          "practice": [
+            {"title": "Pipeline Lab", "platform": "GitHub Actions", "url": "https://docs.github.com/en/actions/quickstart"}
+          ]
+        },
+        {
+          "name": "GitHub Actions",
+          "learningResources": [
+            {"type": "youtube", "title": "GitHub Actions - freeCodeCamp", "url": "https://www.youtube.com/watch?v=R8_veQiYBjI"}
+          ],
+          "practice": [
+            {"title": "Actions Lab", "platform": "GitHub Actions", "url": "https://docs.github.com/en/actions/quickstart"}
+          ]
+        },
+        {
+          "name": "GitLab CI/CD",
+          "learningResources": [
+            {"type": "youtube", "title": "GitLab CI/CD - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=qP8kir2GUgo"}
+          ],
+          "practice": [
+            {"title": "GitLab Lab", "platform": "GitLab", "url": "https://docs.gitlab.com/ee/ci/quick_start/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monitoring and Logging",
+      "subtopics": [
+        {
+          "name": "Prometheus and Grafana",
+          "learningResources": [
+            {"type": "youtube", "title": "Prometheus - TechWorld with Nana", "url": "https://www.youtube.com/watch?v=h4Sl21AKiDg"}
+          ],
+          "practice": [
+            {"title": "Monitoring Lab", "platform": "Prometheus", "url": "https://prometheus.io/docs/introduction/first_steps/"}
+          ]
+        },
+        {
+          "name": "ELK Stack",
+          "learningResources": [
+            {"type": "youtube", "title": "ELK Stack Tutorial", "url": "https://www.youtube.com/watch?v=4X0WLg05ASw"}
+          ],
+          "practice": [
+            {"title": "ELK Lab", "platform": "Elastic", "url": "https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html"}
+          ]
+        }
+      ]
+    }
+  ]
+}

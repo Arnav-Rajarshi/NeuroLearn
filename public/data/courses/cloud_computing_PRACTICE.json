@@ -1,0 +1,62 @@
+{
+  "courseName": "Cloud Computing",
+  "courseId": "cloud_computing",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Cloud Fundamentals",
+      "subtopics": [
+        {
+          "name": "IaaS, PaaS, SaaS",
+          "practice": [
+            {"title": "Cloud Models Quiz", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/cloud-computing-services/"},
+            {"title": "Service Comparison", "platform": "Self Study", "difficulty": "Easy", "url": "https://aws.amazon.com/types-of-cloud-computing/"},
+            {"title": "Cloud Architecture", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.ibm.com/topics/cloud-computing"}
+          ]
+        },
+        {
+          "name": "Virtualization",
+          "practice": [
+            {"title": "VM Concepts", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/virtualization-cloud-computing-types/"},
+            {"title": "Containers vs VMs", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.ibm.com/topics/containers-vs-vms"},
+            {"title": "Hypervisors", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.vmware.com/topics/glossary/content/hypervisor.html"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AWS Services",
+      "subtopics": [
+        {
+          "name": "Compute Services",
+          "practice": [
+            {"title": "EC2 Basics", "platform": "AWS", "difficulty": "Easy", "url": "https://aws.amazon.com/ec2/getting-started/"},
+            {"title": "Lambda Functions", "platform": "AWS", "difficulty": "Medium", "url": "https://aws.amazon.com/lambda/getting-started/"},
+            {"title": "ECS Containers", "platform": "AWS", "difficulty": "Hard", "url": "https://aws.amazon.com/ecs/getting-started/"}
+          ]
+        },
+        {
+          "name": "Storage Services",
+          "practice": [
+            {"title": "S3 Buckets", "platform": "AWS", "difficulty": "Easy", "url": "https://aws.amazon.com/s3/getting-started/"},
+            {"title": "EBS Volumes", "platform": "AWS", "difficulty": "Medium", "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volumes.html"},
+            {"title": "Storage Classes", "platform": "Self Study", "difficulty": "Medium", "url": "https://aws.amazon.com/s3/storage-classes/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Serverless Architecture",
+      "subtopics": [
+        {
+          "name": "Function as a Service",
+          "practice": [
+            {"title": "Serverless Basics", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/serverless-computing/"},
+            {"title": "API Gateway", "platform": "AWS", "difficulty": "Medium", "url": "https://aws.amazon.com/api-gateway/getting-started/"},
+            {"title": "Event-Driven Design", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.serverless.com/learn/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

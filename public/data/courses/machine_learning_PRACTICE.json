@@ -1,0 +1,62 @@
+{
+  "courseName": "Machine Learning",
+  "courseId": "machine_learning",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Supervised Learning",
+      "subtopics": [
+        {
+          "name": "Linear Regression",
+          "practice": [
+            {"title": "Simple Linear Regression", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/learn/intro-to-machine-learning"},
+            {"title": "Multiple Regression", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/challenges/predicting-house-prices/problem"},
+            {"title": "Polynomial Regression", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/faressayah/polynomial-regression-from-scratch"}
+          ]
+        },
+        {
+          "name": "Classification Algorithms",
+          "practice": [
+            {"title": "Logistic Regression", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/code/mnassrib/titanic-logistic-regression-with-python"},
+            {"title": "Decision Trees", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/challenges/stat-warmup/problem"},
+            {"title": "Random Forest Classifier", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/prashant111/random-forest-classifier-tutorial"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Unsupervised Learning",
+      "subtopics": [
+        {
+          "name": "Clustering",
+          "practice": [
+            {"title": "K-Means Implementation", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/k-closest-points-to-origin/"},
+            {"title": "Hierarchical Clustering", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/vipulgandhi/hierarchical-clustering-explanation"},
+            {"title": "DBSCAN Clustering", "platform": "Kaggle", "difficulty": "Hard", "url": "https://www.kaggle.com/code/fazilbtober/dbscan-clustering"}
+          ]
+        },
+        {
+          "name": "Dimensionality Reduction",
+          "practice": [
+            {"title": "PCA Implementation", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/ryanholbrook/principal-component-analysis"},
+            {"title": "t-SNE Visualization", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/colinmorris/visualizing-embeddings-with-t-sne"},
+            {"title": "Feature Selection", "platform": "Kaggle", "difficulty": "Hard", "url": "https://www.kaggle.com/code/prashant111/comprehensive-guide-on-feature-selection"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Model Evaluation",
+      "subtopics": [
+        {
+          "name": "Cross Validation",
+          "practice": [
+            {"title": "K-Fold CV", "platform": "Kaggle", "difficulty": "Easy", "url": "https://www.kaggle.com/code/alexisbcook/cross-validation"},
+            {"title": "Stratified K-Fold", "platform": "Kaggle", "difficulty": "Medium", "url": "https://www.kaggle.com/code/carlmcbrideellis/k-fold-cross-validation-for-the-titanic"},
+            {"title": "Leave One Out CV", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/cross-validation-machine-learning/"}
+          ]
+        }
+      ]
+    }
+  ]
+}

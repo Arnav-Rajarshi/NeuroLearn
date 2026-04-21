@@ -1,0 +1,62 @@
+{
+  "courseName": "System Design",
+  "courseId": "system_design",
+  "type": "practice",
+  "topics": [
+    {
+      "name": "Scalability Fundamentals",
+      "subtopics": [
+        {
+          "name": "Load Balancing",
+          "practice": [
+            {"title": "Design Load Balancer", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/discuss/interview-question/system-design/125751/design-a-load-balancer"},
+            {"title": "Round Robin Algorithm", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/load-balancing-algorithms/"},
+            {"title": "Consistent Hashing", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/problems/design-hashmap/"}
+          ]
+        },
+        {
+          "name": "Caching Strategies",
+          "practice": [
+            {"title": "LRU Cache", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/lru-cache/"},
+            {"title": "LFU Cache", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/problems/lfu-cache/"},
+            {"title": "Cache Invalidation", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/caching-system-design-concept-for-beginners/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Database Design",
+      "subtopics": [
+        {
+          "name": "SQL vs NoSQL",
+          "practice": [
+            {"title": "Database Selection Quiz", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/difference-between-sql-and-nosql/"},
+            {"title": "Schema Design", "platform": "HackerRank", "difficulty": "Medium", "url": "https://www.hackerrank.com/domains/sql"},
+            {"title": "Sharding Strategies", "platform": "Self Study", "difficulty": "Hard", "url": "https://www.geeksforgeeks.org/database-sharding-a-system-design-concept/"}
+          ]
+        },
+        {
+          "name": "Data Partitioning",
+          "practice": [
+            {"title": "Horizontal Partitioning", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.geeksforgeeks.org/data-partitioning-techniques/"},
+            {"title": "Vertical Partitioning", "platform": "Self Study", "difficulty": "Medium", "url": "https://www.javatpoint.com/vertical-partitioning"},
+            {"title": "Partition Design", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/discuss/interview-question/system-design/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "System Design Problems",
+      "subtopics": [
+        {
+          "name": "URL Shortener",
+          "practice": [
+            {"title": "TinyURL Design", "platform": "LeetCode", "difficulty": "Medium", "url": "https://leetcode.com/problems/encode-and-decode-tinyurl/"},
+            {"title": "Base62 Encoding", "platform": "Self Study", "difficulty": "Easy", "url": "https://www.geeksforgeeks.org/how-to-design-a-tiny-url-or-url-shortener/"},
+            {"title": "Distributed URL Service", "platform": "LeetCode", "difficulty": "Hard", "url": "https://leetcode.com/discuss/interview-question/system-design/124658/design-url-shortening-service-like-tinyurl"}
+          ]
+        }
+      ]
+    }
+  ]
+}

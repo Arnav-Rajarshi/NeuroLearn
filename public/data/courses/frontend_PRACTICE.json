@@ -1,0 +1,212 @@
+{
+"courseName":"Frontend Practice",
+"estimatedQuestions":170,
+"totalTopics":12,
+
+"topics":[
+
+{
+"name":"HTML Fundamentals",
+"subtopics":[
+
+{
+"name":"Basic Structure",
+"questions":[
+{"title":"Build simple HTML page","difficulty":"Easy","platform":"Project"},
+{"title":"Create personal portfolio HTML layout","difficulty":"Easy","platform":"Project"},
+{"title":"Recreate Wikipedia article structure","difficulty":"Medium","platform":"Project"},
+{"title":"Create semantic blog page","difficulty":"Medium","platform":"Project"},
+{"title":"Build documentation layout","difficulty":"Medium","platform":"Project"},
+{"title":"Build landing page structure","difficulty":"Medium","platform":"Project"},
+{"title":"Recreate news article layout","difficulty":"Hard","platform":"Project"},
+{"title":"Create multi-section marketing page","difficulty":"Hard","platform":"Project"}
+]
+},
+
+{
+"name":"Forms",
+"questions":[
+{"title":"Login form","difficulty":"Easy","platform":"Project"},
+{"title":"Signup form","difficulty":"Easy","platform":"Project"},
+{"title":"Contact form","difficulty":"Easy","platform":"Project"},
+{"title":"Survey form","difficulty":"Medium","platform":"Project"},
+{"title":"Registration form with validation","difficulty":"Medium","platform":"Project"},
+{"title":"Multi-step form","difficulty":"Hard","platform":"Project"},
+{"title":"Booking form UI","difficulty":"Medium","platform":"Project"},
+{"title":"Application form layout","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"CSS Fundamentals",
+"subtopics":[
+
+{
+"name":"Box Model and Styling",
+"questions":[
+{"title":"Style blog page","difficulty":"Easy","platform":"Project"},
+{"title":"Create card component","difficulty":"Easy","platform":"Project"},
+{"title":"Style navigation bar","difficulty":"Easy","platform":"Project"},
+{"title":"Pricing card UI","difficulty":"Medium","platform":"Project"},
+{"title":"Profile card UI","difficulty":"Medium","platform":"Project"},
+{"title":"Product card layout","difficulty":"Medium","platform":"Project"},
+{"title":"Complex landing section styling","difficulty":"Hard","platform":"Project"},
+{"title":"Modern dashboard UI","difficulty":"Hard","platform":"Project"}
+]
+},
+
+{
+"name":"Flexbox Layout",
+"questions":[
+{"title":"Centered card layout","difficulty":"Easy","platform":"Project"},
+{"title":"Flex navigation bar","difficulty":"Easy","platform":"Project"},
+{"title":"Responsive card grid","difficulty":"Medium","platform":"Project"},
+{"title":"Flexbox dashboard layout","difficulty":"Medium","platform":"Project"},
+{"title":"Pricing table using flex","difficulty":"Medium","platform":"Project"},
+{"title":"Image gallery flex layout","difficulty":"Medium","platform":"Project"},
+{"title":"Complex responsive layout","difficulty":"Hard","platform":"Project"},
+{"title":"Responsive sidebar layout","difficulty":"Hard","platform":"Project"}
+]
+},
+
+{
+"name":"CSS Grid",
+"questions":[
+{"title":"Grid photo gallery","difficulty":"Easy","platform":"Project"},
+{"title":"Grid blog layout","difficulty":"Medium","platform":"Project"},
+{"title":"Grid dashboard","difficulty":"Medium","platform":"Project"},
+{"title":"Magazine layout","difficulty":"Medium","platform":"Project"},
+{"title":"Portfolio grid layout","difficulty":"Medium","platform":"Project"},
+{"title":"News homepage grid","difficulty":"Hard","platform":"Project"},
+{"title":"Complex magazine UI","difficulty":"Hard","platform":"Project"},
+{"title":"Advanced responsive grid layout","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"Responsive Design",
+"subtopics":[
+
+{
+"name":"Media Queries",
+"questions":[
+{"title":"Responsive navbar","difficulty":"Easy","platform":"Project"},
+{"title":"Responsive blog layout","difficulty":"Easy","platform":"Project"},
+{"title":"Responsive landing page","difficulty":"Medium","platform":"Project"},
+{"title":"Responsive pricing page","difficulty":"Medium","platform":"Project"},
+{"title":"Responsive portfolio site","difficulty":"Medium","platform":"Project"},
+{"title":"Mobile first redesign","difficulty":"Hard","platform":"Project"},
+{"title":"Tablet optimized UI","difficulty":"Medium","platform":"Project"},
+{"title":"Complex responsive dashboard","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"JavaScript Basics",
+"subtopics":[
+
+{
+"name":"Variables and Logic",
+"questions":[
+{"title":"Temperature converter","difficulty":"Easy","platform":"Project"},
+{"title":"Simple calculator","difficulty":"Easy","platform":"Project"},
+{"title":"Random number generator","difficulty":"Easy","platform":"Project"},
+{"title":"Tip calculator","difficulty":"Easy","platform":"Project"},
+{"title":"Number guessing game","difficulty":"Medium","platform":"Project"},
+{"title":"Random quote generator","difficulty":"Medium","platform":"Project"},
+{"title":"Password generator","difficulty":"Medium","platform":"Project"},
+{"title":"Advanced calculator","difficulty":"Hard","platform":"Project"}
+]
+},
+
+{
+"name":"Arrays and Objects",
+"questions":[
+{"title":"Todo list data model","difficulty":"Easy","platform":"Project"},
+{"title":"Shopping cart logic","difficulty":"Medium","platform":"Project"},
+{"title":"Leaderboard sorting","difficulty":"Medium","platform":"Project"},
+{"title":"Movie filtering system","difficulty":"Medium","platform":"Project"},
+{"title":"User search filter","difficulty":"Medium","platform":"Project"},
+{"title":"Inventory management logic","difficulty":"Hard","platform":"Project"},
+{"title":"Event scheduling logic","difficulty":"Hard","platform":"Project"},
+{"title":"Advanced task manager","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"DOM Manipulation",
+"subtopics":[
+
+{
+"name":"DOM Basics",
+"questions":[
+{"title":"Todo app UI","difficulty":"Easy","platform":"Project"},
+{"title":"Modal popup","difficulty":"Easy","platform":"Project"},
+{"title":"Accordion component","difficulty":"Easy","platform":"Project"},
+{"title":"Tabs component","difficulty":"Medium","platform":"Project"},
+{"title":"Dropdown menu","difficulty":"Medium","platform":"Project"},
+{"title":"Image carousel","difficulty":"Medium","platform":"Project"},
+{"title":"Dynamic table generator","difficulty":"Hard","platform":"Project"},
+{"title":"Kanban board UI","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"APIs and Async JS",
+"subtopics":[
+
+{
+"name":"Fetch API",
+"questions":[
+{"title":"Weather app","difficulty":"Medium","platform":"Project"},
+{"title":"GitHub user finder","difficulty":"Medium","platform":"Project"},
+{"title":"Movie search app","difficulty":"Medium","platform":"Project"},
+{"title":"Crypto price tracker","difficulty":"Medium","platform":"Project"},
+{"title":"News reader app","difficulty":"Medium","platform":"Project"},
+{"title":"Country information app","difficulty":"Medium","platform":"Project"},
+{"title":"Stock dashboard","difficulty":"Hard","platform":"Project"},
+{"title":"Multi API dashboard","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+},
+
+{
+"name":"Capstone Projects",
+"subtopics":[
+
+{
+"name":"Full Applications",
+"questions":[
+{"title":"Portfolio website","difficulty":"Medium","platform":"Project"},
+{"title":"Expense tracker","difficulty":"Medium","platform":"Project"},
+{"title":"Notes application","difficulty":"Medium","platform":"Project"},
+{"title":"Blog platform UI","difficulty":"Medium","platform":"Project"},
+{"title":"Kanban productivity app","difficulty":"Hard","platform":"Project"},
+{"title":"E-commerce product page","difficulty":"Hard","platform":"Project"},
+{"title":"Full dashboard UI","difficulty":"Hard","platform":"Project"},
+{"title":"Mini social media UI","difficulty":"Hard","platform":"Project"}
+]
+}
+
+]
+}
+
+]
+}

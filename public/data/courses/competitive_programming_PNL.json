@@ -1,0 +1,194 @@
+{
+  "courseName": "Competitive Programming",
+  "totalTopics": 7,
+  "estimatedHours": 250,
+  "topics": [
+    {
+      "name": "Foundations",
+      "subtopics": [
+        {
+          "name": "Time Complexity Analysis",
+          "learningResources": [
+            {"type": "youtube", "title": "Big O Notation - freeCodeCamp", "url": "https://www.youtube.com/watch?v=Mo4vesaut8g"},
+            {"type": "youtube", "title": "Time Complexity - Abdul Bari", "url": "https://www.youtube.com/watch?v=9TlHvipP5yA"}
+          ],
+          "practice": [
+            {"title": "Add Two Numbers", "platform": "LeetCode", "url": "https://leetcode.com/problems/add-two-numbers/"},
+            {"title": "FLOW001", "platform": "CodeChef", "url": "https://www.codechef.com/problems/FLOW001"}
+          ]
+        },
+        {
+          "name": "Input/Output Optimization",
+          "learningResources": [
+            {"type": "youtube", "title": "Fast I/O - Errichto", "url": "https://www.youtube.com/watch?v=UKS3GDBXMHo"}
+          ],
+          "practice": [
+            {"title": "TEST", "platform": "CodeChef", "url": "https://www.codechef.com/problems/TEST"},
+            {"title": "INTEST", "platform": "SPOJ", "url": "https://www.spoj.com/problems/INTEST/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Advanced Data Structures",
+      "subtopics": [
+        {
+          "name": "Segment Trees",
+          "learningResources": [
+            {"type": "youtube", "title": "Segment Trees - Errichto", "url": "https://www.youtube.com/watch?v=Oq2E2yGadnU"}
+          ],
+          "practice": [
+            {"title": "Range Sum Query", "platform": "LeetCode", "url": "https://leetcode.com/problems/range-sum-query-mutable/"},
+            {"title": "GSS1", "platform": "SPOJ", "url": "https://www.spoj.com/problems/GSS1/"}
+          ]
+        },
+        {
+          "name": "Fenwick Trees",
+          "learningResources": [
+            {"type": "youtube", "title": "Binary Indexed Tree - Tushar Roy", "url": "https://www.youtube.com/watch?v=CWDQJGaN1gY"}
+          ],
+          "practice": [
+            {"title": "Count of Smaller Numbers", "platform": "LeetCode", "url": "https://leetcode.com/problems/count-of-smaller-numbers-after-self/"},
+            {"title": "INVCNT", "platform": "SPOJ", "url": "https://www.spoj.com/problems/INVCNT/"}
+          ]
+        },
+        {
+          "name": "Disjoint Set Union",
+          "learningResources": [
+            {"type": "youtube", "title": "Union Find - WilliamFiset", "url": "https://www.youtube.com/watch?v=ibjEGG7ylHk"}
+          ],
+          "practice": [
+            {"title": "Redundant Connection", "platform": "LeetCode", "url": "https://leetcode.com/problems/redundant-connection/"},
+            {"title": "FRNDCIRC", "platform": "SPOJ", "url": "https://www.spoj.com/problems/FRNDCIRC/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Graph Algorithms",
+      "subtopics": [
+        {
+          "name": "Shortest Paths",
+          "learningResources": [
+            {"type": "youtube", "title": "Dijkstra's Algorithm - WilliamFiset", "url": "https://www.youtube.com/watch?v=pSqmAO-m7Lk"}
+          ],
+          "practice": [
+            {"title": "Network Delay Time", "platform": "LeetCode", "url": "https://leetcode.com/problems/network-delay-time/"},
+            {"title": "SHPATH", "platform": "SPOJ", "url": "https://www.spoj.com/problems/SHPATH/"}
+          ]
+        },
+        {
+          "name": "Minimum Spanning Tree",
+          "learningResources": [
+            {"type": "youtube", "title": "Kruskal's Algorithm - Abdul Bari", "url": "https://www.youtube.com/watch?v=4ZlRH0eK-qQ"}
+          ],
+          "practice": [
+            {"title": "Min Cost to Connect", "platform": "LeetCode", "url": "https://leetcode.com/problems/min-cost-to-connect-all-points/"},
+            {"title": "MST", "platform": "SPOJ", "url": "https://www.spoj.com/problems/MST/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dynamic Programming",
+      "subtopics": [
+        {
+          "name": "Classic DP Problems",
+          "learningResources": [
+            {"type": "youtube", "title": "DP Patterns - Errichto", "url": "https://www.youtube.com/watch?v=YBSt1jYwVfU"}
+          ],
+          "practice": [
+            {"title": "Longest Common Subsequence", "platform": "LeetCode", "url": "https://leetcode.com/problems/longest-common-subsequence/"},
+            {"title": "Edit Distance", "platform": "LeetCode", "url": "https://leetcode.com/problems/edit-distance/"},
+            {"title": "Coin Change", "platform": "LeetCode", "url": "https://leetcode.com/problems/coin-change/"}
+          ]
+        },
+        {
+          "name": "Bitmask DP",
+          "learningResources": [
+            {"type": "youtube", "title": "Bitmask DP - Errichto", "url": "https://www.youtube.com/watch?v=rlTkd4yOQpE"}
+          ],
+          "practice": [
+            {"title": "Partition to K Equal Sum", "platform": "LeetCode", "url": "https://leetcode.com/problems/partition-to-k-equal-sum-subsets/"},
+            {"title": "Shortest Superstring", "platform": "LeetCode", "url": "https://leetcode.com/problems/find-the-shortest-superstring/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "String Algorithms",
+      "subtopics": [
+        {
+          "name": "KMP and Z-Algorithm",
+          "learningResources": [
+            {"type": "youtube", "title": "KMP Algorithm - Abdul Bari", "url": "https://www.youtube.com/watch?v=V5-7GzOfADQ"}
+          ],
+          "practice": [
+            {"title": "Implement strStr", "platform": "LeetCode", "url": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/"},
+            {"title": "NHAY", "platform": "SPOJ", "url": "https://www.spoj.com/problems/NHAY/"}
+          ]
+        },
+        {
+          "name": "Trie",
+          "learningResources": [
+            {"type": "youtube", "title": "Trie Data Structure - Tushar Roy", "url": "https://www.youtube.com/watch?v=AXjmTQ8LEoI"}
+          ],
+          "practice": [
+            {"title": "Implement Trie", "platform": "LeetCode", "url": "https://leetcode.com/problems/implement-trie-prefix-tree/"},
+            {"title": "Word Search II", "platform": "LeetCode", "url": "https://leetcode.com/problems/word-search-ii/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Number Theory",
+      "subtopics": [
+        {
+          "name": "Prime Numbers and Sieve",
+          "learningResources": [
+            {"type": "youtube", "title": "Sieve of Eratosthenes - Abdul Bari", "url": "https://www.youtube.com/watch?v=nDPo9hsDNvU"}
+          ],
+          "practice": [
+            {"title": "Count Primes", "platform": "LeetCode", "url": "https://leetcode.com/problems/count-primes/"},
+            {"title": "PRIME1", "platform": "SPOJ", "url": "https://www.spoj.com/problems/PRIME1/"}
+          ]
+        },
+        {
+          "name": "Modular Arithmetic",
+          "learningResources": [
+            {"type": "youtube", "title": "Modular Arithmetic - MIT", "url": "https://www.youtube.com/watch?v=wAyrtLAeWvI"}
+          ],
+          "practice": [
+            {"title": "Super Pow", "platform": "LeetCode", "url": "https://leetcode.com/problems/super-pow/"},
+            {"title": "LASTDIG", "platform": "SPOJ", "url": "https://www.spoj.com/problems/LASTDIG/"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Advanced Topics",
+      "subtopics": [
+        {
+          "name": "Binary Search Techniques",
+          "learningResources": [
+            {"type": "youtube", "title": "Binary Search Patterns - Errichto", "url": "https://www.youtube.com/watch?v=GU7DpgHINWQ"}
+          ],
+          "practice": [
+            {"title": "Median of Two Sorted Arrays", "platform": "LeetCode", "url": "https://leetcode.com/problems/median-of-two-sorted-arrays/"},
+            {"title": "Aggressive Cows", "platform": "SPOJ", "url": "https://www.spoj.com/problems/AGGRCOW/"}
+          ]
+        },
+        {
+          "name": "Two Pointers and Sliding Window",
+          "learningResources": [
+            {"type": "youtube", "title": "Two Pointers - NeetCode", "url": "https://www.youtube.com/watch?v=cQ1Oz4ckceM"}
+          ],
+          "practice": [
+            {"title": "3Sum", "platform": "LeetCode", "url": "https://leetcode.com/problems/3sum/"},
+            {"title": "Minimum Window Substring", "platform": "LeetCode", "url": "https://leetcode.com/problems/minimum-window-substring/"}
+          ]
+        }
+      ]
+    }
+  ]
+}
