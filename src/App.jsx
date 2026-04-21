@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import TransitionLayer from './transition/TransitionLayer.jsx'
+import LandingPage from './pages/LandingPage.jsx'
 
 // Auth Pages
 import LoginPage from './pages/LoginPage.jsx'
@@ -27,7 +28,7 @@ function App() {
       <div className="min-h-screen bg-[var(--color-background)]">
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/admin-login" element={<AdminLoginPage />} />
