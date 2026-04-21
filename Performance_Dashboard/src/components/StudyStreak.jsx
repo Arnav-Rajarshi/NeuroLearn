@@ -8,9 +8,8 @@ import { getStreakMessage } from '../utils/metrics'
  * @param {number} props.longestStreak - Longest streak achieved
  */
 export default function StudyStreak({ currentStreak = 0, longestStreak = 0 }) {
-  const message = getStreakMessage(currentStreak)
-  const isOnFire = currentStreak >= 7
-
+  const message = getStreakMessage(currentStreak || 0)
+  const isOnFire = (currentStreak || 0) >= 7
   return (
     <div className="dashboard-card relative overflow-hidden glow-streak">
       {/* Background glow effect */}

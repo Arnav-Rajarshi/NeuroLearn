@@ -17,8 +17,16 @@ import { getAverageDailyStudyTime } from '../utils/metrics'
  * @param {number} props.todaysHours - Today's study time in hours
  */
 export default function VelocityChart({ studyHistory = [], todaysHours = 0 }) {
-  const avgDailyHours = getAverageDailyStudyTime(studyHistory)
+  const safeHistory = Array.isArray(studyHistory) ? studyHistory : []
 
+  const avgDailyHours = getAverageDailyStudyTime(safeHistory) || 0
+
+  const safeToday = Number(todaysHours) || 0
+
+  const chartData = safeHistory.map(d => ({
+    day: d.day || '',
+    hours: Number(d.hours) || 0,
+  }))
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -28,7 +36,7 @@ export default function VelocityChart({ studyHistory = [], todaysHours = 0 }) {
             {label}
           </p>
           <p className="text-sm text-[var(--color-primary)]">
-            {payload[0].value.toFixed(1)} hours
+            {payload[0].value ? payload[0].value.toFixed(1) : '0.0'} hours
           </p>
         </div>
       )
@@ -71,7 +79,7 @@ export default function VelocityChart({ studyHistory = [], todaysHours = 0 }) {
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={studyHistory}
+            data={chartData}
             margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
           >
             <defs>

@@ -24,6 +24,7 @@ const defaultProgress = {
   attemptedQuestions: {}, // Track attempted questions
 }
 
+
 // Get progress data from localStorage
 export function getProgress() {
   try {
@@ -336,4 +337,33 @@ export async function loadProgressFromBackend(userId) {
     console.error('Failed to load progress from backend:', error)
     return null
   }
+}
+
+export function getStudyHistory() {
+  const progress = getProgress()
+  return progress.studyHistory || []
+}
+export function recordStudySession(hours) {
+  const progress = getProgress()
+
+  if (!progress.studyHistory) {
+    progress.studyHistory = []
+  }
+
+  const today = new Date().toISOString().split('T')[0]
+
+  const existing = progress.studyHistory.find(entry =>
+    entry.date.startsWith(today)
+  )
+
+  if (existing) {
+    existing.hours += hours
+  } else {
+    progress.studyHistory.push({
+      date: new Date().toISOString(),
+      hours,
+    })
+  }
+
+  saveProgress(progress)
 }
