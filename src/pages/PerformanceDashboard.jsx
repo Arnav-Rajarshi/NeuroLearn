@@ -10,7 +10,11 @@ import { useNavigate } from 'react-router-dom'
 import { getAllCourses } from '../utils/loadCourseData.js'
 import { useTransition } from '../transition/TransitionContext.jsx'
 import { getRoadmapProgress, getCoursePreferences } from '../utils/api.js'
+import { getStudyHistory, getTotalXP, getGoalDeadline } from '../utils/progressStore'
+import { calculateStreak } from '../utils/metrics'
+import { recordStudySession } from '../utils/progressStore'
 
+window.recordStudySession = recordStudySession
 /**
  * PerformanceDashboard - Page wrapper for the Performance Dashboard module
  * Integrates into the main NeuroLearn routing structure
@@ -20,6 +24,17 @@ export default function PerformanceDashboard() {
   const { signalDataReady } = useTransition()
   const [realData, setRealData] = useState(null)
   const [dataLoading, setDataLoading] = useState(true)
+  const totalStudyTimeHours = getTotalXP() / 10
+const goalDeadline = getGoalDeadline() || '2026-06-15'
+const studyHistory = getStudyHistory()
+
+const streak = calculateStreak(studyHistory)
+
+const todaysStudyTimeHours =
+  studyHistory.length > 0
+    ? studyHistory[studyHistory.length - 1].hours
+    : 0
+
   
   useEffect(() => {
     async function fetchRealData() {
@@ -54,13 +69,7 @@ export default function PerformanceDashboard() {
     fetchRealData()
   }, [])
   
-  const {
-    studyHistory,
-    totalStudyTimeHours,
-    todaysStudyTimeHours,
-    goalDeadline,
-    streak,
-  } = mockData
+
   const courses = realData?.courses || []
 
   return (

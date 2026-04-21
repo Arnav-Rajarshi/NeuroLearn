@@ -51,14 +51,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/roadmap-engine/dashboard" 
-            element={
-              <ProtectedRoute>
-                <PerformanceDashboard />
-              </ProtectedRoute>
-            } 
-          />
+
           <Route 
             path="/roadmap-engine/setup/:course" 
             element={
@@ -98,6 +91,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AILearningPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <PerformanceDashboard />
               </ProtectedRoute>
             } 
           />

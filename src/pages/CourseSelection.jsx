@@ -197,7 +197,7 @@ function CourseSelection() {
               
               {/* Performance Dashboard Link */}
               <button
-                onClick={() => triggerTransition(() => navigate('/roadmap-engine/dashboard'))}
+                onClick={() => triggerTransition(() => navigate('/dashboard'))}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-surface-raised)] hover:bg-[var(--color-border)] transition-colors"
               >
                 <BarChart3 className="w-4 h-4 text-[var(--color-accent)]" />

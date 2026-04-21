@@ -49,7 +49,7 @@ export const mockData = {
   totalStudyTimeHours: 45.5,
 
   // Today's study time in hours
-  todaysStudyTimeHours: 1.5,
+  todaysStudyTimeHours: 79.5,
 
   // Goal deadline
   goalDeadline: '2026-04-30',

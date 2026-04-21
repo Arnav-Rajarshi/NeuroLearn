@@ -10,6 +10,7 @@ import {
   Send
 } from 'lucide-react'
 import { recordQuestionAttempt, isQuestionAttempted } from '../utils/progressStore.js'
+import { recordStudySession } from '../utils/progressStore.js'
 
 function PracticePage() {
   const { course: courseIdParam, question: questionSlug } = useParams()
@@ -25,34 +26,46 @@ function PracticePage() {
   const [code, setCode] = useState('')
   const [attempted, setAttempted] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [startTime, setStartTime] = useState(null)
 
-  useEffect(() => {
-    // Validate cid
-    if (!cid || isNaN(cid)) {
-      console.error('[v0] Invalid course cid:', courseIdParam)
-      navigate('/roadmap-engine/courses')
-      return
-    }
-    
-    if (location.state?.question) {
-      setQuestion(location.state.question)
-      setTopic(location.state.topic)
-      setSubtopic(location.state.subtopic)
-      setAttempted(isQuestionAttempted(cid, location.state.question.title))
-    } else {
-      // If no state, redirect back to roadmap
-      navigate(`/roadmap-engine/roadmap/${cid}`)
-    }
-  }, [location.state, cid, courseIdParam, navigate])
-
-  const handleSubmit = () => {
-    if (question && cid) {
-      // Record attempt (mark as correct for demo)
-      recordQuestionAttempt(cid, question.title, true)
-      setAttempted(true)
-      setSubmitted(true)
-    }
+useEffect(() => {
+  // Validate cid
+  if (!cid || isNaN(cid)) {
+    console.error('[v0] Invalid course cid:', courseIdParam)
+    navigate('/roadmap-engine/courses')
+    return
   }
+
+  if (location.state?.question) {
+    setQuestion(location.state.question)
+    setTopic(location.state.topic)
+    setSubtopic(location.state.subtopic)
+    setAttempted(
+      isQuestionAttempted(cid, location.state.question.title)
+    )
+  } else {
+    navigate(`/roadmap-engine/roadmap/${cid}`)
+  }
+}, [location.state, cid, courseIdParam, navigate])
+const handleSubmit = () => {
+  if (question && cid) {
+    // 1. record question
+    recordQuestionAttempt(cid, question.title, true)
+
+    // 2. calculate time spent
+    if (startTime) {
+      const durationMs = Date.now() - startTime
+      const hours = durationMs / (1000 * 60 * 60)
+
+      if (hours > 0.01) {
+        recordStudySession(hours)
+      }
+    }
+
+    setAttempted(true)
+    setSubmitted(true)
+  }
+}
 
   const handleReset = () => {
     setCode('')
